@@ -1,0 +1,183 @@
+label: "03 // PROJECTS"
+heading: "Engineering Artifacts"
+
+statuses:
+  - label: "All"
+  - label: "Enterprise"
+    color: "#7C3AED"
+  - label: "Live"
+    color: "#2D8A56"
+  - label: "Open Source"
+    color: "#2E5090"
+  - label: "Hackathon Winner"
+    color: "#C4820E"
+  - label: "Archived"
+    color: "#6B7280"
+
+items:
+  - title: "HireLoom"
+    subtitle: "Referral-first job search for India"
+    description: "Job board aggregator for tech roles in India and remote-from-India positions. Scrapes 300+ company career pages, matches jobs to resumes using AI (BYOK: OpenAI, Anthropic, Gemini), and surfaces referral paths from LinkedIn connections."
+    icon: "wjyqkiew"
+    status: "Live"
+    featured: true
+    links:
+      - url: "https://hireloom.dev/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Astro
+      - React
+      - Hono
+      - Cloudflare Workers
+      - D1
+      - R2
+      - Drizzle ORM
+
+  - title: "iJewel Studio"
+    subtitle: "3D jewelry rendering platform"
+    description: "Platform for jewelry designers to upload, optimize, and render 3D models with photorealistic quality. Features Blender-based mesh optimization, async job queues, and scalable serverless backend."
+    icon: "ugllxeyl"
+    status: "Enterprise"
+    featured: true
+    links:
+      - url: "https://ijewel.studio/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Next.js
+      - React
+      - Supabase
+      - Cloudflare Workers
+      - Cloud Run
+      - Blender
+      - WebGi
+
+  - title: "WSC"
+    subtitle: "Multi-interface writing style linter"
+    description: "Detects weasel words, passive voice, duplicates, long sentences, nominalizations, hedging, filler adverbs, and AI tells across 8 detectors with 800+ entries. Available as a web editor, HTTP API, remote & local MCP server, CLI, and GitHub Action."
+    icon: "exymduqj"
+    status: "Open Source"
+    featured: true
+    links:
+      - url: "https://wsc.theserverless.dev/"
+        icon: "hmqxevgf"
+        label: "Website"
+      - url: "https://github.com/theserverlessdev/wsc/"
+        icon: "jjxzcivr"
+        label: "GitHub"
+    tech:
+      - SvelteKit
+      - TypeScript
+      - MCP
+      - Cloudflare Workers
+      - Vite
+      - CSS
+
+  - title: "SquareCubed"
+    subtitle: "AI-assisted 3D showroom for Square stores"
+    description: 'Virtual 3D showroom for Square e-commerce stores using Vertex AI for product understanding and WebGi for real-time rendering. Won Square + Google AI Hackathon 2023 ("Best reinvention of in-person & online experiences").'
+    icon: "oajcrtsi"
+    status: "Hackathon Winner"
+    featured: true
+    links:
+      - url: "https://devpost.com/software/aisquar3d"
+        icon: "hmqxevgf"
+        label: "Devpost"
+      - url: "https://squarecubed.anks.in/"
+        icon: "hmqxevgf"
+        label: "Website"
+      # - url: "https://ai-assistant-3d.square.site/"
+      #   icon: "uisoczqi"
+      #   label: "Demo Store"
+
+    tech:
+      - Vertex AI
+      - Svelte
+      - Next.js
+      - WebGi SDK
+      - Cloudflare Workers
+
+  - title: "ComicAdda"
+    subtitle: "India's standup comedy discovery platform"
+    description: "Discover Indian standup comedians by language, city, and style. Watch tracking, ratings, follow system, and personalized newsletters. Entirely built using AI agents orchestrating parallel development and data-mining workflows."
+    icon: "ebvizisb"
+    status: "Live"
+    featured: false
+    links:
+      - url: "https://comicadda.com/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Next.js 15
+      - React 19
+      - Supabase
+      - PostgreSQL
+      - Tailwind CSS
+      - Cloudflare
+
+  - title: "Cloudflare Cost Calculator"
+    subtitle: "Estimate your Cloudflare bill"
+    description: "Interactive calculator for estimating Cloudflare infrastructure costs across Workers, D1, R2, KV, and Durable Objects."
+    icon: "bsdkzyjd"
+    status: "Live"
+    featured: false
+    links:
+      - url: "https://theserverless.dev/calculators/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Astro
+      - React
+      - CSS
+
+  - title: "VisTracer"
+    subtitle: "Visual traceroute on a 3D globe"
+    description: "Desktop app that executes native traceroute, enriches hops with GeoIP/ASN metadata from 5 providers (MaxMind, Team Cymru, RDAP, RIPE Stat, PeeringDB), and renders animated routes on an interactive 3D globe with day/night terminator and latency-colored arcs."
+    icon: "rpviwvwn"
+    status: "Open Source"
+    featured: false
+    links:
+      - url: "https://vistracer.anks.in"
+        icon: "hmqxevgf"
+        label: "Website"
+      - url: "https://github.com/rush-skills/vistracer"
+        icon: "jjxzcivr"
+        label: "GitHub"
+    tech:
+      - TypeScript
+      - Electron
+      - React
+      - Three.js
+      - Zustand
+      - Vite
+
+  - title: "EnergyGrade"
+    subtitle: "Rooftop solar made accessible"
+    description: "Solar savings calculator and portfolio. Installed over 1MW of solar panels in India. Built during B.Tech."
+    icon: "qncyoyoi"
+    status: "Live"
+    featured: false
+    links:
+      - url: "https://www.energygrade.in/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Ruby on Rails
+      - PostgreSQL
+      - JavaScript
+
+  - title: "Mouve"
+    subtitle: "Animated Instagram stories"
+    description: "Animated story maker for Instagram powered by a Unity rendering engine. 100k+ Play Store downloads."
+    icon: "wsaaegar"
+    status: "Archived"
+    featured: false
+    links:
+      - url: "https://mouve.app/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Node.js
+      - Sails.js
+      - Unity

@@ -1,0 +1,110 @@
+label: "03 // PROJECTS"
+heading: "Engineering Artifacts"
+
+statuses:
+  - label: "All"
+  - label: "Live"
+    color: "#2D8A56"
+  - label: "Open Source"
+    color: "#2E5090"
+  - label: "Archived"
+    color: "#6B7280"
+
+items:
+  - title: "TaskFlow"
+    subtitle: "Team project management reimagined"
+    description: "A modern project management tool with real-time collaboration, Kanban boards, and AI-powered task prioritization. Built for small teams who want simplicity without sacrificing power."
+    icon: "lvrxlmju"
+    status: "Live"
+    featured: true
+    links:
+      - url: "https://example.com/taskflow"
+        icon: "tvzjrcxe"
+        label: "Website"
+      - url: "https://github.com/janesmith/taskflow"
+        icon: "jjxzcivr"
+        label: "GitHub"
+    tech:
+      - Next.js
+      - React
+      - Supabase
+      - Tailwind CSS
+      - Stripe
+
+  - title: "DevMetrics"
+    subtitle: "Engineering team analytics dashboard"
+    description: "Dashboard that aggregates data from GitHub, Jira, and Slack to give engineering leaders visibility into team velocity, code review bottlenecks, and deployment frequency."
+    icon: "oqhqyeud"
+    status: "Live"
+    featured: true
+    links:
+      - url: "https://example.com/devmetrics"
+        icon: "tvzjrcxe"
+        label: "Website"
+    tech:
+      - TypeScript
+      - React
+      - D3.js
+      - Node.js
+      - PostgreSQL
+
+  - title: "FormKit"
+    subtitle: "Headless form builder library"
+    description: "Open-source React library for building complex, multi-step forms with validation, conditional logic, and accessibility built in. 500+ GitHub stars."
+    icon: "exymduqj"
+    status: "Open Source"
+    featured: true
+    links:
+      - url: "https://github.com/janesmith/formkit"
+        icon: "jjxzcivr"
+        label: "GitHub"
+    tech:
+      - TypeScript
+      - React
+      - Zod
+      - Vitest
+
+  - title: "WeatherNow"
+    subtitle: "Minimal weather app with forecasts"
+    description: "Clean, fast weather app using OpenWeatherMap API. Features location search, 7-day forecasts, and beautiful weather animations. PWA with offline support."
+    icon: "btvefodi"
+    status: "Live"
+    featured: true
+    links:
+      - url: "https://example.com/weathernow"
+        icon: "tvzjrcxe"
+        label: "Website"
+    tech:
+      - Svelte
+      - TypeScript
+      - Cloudflare Workers
+
+  - title: "MarkdownBlog"
+    subtitle: "Static blog engine"
+    description: "Minimal static blog generator powered by Astro and Markdown. Features syntax highlighting, RSS feed, and automatic OG image generation."
+    icon: "fikcyfpp"
+    status: "Open Source"
+    featured: false
+    links:
+      - url: "https://github.com/janesmith/markdown-blog"
+        icon: "jjxzcivr"
+        label: "GitHub"
+    tech:
+      - Astro
+      - TypeScript
+      - MDX
+
+  - title: "PixelArt"
+    subtitle: "Browser-based pixel art editor"
+    description: "Fun weekend project. Draw pixel art in the browser with layers, animation timeline, and export to PNG/GIF. Built to learn Canvas API."
+    icon: "wsaaegar"
+    status: "Archived"
+    featured: false
+    links:
+      - url: "https://example.com/pixelart"
+        icon: "osnhctwl"
+        label: "Website"
+    tech:
+      - HTML Canvas
+      - JavaScript
+      - CSS

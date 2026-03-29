@@ -1,0 +1,83 @@
+---
+import { load, LI, liSrc } from '../lib/data';
+const site = load('site.yaml');
+const contact = load('contact.yaml');
+const social = site.social || [];
+---
+<section id="contact" class="py-20 md:py-28 px-5 md:px-6 bg-surface scroll-mt-16">
+  <div class="max-w-[640px] mx-auto text-center">
+    {(contact.label || contact.heading) && (
+      <div class="reveal">
+        {contact.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{contact.label}</p>}
+        {contact.heading && (
+          <h2 class="font-display text-[28px] md:text-[44px] font-bold text-ink mb-6 tracking-[-0.01em]">
+            {contact.heading}
+          </h2>
+        )}
+      </div>
+    )}
+
+    {contact.description && (
+      <p class="reveal delay-1 text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] mb-8 md:mb-10">
+        {contact.description}
+      </p>
+    )}
+
+    {site.email && (
+      <div class="reveal delay-2 mb-8 md:mb-10 flex items-center justify-center gap-2 max-w-full" id="email-row">
+        <a href={`mailto:${site.email}`} class="inline-flex items-center gap-2 text-[18px] sm:text-[26px] md:text-[32px] font-mono font-bold text-accent hover:text-accent-light transition-colors min-w-0" id="email-link">
+          {contact.emailIcon && <lord-icon src={liSrc(contact.emailIcon)} trigger="morph" colors={LI.dark} class="li-xl shrink-0" id="email-icon"></lord-icon>}
+          {site.email}
+        </a>
+        <button id="copy-email-btn" class="p-2 rounded-[6px] text-ink-tertiary hover:text-accent hover:bg-accent-wash transition-all duration-200 cursor-pointer bg-transparent border-none shrink-0" aria-label="Copy email to clipboard" title="Copy email" data-email={site.email}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="copy-icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="check-icon" class="hidden text-accent"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+    )}
+
+    {contact.cta?.length > 0 && (
+      <div class="reveal delay-2 mb-8 md:mb-10 flex flex-wrap items-center justify-center gap-3">
+        {contact.cta.map((item: any) => (
+          <a href={item.href} target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-ink-on-dark text-[15px] font-medium rounded-[6px] hover:bg-accent-light transition-all duration-200 no-underline">
+            {item.icon && <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LI.light} class="li-md"></lord-icon>}
+            {item.label}
+          </a>
+        ))}
+      </div>
+    )}
+
+    {social.length > 0 && (
+      <div class="reveal delay-3 flex flex-wrap items-center justify-center gap-5">
+        {social.map((s: any) => (
+          <a href={s.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-ink-tertiary hover:text-accent transition-colors no-underline text-[15px] font-mono" aria-label={s.label}>
+            {s.icon && <lord-icon src={liSrc(s.icon)} trigger="morph" colors={LI.dark} class="li-base"></lord-icon>}
+            {s.label}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  const copyBtn = document.getElementById('copy-email-btn');
+  const copyIcon = document.getElementById('copy-icon');
+  const checkIcon = document.getElementById('check-icon');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(copyBtn.dataset.email!);
+        copyIcon?.classList.add('hidden');
+        checkIcon?.classList.remove('hidden');
+        copyBtn.classList.remove('copy-bounce');
+        void copyBtn.offsetWidth;
+        copyBtn.classList.add('copy-bounce');
+        setTimeout(() => {
+          copyIcon?.classList.remove('hidden');
+          checkIcon?.classList.add('hidden');
+        }, 2000);
+      } catch {}
+    });
+  }
+</script>

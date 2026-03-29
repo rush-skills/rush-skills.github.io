@@ -1,0 +1,43 @@
+label: "02 // EXPERIENCE"
+heading: "Professional Trajectory"
+
+jobs:
+  - company: "Acme Corp"
+    url: "https://example.com"
+    role: "Senior Frontend Engineer"
+    location: "San Francisco, CA"
+    dateRange: "Jan 2022 &ndash; Present"
+    description: "Leading the frontend platform team. Built the design system used across 12 product teams. Migrated legacy jQuery app to React, improving performance by 40%. Mentoring junior engineers and driving technical standards."
+    tech:
+      - React
+      - TypeScript
+      - Next.js
+      - GraphQL
+      - Storybook
+      - Playwright
+
+  - company: "StartupXYZ"
+    role: "Fullstack Engineer"
+    location: "Remote"
+    dateRange: "Mar 2020 &ndash; Dec 2021"
+    description: "Employee #5. Built the core SaaS product from MVP to 10K users. Owned the entire auth system, billing integration (Stripe), and real-time notifications pipeline. Shipped features weekly in a fast-paced startup environment."
+    tech:
+      - Node.js
+      - React
+      - PostgreSQL
+      - Redis
+      - AWS
+      - Docker
+
+  - company: "TechAgency Inc"
+    role: "Junior Developer"
+    location: "New York, NY"
+    dateRange: "Jun 2018 &ndash; Feb 2020"
+    description: "Built client websites and web applications for Fortune 500 companies. Worked on e-commerce platforms handling $2M+ in monthly transactions. Introduced automated testing that reduced production bugs by 60%."
+    tech:
+      - JavaScript
+      - Vue.js
+      - Python
+      - Django
+      - MySQL
+      - AWS

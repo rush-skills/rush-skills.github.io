@@ -1,0 +1,41 @@
+# Site-wide metadata
+title: "Ankur Singh - Fullstack & Infrastructure Engineer"
+description: "Software engineer with 8+ years building scalable distributed systems. Previously at CERN, Tower Research Capital, and Myntra. Based in Bangalore, India."
+name: "ankur singh"
+fullName: "Ankur Singh"
+email: "hello@anks.in"
+lang: "en"
+ogImage: "/og.png"
+themeColor: "#2E5090"
+
+# Social links
+social:
+  - label: "GitHub"
+    url: "https://github.com/rush-skills/"
+    icon: "jjxzcivr"
+  - label: "LinkedIn"
+    url: "https://www.linkedin.com/in/ankursingh13"
+    icon: "euybrknk"
+  - label: "TheServerlessDev"
+    url: "https://theserverless.dev"
+
+# Navigation items
+nav:
+  - label: "About"
+    href: "#about"
+    icon: "kdduutaw"
+  - label: "Work"
+    href: "#experience"
+    icon: "zhiiqoue"
+  - label: "Projects"
+    href: "#projects"
+    icon: "tsrgicte"
+  - label: "Skills"
+    href: "#skills"
+    icon: "fwkrbvja"
+  - label: "Education"
+    href: "#education"
+    icon: "vvyxyrur"
+  - label: "Contact"
+    href: "#contact"
+    icon: "ozlkyfxg"

@@ -1,0 +1,22 @@
+{
+  "name": "anks.in",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "theme": "./publish-theme.sh",
+    "theme:dry": "./publish-theme.sh --dry-run"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "astro": "^6.0.8",
+    "js-yaml": "^4.1.1",
+    "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.7.1"
+  }
+}

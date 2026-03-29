@@ -1,0 +1,20 @@
+label: "05 // EDUCATION"
+heading: "Academic Foundation"
+
+degree: "B.S. Computer Science"
+institution: "University of California, Berkeley"
+dateRange: "2014 &ndash; 2018"
+
+highlights:
+  - text: "Dean's List (6 semesters)"
+    icon: "lewtedlh"
+    featured: true
+  - text: "CS Club President"
+    icon: "zpxybbhl"
+    featured: false
+  - text: "Undergraduate Research Assistant"
+    icon: "qhgmphtg"
+    featured: false
+  - text: "TA: Intro to Algorithms"
+    icon: "rrbmabsx"
+    featured: false

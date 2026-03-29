@@ -1,0 +1,64 @@
+label: "02 // EXPERIENCE"
+heading: "Professional Trajectory"
+
+jobs:
+  - company: "TheServerlessDev"
+    url: "https://theserverless.dev"
+    role: "Freelance Engineer"
+    location: "Remote / Bangalore, India"
+    dateRange: "Mar 2023 &ndash; Present"
+    description: "Building AI pipelines, 3D visualization platforms, and serverless backends for startups and SMEs. Clients include Pixotronics (iJewel Studio), LearnWithAI, and multiple jewelry e-commerce brands (including Imagine Designs, Roman & Jules). Won Square + Google AI Hackathon 2023 with SquareCubed."
+    tech:
+      - Python
+      - TypeScript
+      - Next.js
+      - Astro
+      - Cloudflare
+      - Supabase
+      - AWS Lambda
+
+  - company: "CERN"
+    url: "https://home.cern"
+    role: "Computing Fellow"
+    location: "Geneva, Switzerland"
+    dateRange: "Sep 2020 &ndash; Feb 2023"
+    description: "Managed 250K-core distributed batch cluster. Built fault-tolerant auto-remediation with StackStorm. Automated support workflows, reducing manual effort and improving uptime. Presented at HEPiX ."
+    tech:
+      - Python
+      - Ruby
+      - StackStorm
+      - Puppet
+      - Docker
+      - Kafka
+      - Kubernetes
+      - Terraform
+
+  - company: "Tower Research Capital"
+    url: "https://www.tower-research.com"
+    role: "Software Engineer, HPC"
+    location: "Gurugram, India"
+    dateRange: "Jun 2018 &ndash; Jul 2019"
+    description: "First HPC engineer in India. Administered 30K+ core HTCondor clusters for trading research. Built real-time monitoring with ELK (50M events/day). Contributed to 500-node K8s migration. Managed petabyte-scale storage systems."
+    tech:
+      - ELK Stack
+      - InfluxDB
+      - Kubernetes
+      - GPFS
+      - Grafana
+      - SaltStack
+      - CFEngine
+
+  - company: "Myntra (Flipkart)"
+    url: "https://www.myntra.com"
+    role: "Software Engineer, BI/Analytics"
+    location: "Bengaluru, India"
+    dateRange: "Jul 2017 &ndash; Jun 2018"
+    description: "Built analytics platforms for India's largest fashion e-commerce. Enhanced dashboarding platforms used by CXOs. Reduced Personify segmentation from hours to minutes for 100M customers."
+    tech:
+      - Java
+      - Spring
+      - Hibernate
+      - Redshift
+      - AWS
+      - Redis
+      - MySQL

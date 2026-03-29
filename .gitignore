@@ -1,0 +1,16 @@
+# build output
+dist/
+
+# dependencies
+node_modules/
+
+# astro
+.astro/
+
+# env
+.env
+.env.*
+
+# OS
+.DS_Store
+PRD.md

@@ -1,0 +1,18 @@
+label: "01 // ABOUT"
+heading: "Building things for the web"
+
+paragraphs:
+  - 'I''m a software engineer based in <strong class="text-ink">San Francisco, CA</strong> with 5+ years of experience building web applications. I enjoy working across the stack &mdash; from pixel-perfect frontends to robust backend services.'
+  - 'Previously, I worked at <strong class="text-ink">Acme Corp</strong> leading their frontend platform team, and before that at <strong class="text-ink">StartupXYZ</strong> building their core product from scratch.'
+  - 'I write about web development on my <a href="https://blog.example.com" target="_blank" rel="noopener" class="font-medium">blog</a> and contribute to open-source projects in the React and Node.js ecosystems.'
+
+stats:
+  - value: "5+"
+    label: "Years of Experience"
+    icon: "kbtmbyzy"
+  - value: "20+"
+    label: "Projects Shipped"
+    icon: "vbmtnozn"
+  - value: "OSS"
+    label: "Open Source Contributor"
+    icon: "yvjimpju"

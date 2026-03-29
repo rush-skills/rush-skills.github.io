@@ -1,0 +1,228 @@
+---
+import { load, LI, liSrc } from '../lib/data';
+const projects = load('projects.yaml');
+const statuses = projects.statuses || [];
+const items = projects.items || [];
+
+// Build color map from statuses: { "Live": "#2D8A56", ... }
+const statusColors: Record<string, string> = {};
+statuses.forEach((s: any) => {
+  if (s.color) statusColors[s.label] = s.color;
+});
+const defaultColor = '#6B7280';
+---
+<section id="projects" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
+  <div class="max-w-[1100px] mx-auto">
+    {(projects.label || projects.heading) && (
+      <div class="reveal">
+        {projects.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{projects.label}</p>}
+        {projects.heading && (
+          <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">
+            {projects.heading}
+          </h2>
+        )}
+      </div>
+    )}
+
+    {statuses.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-10" id="project-filter-tabs">
+        {statuses.map((s: any) => {
+          const label = typeof s === 'string' ? s : s.label;
+          return (
+            <button
+              class:list={[
+                "px-4 py-1.5 text-[13px] font-medium rounded-full border transition-colors cursor-pointer",
+                label === 'All'
+                  ? 'bg-accent text-ink-on-dark border-accent'
+                  : 'bg-transparent text-ink-secondary border-border hover:border-accent hover:text-accent'
+              ]}
+              data-filter={label}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+    )}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="projects-grid">
+      {items.map((project: any, i: number) => {
+        const color = statusColors[project.status] || defaultColor;
+        const allLinks = project.links || [];
+        const primaryUrl = allLinks[0]?.url;
+        const extraLinks = allLinks.slice(1);
+        return (
+        <div
+          class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-7 flex flex-col overflow-hidden ${primaryUrl ? 'cursor-pointer' : ''}`}
+          data-status={project.status || ''} data-featured={project.featured ? 'true' : 'false'}
+          data-href={primaryUrl || undefined}>
+          <div class="flex items-start justify-between mb-4">
+            <lord-icon src={liSrc(project.icon || 'gsjfryhc')} trigger="morph" colors={LI.dark} class="li-2xl"></lord-icon>
+            {project.status && <span class="inline-block px-2 py-1 text-[11px] sm:text-[12px] sm:px-2.5 font-medium rounded font-mono uppercase whitespace-nowrap" style={`color: ${color}; background: ${color}15;`}>{project.status}</span>}
+          </div>
+          {project.title && <h3 class="font-display text-[21px] font-bold text-ink m-0 mb-1">{project.title}</h3>}
+          {project.subtitle && <p class="text-[15px] text-accent font-medium mb-3 mt-0">{project.subtitle}</p>}
+          {project.description && (
+            <div class="mb-4">
+              <p class="project-desc text-[16px] text-ink-secondary leading-[1.7] mt-0 mb-0">{project.description}</p>
+              <button class="project-expand-toggle hidden text-[13px] font-medium text-accent hover:text-accent-light transition-colors cursor-pointer bg-transparent border-none p-0 mt-1">
+                Read more
+              </button>
+            </div>
+          )}
+          <div class="mt-auto">
+            {project.tech?.length > 0 && (
+              <div class="flex flex-wrap gap-1.5">
+                {project.tech.map((t: string) => (
+                  <span class="inline-block px-2.5 py-1 text-[13px] font-medium rounded bg-accent-wash text-accent font-mono">{t}</span>
+                ))}
+              </div>
+            )}
+            {extraLinks.length > 0 && (
+              <div class="flex items-center gap-3 flex-wrap mt-4 pt-4 border-t border-border">
+                {extraLinks.map((link: any) => (
+                  <a href={link.url} target="_blank" rel="noopener" class="project-extra-link inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-tertiary hover:text-accent transition-colors no-underline" aria-label={link.label || ''}>
+                    <lord-icon src={liSrc(link.icon)} trigger="morph" colors={LI.dark} class="li-sm"></lord-icon>
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        );
+      })}
+    </div>
+
+    <div class="flex justify-center mt-8" id="projects-expand-wrap">
+      <button id="projects-expand-btn" class="inline-flex items-center gap-2 px-5 py-2.5 text-[15px] font-medium text-ink-secondary hover:text-accent transition-colors cursor-pointer bg-transparent border border-border rounded-full hover:border-accent">
+        More projects
+        <lord-icon src={liSrc('gupcdncx')} trigger="morph" colors={LI.dark} class="li-md" id="expand-arrow"></lord-icon>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Description expand/collapse — bind once, check truncation after visible
+  const boundToggles = new WeakSet();
+
+  function initDescToggles() {
+    document.querySelectorAll('.project-desc').forEach(desc => {
+      const toggle = desc.parentElement?.querySelector('.project-expand-toggle') as HTMLButtonElement | null;
+      if (!toggle) return;
+
+      const el = desc as HTMLElement;
+      const card = el.closest('[data-status]') as HTMLElement | null;
+
+      // Skip cards that are hidden (scrollHeight is 0)
+      if (card && card.style.display === 'none') return;
+
+      // Check if text is actually truncated
+      if (el.scrollHeight > el.clientHeight + 2) {
+        toggle.classList.remove('hidden');
+      } else {
+        toggle.classList.add('hidden');
+      }
+
+      // Only bind click once per toggle
+      if (boundToggles.has(toggle)) return;
+      boundToggles.add(toggle);
+
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isExpanded = el.classList.contains('expanded');
+        el.classList.toggle('expanded');
+        toggle.textContent = isExpanded ? 'Read more' : 'Show less';
+      });
+    });
+  }
+
+  const filterBtns = document.querySelectorAll('#project-filter-tabs button');
+  const projectCards = Array.from(document.querySelectorAll('#projects-grid > div'));
+
+  // Make cards with data-href clickable
+  projectCards.forEach(card => {
+    const href = card.getAttribute('data-href');
+    if (!href) return;
+    card.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, button, .project-extra-link, .project-expand-toggle')) return;
+      window.open(href, '_blank', 'noopener');
+    });
+  });
+
+  const expandBtn = document.getElementById('projects-expand-btn');
+  const expandWrap = document.getElementById('projects-expand-wrap');
+  let expanded = false;
+  let activeFilter = 'All';
+  const MAX_VISIBLE = 4;
+
+  function applyVisibility() {
+    let matchCount = 0;
+    projectCards.forEach(function(card) {
+      var el = card as HTMLElement;
+      var matches = activeFilter === 'All' || el.getAttribute('data-status') === activeFilter;
+      if (!matches) {
+        el.style.display = 'none';
+        return;
+      }
+      matchCount++;
+      if (!expanded && matchCount > MAX_VISIBLE) {
+        el.style.display = 'none';
+      } else {
+        el.style.display = '';
+        el.classList.remove('visible');
+        void el.offsetWidth;
+        el.classList.add('visible');
+      }
+    });
+    if (expandWrap) {
+      (expandWrap as HTMLElement).style.display = matchCount > MAX_VISIBLE ? '' : 'none';
+    }
+    if (expandBtn) {
+      const style = getComputedStyle(document.documentElement);
+      const inkColor = style.getPropertyValue('--color-ink').trim();
+      const accentColor = style.getPropertyValue('--color-accent').trim();
+      const colors = `primary:${inkColor},secondary:${accentColor}`;
+      expandBtn.innerHTML = expanded
+        ? `Less projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="${colors}" class="li-md" style="transform:rotate(180deg)"></lord-icon>`
+        : `More projects <lord-icon src="https://cdn.lordicon.com/gupcdncx.json" trigger="morph" colors="${colors}" class="li-md"></lord-icon>`;
+    }
+
+    // Re-animate icons + re-check desc toggles after cards are visible
+    setTimeout(() => {
+      document.querySelectorAll('#projects-grid lord-icon').forEach(function(icon: any) {
+        var card = icon.closest('[data-status]');
+        if (card && card.style.display !== 'none' && icon.playerInstance) {
+          icon.playerInstance.playFromBeginning();
+        }
+      });
+      initDescToggles();
+    }, 150);
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.getAttribute('data-filter') || 'All';
+      expanded = false;
+      filterBtns.forEach(b => {
+        b.classList.remove('bg-accent', 'text-ink-on-dark', 'border-accent');
+        b.classList.add('bg-transparent', 'text-ink-secondary', 'border-border');
+      });
+      btn.classList.remove('bg-transparent', 'text-ink-secondary', 'border-border');
+      btn.classList.add('bg-accent', 'text-ink-on-dark', 'border-accent');
+      applyVisibility();
+    });
+  });
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', () => {
+      expanded = !expanded;
+      applyVisibility();
+    });
+  }
+
+  applyVisibility();
+</script>

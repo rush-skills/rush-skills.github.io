@@ -1,0 +1,44 @@
+---
+import { load, LI, liSrc } from '../lib/data';
+const about = load('about.yaml');
+const paragraphs = about.paragraphs || [];
+const stats = about.stats || [];
+---
+<section id="about" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
+  <div class="max-w-[960px] mx-auto">
+    {(about.label || about.heading) && (
+      <div class="reveal">
+        {about.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{about.label}</p>}
+        {about.heading && (
+          <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">
+            {about.heading}
+          </h2>
+        )}
+      </div>
+    )}
+
+    <div class={`grid ${stats.length ? 'md:grid-cols-[2fr_1fr]' : ''} gap-10 items-start`}>
+      {paragraphs.length > 0 && (
+        <div>
+          {paragraphs.map((p: string, i: number) => (
+            <p class={`reveal ${i > 0 ? `delay-${i}` : ''} text-[17px] md:text-[18px] text-ink-secondary leading-[1.75] ${i < paragraphs.length - 1 ? 'mb-5' : ''}`} set:html={p} />
+          ))}
+        </div>
+      )}
+
+      {stats.length > 0 && (
+        <div class="reveal delay-2 space-y-4">
+          {stats.map((stat: any) => (
+            <div class="bg-surface-raised rounded-[8px] p-5 card-glow">
+              <div class="flex items-center gap-3 mb-1.5">
+                {stat.icon && <lord-icon src={liSrc(stat.icon)} trigger="morph" colors={LI.dark} class="li-xl"></lord-icon>}
+                {stat.value && <p class="text-[30px] font-display font-bold text-accent m-0 leading-none">{stat.value}</p>}
+              </div>
+              {stat.label && <p class="text-[15px] text-ink-tertiary m-0">{stat.label}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</section>

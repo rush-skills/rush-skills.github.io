@@ -1,0 +1,46 @@
+---
+import { load, LI, liSrc } from '../lib/data';
+const hero = load('hero.yaml');
+---
+<section class="min-h-svh flex items-center px-5 md:px-6 pt-20 pb-8 md:pb-16 bg-surface">
+  <div class="max-w-[780px] mx-auto md:mx-0 md:ml-[max(calc((100%-1100px)/2),2rem)]">
+    {hero.subtitle && (
+      <div class="reveal">
+        <p class="text-[13px] md:text-[15px] font-mono text-accent tracking-[0.12em] uppercase mb-4 md:mb-5">
+          {hero.subtitle}
+        </p>
+      </div>
+    )}
+    {hero.name && (
+      <div class="reveal delay-1 flex items-center gap-4 mb-5 md:mb-7">
+        {hero.icon && <lord-icon src={liSrc(hero.icon)} trigger="morph" colors={LI.dark} class="li-hero hidden md:block"></lord-icon>}
+        <h1 class="font-display text-[42px] sm:text-[52px] md:text-[76px] lg:text-[90px] font-bold text-ink leading-[1.05] tracking-[-0.02em] m-0 break-words">
+          {hero.name}
+        </h1>
+      </div>
+    )}
+    {hero.description && (
+      <p class="reveal delay-2 text-[17px] md:text-[20px] text-ink-secondary leading-[1.7] mb-8 md:mb-10 max-w-[580px]">
+        {hero.description}
+      </p>
+    )}
+    {hero.cta && (
+      <div class="reveal delay-3 flex flex-col sm:flex-row sm:flex-wrap items-center gap-3 sm:gap-3">
+        {hero.cta.viewWork && (
+          <div class="flex items-center gap-3">
+            <a href={hero.cta.viewWork.href} class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 bg-accent text-ink-on-dark text-[15px] sm:text-[16px] font-medium rounded-[6px] hover:bg-accent-light transition-all duration-200 no-underline">
+              {hero.cta.viewWork.icon && <lord-icon src={liSrc(hero.cta.viewWork.icon)} trigger="morph" colors={LI.light} class="li-md"></lord-icon>}
+              {hero.cta.viewWork.label}
+            </a>
+          </div>
+        )}
+        {hero.cta.getInTouch && (
+          <a href={hero.cta.getInTouch.href} class="inline-flex items-center gap-2 px-5 py-2.5 text-ink-secondary text-[15px] sm:text-[16px] font-medium hover:text-accent transition-colors no-underline">
+            {hero.cta.getInTouch.label}
+            {hero.cta.getInTouch.icon && <lord-icon src={liSrc(hero.cta.getInTouch.icon)} trigger="morph" colors={LI.dark} class="li-md"></lord-icon>}
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+</section>

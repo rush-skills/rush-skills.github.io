@@ -1,0 +1,14 @@
+subtitle: "FULLSTACK & INFRASTRUCTURE ENGINEER"
+name: "ANKUR SINGH"
+icon: "srupsmbe"
+description: "I build scalable systems, automate operations, and ship products. 8+ years across distributed computing, cloud infrastructure, and fullstack development."
+
+cta:
+  viewWork:
+    label: "View Work"
+    href: "#experience"
+    icon: "zhiiqoue"
+  getInTouch:
+    label: "Get in Touch"
+    href: "#contact"
+    icon: "vcdutftw"

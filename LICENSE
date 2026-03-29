@@ -1,0 +1,15 @@
+Copyright (c) 2026 Ankur Singh. All rights reserved.
+
+The source code in this repository (layouts, components, styles, and build
+configuration) is derived from the Astro Monograph theme, which is released
+under the MIT License at:
+
+  https://github.com/theserverlessdev/astro-monograph
+
+All personal content — including but not limited to biographical information,
+work history, project descriptions, and static assets in `src/data/` and
+`public/` — is proprietary and may not be reproduced, distributed, or used
+to represent any person other than Ankur Singh.
+
+If you want to build your own portfolio using this design, use the
+Astro Monograph theme linked above.

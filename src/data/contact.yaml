@@ -1,0 +1,14 @@
+label: "06 // GET IN TOUCH"
+heading: "Let's discuss your next infrastructure challenge."
+description: "I'm open to full-time roles, freelance projects, and interesting conversations about distributed systems, AI infrastructure, or serverless architecture."
+emailIcon: "ozlkyfxg"
+
+cta:
+  - label: "Book a Call"
+    href: "https://calendly.com/hello-anks/30min"
+    icon: "gxexvjie"
+
+footer:
+  copyright: '2026 <a href="https://anks.in" class="text-ink-tertiary hover:text-accent transition-colors no-underline dark:text-ink-tertiary">Ankur Singh</a>. Built with <a href="https://astro.build" target="_blank" rel="noopener" class="text-ink-tertiary hover:text-accent transition-colors no-underline dark:text-ink-tertiary">Astro</a>.'
+  iconsAttribution: "Lordicon"
+  iconsUrl: "https://lordicon.com/"

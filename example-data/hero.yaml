@@ -1,0 +1,14 @@
+subtitle: "SOFTWARE ENGINEER"
+name: "JANE SMITH"
+icon: "srupsmbe"
+description: "I build modern web applications, design scalable APIs, and ship products users love. 5+ years across frontend, backend, and cloud infrastructure."
+
+cta:
+  viewWork:
+    label: "View Work"
+    href: "#experience"
+    icon: "zhiiqoue"
+  getInTouch:
+    label: "Get in Touch"
+    href: "#contact"
+    icon: "vcdutftw"

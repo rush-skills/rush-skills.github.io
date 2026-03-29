@@ -1,0 +1,20 @@
+label: "05 // EDUCATION"
+heading: "Academic Foundation"
+
+degree: "B.Tech, Computer Science & Engineering"
+institution: "IIIT Delhi, New Delhi"
+dateRange: "2013 &ndash; 2017"
+
+highlights:
+  - text: "Gold Medal: Best B.Tech Project"
+    icon: "lewtedlh"
+    featured: true
+  - text: "Admin of Byld (SDE Club)"
+    icon: "zpxybbhl"
+    featured: false
+  - text: "SysAdmin TA: Data Center & R&D"
+    icon: "qhgmphtg"
+    featured: false
+  - text: "TA: Intro to Programming '14 & '15"
+    icon: "rrbmabsx"
+    featured: false

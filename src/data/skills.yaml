@@ -1,0 +1,55 @@
+label: "04 // SKILLS"
+heading: "Technical Taxonomy"
+
+categories:
+  - name: "Languages"
+    icon: "gvtjlyjf"
+    items:
+      - Python
+      - JavaScript
+      - TypeScript
+      - Bash
+      - Java
+      - SQL
+      - Golang
+      - Ruby
+      - C
+
+  - name: "Frameworks & Libraries"
+    icon: "ailnzwyn"
+    items:
+      - Django
+      - FastAPI
+      - Flask
+      - Rails
+      - Spring Boot
+      - React
+      - Next.js
+      - SvelteKit
+      - Astro
+      - Hono
+
+  - name: "DevOps & Cloud"
+    icon: "kikjlzqr"
+    items:
+      - Docker
+      - Kubernetes
+      - AWS
+      - GCP
+      - Terraform
+      - Helm
+      - Puppet
+      - Ansible
+      - StackStorm
+      - CI/CD
+
+  - name: "Databases & Storage"
+    icon: "xqdfobxg"
+    items:
+      - PostgreSQL
+      - MySQL
+      - MongoDB
+      - Redis
+      - Redshift
+      - SQLite
+      - Cloudflare D1

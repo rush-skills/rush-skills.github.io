@@ -1,0 +1,18 @@
+label: "01 // ABOUT"
+heading: "Building systems that scale"
+
+paragraphs:
+  - 'I''m a software engineer based in <strong class="text-ink">Bangalore, India</strong> with 8+ years of experience across distributed systems, cloud infrastructure, and product development. I''m comfortable across the stack - from system internals to frontend applications.'
+  - 'I spent 2.5 years at <a href="https://home.cern" target="_blank" rel="noopener" class="font-medium">CERN</a> in Geneva managing a 250,000-core compute cluster and building self-healing automation. Before that, I worked on HPC systems at <a href="https://www.tower-research.com" target="_blank" rel="noopener" class="font-medium">Tower Research Capital</a> and analytics platforms at <a href="https://www.myntra.com" target="_blank" rel="noopener" class="font-medium">Myntra</a>.'
+  - 'Today I consult through <a href="https://theserverless.dev" target="_blank" rel="noopener" class="font-medium">TheServerlessDev</a> &mdash; building AI pipelines, 3D visualization platforms, and serverless backends. I''m also a maintainer and TSC member for <a href="https://github.com/StackStorm/st2" target="_blank" rel="noopener" class="font-medium">StackStorm</a>, and I build open source tools like <a href="https://github.com/theserverlessdev/wsc" target="_blank" rel="noopener" class="font-medium">WSC</a> and <a href="https://github.com/rush-skills/vistracer" target="_blank" rel="noopener" class="font-medium">VisTracer</a>.'
+
+stats:
+  - value: "8+"
+    label: "Years of Experience"
+    icon: "kbtmbyzy"
+  - value: "250K"
+    label: "Cores Managed at CERN"
+    icon: "vbmtnozn"
+  - value: "OSS"
+    label: "StackStorm TSC Member"
+    icon: "yvjimpju"

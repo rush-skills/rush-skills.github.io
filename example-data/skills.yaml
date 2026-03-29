@@ -1,0 +1,47 @@
+label: "04 // SKILLS"
+heading: "Technical Taxonomy"
+
+categories:
+  - name: "Languages"
+    icon: "lzgmgrnn"
+    items:
+      - JavaScript
+      - TypeScript
+      - Python
+      - SQL
+      - HTML
+      - CSS
+      - Bash
+
+  - name: "Frameworks & Libraries"
+    icon: "gvtjlyjf"
+    items:
+      - React
+      - Next.js
+      - Astro
+      - Svelte
+      - Node.js
+      - Express
+      - Django
+      - Tailwind CSS
+
+  - name: "DevOps & Cloud"
+    icon: "kikjlzqr"
+    items:
+      - Docker
+      - AWS
+      - Vercel
+      - Cloudflare
+      - GitHub Actions
+      - Terraform
+      - Linux
+
+  - name: "Databases & Tools"
+    icon: "xqdfobxg"
+    items:
+      - PostgreSQL
+      - Redis
+      - MongoDB
+      - SQLite
+      - Git
+      - Figma

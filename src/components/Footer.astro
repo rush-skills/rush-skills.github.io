@@ -1,0 +1,24 @@
+---
+import { load, LI, liSrc } from '../lib/data';
+const site = load('site.yaml');
+const contact = load('contact.yaml');
+const social = site.social || [];
+const footer = contact.footer || {};
+---
+<footer class="py-8 px-6 bg-surface-sunken border-t border-border overflow-hidden">
+  <div class="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[14px] text-ink-tertiary">
+    {footer.copyright && (
+      <p class="m-0 text-center sm:text-left">&copy; <span set:html={footer.copyright} /> {footer.iconsAttribution && <>Icons by <a href={footer.iconsUrl || '#'} target="_blank" rel="noopener" class="text-ink-tertiary hover:text-accent transition-colors no-underline">{footer.iconsAttribution}</a>.</>}</p>
+    )}
+    {social.length > 0 && (
+      <div class="flex items-center gap-3 sm:gap-5 flex-wrap justify-center sm:justify-end">
+        {social.map((s: any) => (
+          <a href={s.url} target="_blank" rel="noopener" class="inline-flex items-center gap-1 sm:gap-1.5 text-ink-tertiary hover:text-accent transition-colors no-underline font-mono text-[11px] sm:text-[13px] uppercase tracking-[0.08em]">
+            {s.icon && <lord-icon src={liSrc(s.icon)} trigger="morph" colors={LI.dark} class="li-sm"></lord-icon>}
+            {s.label}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</footer>

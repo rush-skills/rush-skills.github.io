@@ -1,0 +1,231 @@
+---
+import '../styles/global.css';
+import { load } from '../lib/data';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+
+const site = load('site.yaml');
+const hero = load('hero.yaml');
+const education = load('education.yaml');
+
+const ogImageUrl = site.ogImage ? new URL(site.ogImage, Astro.site).toString() : undefined;
+---
+<!DOCTYPE html>
+<html lang={site.lang || "en"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="light dark" />
+    {site.themeColor && <meta name="theme-color" content={site.themeColor} />}
+
+    <!-- Prevent flash of wrong theme -->
+    <script is:inline>
+      (function() {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" as="style" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Lord Icon -->
+    <script is:inline src="https://cdn.lordicon.com/lordicon.js" defer></script>
+
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.fullName || site.name} />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content={ogImageUrl ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": site.fullName || site.name,
+      "url": Astro.site?.toString() || "",
+      "jobTitle": hero.subtitle,
+      "email": site.email ? `mailto:${site.email}` : undefined,
+      "alumniOf": education.institution ? { "@type": "CollegeOrUniversity", "name": education.institution } : undefined,
+      "sameAs": (site.social || []).map((s: any) => s.url).filter(Boolean)
+    })} />
+
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}favicon.svg`} />
+  </head>
+  <body class="bg-surface text-ink min-h-screen transition-colors duration-300">
+    <slot />
+
+    <!-- Scroll reveal observer -->
+    <script>
+      function initReveal() {
+        const els = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+        els.forEach(el => observer.observe(el));
+      }
+
+      if (document.readyState === 'complete') {
+        initReveal();
+      } else {
+        window.addEventListener('load', initReveal);
+      }
+    </script>
+
+    <!-- Dark mode toggle + Lord Icon color system -->
+    <script>
+      function isDark() {
+        return document.documentElement.classList.contains('dark');
+      }
+
+      function getIconColors() {
+        const style = getComputedStyle(document.documentElement);
+        const primary = style.getPropertyValue('--color-ink').trim();
+        const secondary = style.getPropertyValue('--color-accent').trim();
+        return `primary:${primary},secondary:${secondary}`;
+      }
+
+      function updateIconColors() {
+        const colors = getIconColors();
+        document.querySelectorAll('lord-icon').forEach(icon => {
+          const current = icon.getAttribute('colors') || '';
+          // Don't change icons that use the light (white) color scheme (e.g. icons on accent bg)
+          if (current.includes('#ffffff')) return;
+          icon.setAttribute('colors', colors);
+        });
+      }
+
+      function animateToggleIcons() {
+        document.querySelectorAll('#theme-toggle svg, #theme-toggle-mobile svg').forEach(svg => {
+          if (getComputedStyle(svg).display !== 'none') {
+            svg.classList.remove('theme-icon-enter');
+            void (svg as HTMLElement).offsetWidth;
+            svg.classList.add('theme-icon-enter');
+          }
+        });
+      }
+
+      function setTheme(dark: boolean) {
+        document.documentElement.classList.toggle('dark', dark);
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+        updateIconColors();
+        animateToggleIcons();
+
+        // Update expand button icons if they exist
+        const expandBtn = document.getElementById('projects-expand-btn');
+        if (expandBtn) {
+          const colors = getIconColors();
+          expandBtn.querySelectorAll('lord-icon').forEach(icon => {
+            icon.setAttribute('colors', colors);
+          });
+        }
+      }
+
+      // Theme toggle button
+      document.addEventListener('click', (e) => {
+        const btn = (e.target as Element).closest('#theme-toggle, #theme-toggle-mobile');
+        if (btn) setTheme(!isDark());
+      });
+
+      // Respect system preference changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+          setTheme(e.matches);
+        }
+      });
+
+      // Lord Icon animation system
+      function playIcon(icon: any) {
+        if (icon.playerInstance) {
+          icon.playerInstance.playFromBeginning();
+          icon.classList.remove('icon-animate');
+          void icon.offsetWidth;
+          icon.classList.add('icon-animate');
+        }
+      }
+
+      const readyIcons = new Set();
+
+      function onIconReady(icon: any, callback: () => void) {
+        if (icon.playerInstance) {
+          readyIcons.add(icon);
+          callback();
+        } else {
+          icon.addEventListener('ready', () => {
+            readyIcons.add(icon);
+            callback();
+          });
+        }
+      }
+
+      function setupIcons() {
+        const allIcons = document.querySelectorAll('lord-icon');
+
+        // Set correct colors on load
+        updateIconColors();
+
+        allIcons.forEach(icon => {
+          onIconReady(icon, () => {
+            const parent = icon.closest(
+              'a, button, .card-glow, .bg-surface-raised, .bg-surface-sunken, .bg-accent-wash, #email-row, [class*="rounded-[6px]"]'
+            );
+            if (parent && !['SECTION', 'NAV', 'FOOTER'].includes(parent.tagName)) {
+              parent.addEventListener('mouseenter', () => playIcon(icon));
+            }
+          });
+        });
+
+        const revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const icon = entry.target;
+              if (readyIcons.has(icon)) {
+                playIcon(icon);
+              } else {
+                onIconReady(icon, () => playIcon(icon));
+              }
+            }
+          });
+        }, { threshold: 0.3 });
+
+        allIcons.forEach(icon => {
+          revealObserver.observe(icon);
+        });
+      }
+
+      window.addEventListener('load', () => {
+        setTimeout(setupIcons, 200);
+      });
+    </script>
+  </body>
+</html>
