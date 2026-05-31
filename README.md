@@ -22,7 +22,14 @@ A portfolio **and** a self-hosted CMS on a single Cloudflare Worker:
   redeploys. Edits save as **drafts**, you **Preview** them, then **Publish**.
 - Content lives in D1 and is read during SSR. The committed `src/data/*.yaml` is the
   **seed** and the fallback, so a fresh clone always renders.
-- There's a Markdown **blog** at `/blog`, also managed from the admin.
+- There's a Markdown **blog** at `/blog` and a **links feed** at `/links`, both
+  managed from the admin, with **RSS** (`/rss.xml`, `/links.xml`).
+
+## Continuous deployment
+
+Pushes to `master` auto-build and deploy via **Cloudflare Workers Builds** (no
+GitHub Actions). See [`blog-backend/CI-CD.md`](blog-backend/CI-CD.md) for the
+one-time dashboard connection steps.
 
 ## Clone & run your own
 
