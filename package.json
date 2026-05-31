@@ -15,10 +15,12 @@
   "dependencies": {
     "@astrojs/cloudflare": "^13.6.0",
     "@tailwindcss/vite": "^4.2.2",
-    "astro": "^6.0.8",
+    "astro": "^6.4.2",
+    "devalue": "^5.8.1",
     "hono": "^4.12.23",
     "js-yaml": "^4.1.1",
     "marked": "^18.0.4",
+    "postcss": "^8.5.15",
     "tailwindcss": "^4.2.2",
     "teenybase": "^0.0.14"
   },
