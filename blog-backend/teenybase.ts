@@ -66,7 +66,11 @@ export default {
                 // JSON array of tag strings (sqlType must be 'text').
                 { name: 'tags', type: 'json', sqlType: 'text' },
                 { name: 'published', type: 'bool', sqlType: 'boolean' },
+                // Publish date drives ordering + display, so back-dated posts slot
+                // into the timeline by this date (not created/updated).
                 { name: 'published_at', type: 'date', sqlType: 'timestamp' },
+                // Marks posts written with AI assistance (shows an "AI-assisted" badge).
+                { name: 'ai_generated', type: 'bool', sqlType: 'boolean' },
             ],
             triggers: [createdTrigger, updatedTrigger],
             indexes: [{ fields: 'slug' }, { fields: 'published' }, { fields: 'author_id' }],
@@ -114,6 +118,40 @@ export default {
                     createRule: 'auth.uid != null',
                     updateRule: 'auth.uid != null',
                     deleteRule: 'auth.uid != null',
+                } as TableRulesExtensionData,
+            ],
+        },
+
+        // --- Links feed ------------------------------------------------------------
+        // The /links page: a reverse-chronological stream of articles, videos, and
+        // bookmarks to share. Public reads published rows; owner manages them in
+        // /admin like posts. Ordered by published_at so entries can be back-dated.
+        {
+            name: 'links',
+            autoSetUid: true,
+            fields: [
+                ...baseFields,
+                { name: 'author_id', type: 'relation', sqlType: 'text', notNull: true, foreignKey: { table: 'users', column: 'id' } },
+                { name: 'title', type: 'text', sqlType: 'text', notNull: true },
+                { name: 'url', type: 'text', sqlType: 'text', notNull: true },
+                // Optional commentary (markdown). Empty = a bare link share.
+                { name: 'note', type: 'text', sqlType: 'text' },
+                // article | video | bookmark | repo — drives a small label.
+                { name: 'kind', type: 'text', sqlType: 'text' },
+                { name: 'tags', type: 'json', sqlType: 'text' },
+                { name: 'published', type: 'bool', sqlType: 'boolean' },
+                { name: 'published_at', type: 'date', sqlType: 'timestamp' },
+            ],
+            triggers: [createdTrigger, updatedTrigger],
+            indexes: [{ fields: 'published' }, { fields: 'published_at' }, { fields: 'author_id' }],
+            extensions: [
+                {
+                    name: 'rules',
+                    listRule: 'published == true | auth.uid == author_id',
+                    viewRule: 'published == true | auth.uid == author_id',
+                    createRule: 'auth.uid != null & author_id == auth.uid',
+                    updateRule: 'auth.uid == author_id',
+                    deleteRule: 'auth.uid == author_id',
                 } as TableRulesExtensionData,
             ],
         },
