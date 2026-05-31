@@ -7,6 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "setup": "node scripts/setup.mjs",
+    "seed:content": "node scripts/seed-content.mjs",
     "theme": "./publish-theme.sh",
     "theme:dry": "./publish-theme.sh --dry-run"
   },
