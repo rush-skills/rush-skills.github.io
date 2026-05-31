@@ -20,10 +20,13 @@ const posts = await listPosts((Astro.locals as any).cfContext);
           {posts.map((post) => (
             <li class="group">
               <a href={`/blog/${post.slug}`} class="block rounded-[8px] border border-border bg-surface-raised p-6 no-underline transition-colors hover:border-accent">
-                <div class="flex items-center gap-3 mb-2">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
                   {post.published_at && (
                     <time class="text-[13px] font-mono text-ink-tertiary" datetime={post.published_at}>{formatDate(post.published_at)}</time>
                   )}
+                  {post.ai_generated ? (
+                    <span class="inline-flex items-center text-[11px] font-mono uppercase tracking-[0.06em] text-accent bg-accent-wash rounded px-1.5 py-0.5">AI-assisted</span>
+                  ) : null}
                   {post.tags?.slice(0, 3).map((t) => (
                     <span class="text-[12px] font-mono text-accent">#{t}</span>
                   ))}

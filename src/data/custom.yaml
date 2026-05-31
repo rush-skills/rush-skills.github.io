@@ -1,0 +1,3 @@
+# Custom homepage sections, added from /admin (Site content → Custom Sections).
+# Each entry picks a template: text | cards | callout. Empty by default.
+sections: []

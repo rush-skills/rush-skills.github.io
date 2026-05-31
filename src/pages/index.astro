@@ -10,6 +10,7 @@ import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
 import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
+import CustomSections from '../components/CustomSections.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import { getContent } from '../lib/content';
@@ -31,7 +32,8 @@ const contact = content.contact || {};
   {experience.jobs?.length && <Experience />}
   {projects.items?.length && <Projects />}
   {skills.categories?.length && <Skills />}
-  {(education.degree || education.highlights?.length) && <Education />}
+  {(education.schools?.length || education.degree || education.highlights?.length) && <Education />}
+  <CustomSections />
   {(contact.heading || site.email) && <Contact />}
   <Footer />
 </BaseLayout>

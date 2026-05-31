@@ -13,6 +13,7 @@ export interface Post {
   tags: string[];
   published?: boolean | number;
   published_at?: string | null;
+  ai_generated?: boolean | number;
   created?: string;
   updated?: string;
   author_id?: string;

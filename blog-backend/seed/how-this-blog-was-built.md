@@ -4,6 +4,7 @@ slug: "how-this-blog-was-built"
 excerpt: "An honest, end-to-end walkthrough of turning anks.in from a static GitHub Pages site into a fully self-editable CMS — Astro SSR and a teenybase backend inside a single Cloudflare Worker, with every section, color, and icon editable from /admin with drafts and preview. The start state, the end state, and every gotcha in between."
 tags: ["cloudflare", "teenybase", "astro", "workers", "d1", "cms", "meta"]
 published: true
+ai_generated: true
 ---
 
 This is the first post on the blog and — because I can't resist a good bootstrap

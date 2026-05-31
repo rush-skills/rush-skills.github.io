@@ -28,7 +28,7 @@ function ensureLordicon() {
 
 // Sidebar grouping: one-off pages vs repeating content (same rich section editors,
 // shown under "Collections").
-const SINGLETON_SECTIONS = ['site', 'theme', 'hero', 'about', 'contact'];
+const SINGLETON_SECTIONS = ['site', 'theme', 'hero', 'about', 'contact', 'custom'];
 const COLLECTION_SECTIONS = ['projects', 'experience', 'skills', 'education'];
 
 function secNavLink(section: string): string {
@@ -102,8 +102,16 @@ export class AdminApp {
     const user = api.getUser();
     this.root.innerHTML = `
       <div class="adm-shell">
-        <aside class="adm-side">
+        <header class="adm-topbar">
+          <button class="adm-hamburger" id="adm-menu-btn" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
           <div class="adm-brand">anks.in <span>admin</span></div>
+          <button class="adm-theme-btn" id="adm-theme-top" aria-label="Toggle theme">${themeIcon()}</button>
+        </header>
+        <div class="adm-overlay" id="adm-overlay"></div>
+        <aside class="adm-side" id="adm-side">
+          <div class="adm-brand adm-brand-side">anks.in <span>admin</span></div>
           <nav class="adm-nav">
             <div class="adm-nav-group">Site content</div>
             ${SINGLETON_SECTIONS.map(secNavLink).join('')}
@@ -113,6 +121,7 @@ export class AdminApp {
             ${COLLECTION_SECTIONS.map(secNavLink).join('')}
           </nav>
           <div class="adm-side-foot">
+            <button class="adm-nav-link adm-theme-row" id="adm-theme-side"><span>Theme</span> ${themeIcon()}</button>
             <a href="/" class="adm-nav-link" target="_blank">View site ↗</a>
             <button class="adm-nav-link adm-logout" id="logout">Sign out${user?.email ? ` (${esc(user.email)})` : ''}</button>
           </div>
@@ -120,6 +129,27 @@ export class AdminApp {
         <main class="adm-main" id="adm-main"></main>
       </div>`;
     $('#logout').addEventListener('click', () => { api.logout(); this.boot(); });
+
+    // Theme toggle (persisted like the main site; the FOUC script reads it).
+    const toggleTheme = () => {
+      const dark = !document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', dark);
+      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch { /* ignore */ }
+      this.root.querySelectorAll('.adm-theme-icon').forEach((icon) => icon.replaceWith(themeIconEl()));
+    };
+    $('#adm-theme-top').addEventListener('click', toggleTheme);
+    $('#adm-theme-side').addEventListener('click', toggleTheme);
+
+    // Mobile drawer.
+    const side = $('#adm-side'), overlay = $('#adm-overlay'), btn = $('#adm-menu-btn');
+    const setDrawer = (open: boolean) => {
+      side.classList.toggle('adm-side-open', open);
+      overlay.classList.toggle('adm-overlay-show', open);
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => setDrawer(!side.classList.contains('adm-side-open')));
+    overlay.addEventListener('click', () => setDrawer(false));
+    this.root.querySelectorAll('.adm-nav a').forEach((a) => a.addEventListener('click', () => setDrawer(false)));
   }
 
   private setActiveNav(key: string) {
@@ -326,8 +356,8 @@ export class AdminApp {
       return;
     }
 
-    // Entity-specific defaults
-    if (entity.table === 'posts') {
+    // Entity-specific defaults: posts and links both have an author + publish date.
+    if (entity.table === 'posts' || entity.table === 'links') {
       const user = api.getUser();
       if (!id && user?.id) values.author_id = user.id;
       if (values.published && !values.published_at) values.published_at = new Date().toISOString();

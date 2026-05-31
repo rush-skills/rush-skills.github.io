@@ -191,6 +191,8 @@ async function main() {
   catch { info('Content seed skipped (already seeded or auth issue).'); }
   try { execFileSync('node', [join(root, 'blog-backend', 'seed', 'seed.mjs')], { cwd: root, env, stdio: 'inherit' }); }
   catch { info('Post seed skipped.'); }
+  try { execFileSync('node', [join(root, 'blog-backend', 'seed', 'seed-links.mjs')], { cwd: root, env, stdio: 'inherit' }); }
+  catch { info('Links seed skipped.'); }
 
   // --- Done ----------------------------------------------------------------
   console.log(`\n\x1b[32m✓ Setup complete!\x1b[0m\n`);

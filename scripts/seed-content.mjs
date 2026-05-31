@@ -28,7 +28,7 @@ const FORCE = process.argv.includes('--force')
 const API = `${API_BASE}/api/v1`
 
 // Keep in sync with SECTIONS in src/lib/content.ts.
-const SECTIONS = ['site', 'theme', 'hero', 'about', 'experience', 'projects', 'skills', 'education', 'contact']
+const SECTIONS = ['site', 'theme', 'hero', 'about', 'experience', 'projects', 'skills', 'education', 'contact', 'custom']
 
 if (!USER_EMAIL || !USER_PASSWORD) {
   console.error('Set USER_EMAIL and USER_PASSWORD env vars (the seeded owner account).')

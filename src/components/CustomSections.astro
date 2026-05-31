@@ -1,0 +1,62 @@
+---
+// Renders admin-defined custom homepage sections (see the `custom` section in
+// src/lib/admin/sections.ts). Three templates: text, cards, callout. Each entry's
+// `enabled` flag and order are controlled from the admin.
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+
+const custom = (await getContent(Astro)).custom || {};
+const sections = (custom.sections || []).filter((s: any) => s && s.enabled !== false && s.template);
+
+// Alternate the background so stacked custom sections don't blur together.
+const bg = (i: number) => (i % 2 === 0 ? 'bg-surface' : 'bg-surface-sunken');
+---
+{sections.map((s: any, i: number) => (
+  <section class={`py-20 md:py-28 px-6 ${bg(i)} scroll-mt-16`}>
+    <div class="max-w-[960px] mx-auto">
+      {(s.eyebrow || s.heading) && (
+        <div class="reveal mb-8">
+          {s.eyebrow && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{s.eyebrow}</p>}
+          {s.heading && <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink tracking-[-0.01em] m-0">{s.heading}</h2>}
+        </div>
+      )}
+
+      {s.template === 'text' && s.body && (
+        <div class="reveal prose-body text-[17px] md:text-[18px] text-ink-secondary leading-[1.8] max-w-[70ch]" set:html={s.body} />
+      )}
+
+      {s.template === 'cards' && (s.cards?.length > 0) && (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {s.cards.map((c: any, j: number) => {
+            const inner = (
+              <div class={`reveal ${j % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-6 h-full`}>
+                {c.icon && <lord-icon src={liSrc(c.icon)} trigger="morph" colors={LI.dark} class="li-2xl"></lord-icon>}
+                {c.title && <h3 class="font-display text-[20px] font-bold text-ink m-0 mt-3 mb-1.5">{c.title}</h3>}
+                {c.text && <p class="text-[16px] text-ink-secondary leading-[1.7] m-0">{c.text}</p>}
+              </div>
+            );
+            return c.href
+              ? <a href={c.href} target="_blank" rel="noopener" class="no-underline block">{inner}</a>
+              : inner;
+          })}
+        </div>
+      )}
+
+      {s.template === 'callout' && (
+        <div class="reveal card-glow bg-accent-wash rounded-[12px] p-8 md:p-10 text-center flex flex-col items-center">
+          {s.body && <div class="prose-body text-[17px] md:text-[19px] text-ink-secondary leading-[1.7] max-w-[60ch] mb-6" set:html={s.body} />}
+          {s.button_label && s.button_href && (
+            <a href={s.button_href} class="inline-flex items-center gap-2 px-6 py-3 bg-accent text-ink-on-dark text-[16px] font-medium rounded-[6px] hover:bg-accent-light transition-all duration-200 no-underline">
+              {s.button_label}
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+))}
+
+<style>
+  .prose-body :global(a) { color: var(--color-accent); text-decoration: underline; }
+  .prose-body :global(strong) { color: var(--color-ink); font-weight: 600; }
+</style>

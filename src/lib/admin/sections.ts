@@ -29,6 +29,12 @@ export interface SecField {
   fields?: SecField[];       // group / list item shape
   itemLabel?: string;        // singular noun for list "Add X" / item headers
   itemTitleKey?: string;     // which sub-field to show in a list item's header
+  // Conditional display: only show this field when sibling `field`'s value is in
+  // `in`. Used by templated lists (custom sections) to reveal per-template fields.
+  showIf?: { field: string; in: string[] };
+  // A select that rebuilds its surrounding list-item body on change, so showIf
+  // fields update. Put on the template/discriminator selector.
+  rerenderOnChange?: boolean;
 }
 
 export interface SectionDef {
@@ -222,6 +228,32 @@ export const SECTION_DEFS: SectionDef[] = [
       {
         name: 'footer', label: 'Footer', type: 'group',
         fields: [{ name: 'copyright', label: 'Copyright', type: 'richtext', help: 'Use Bold / Italic / Link.' }, t('iconsAttribution', 'Icons attribution'), t('iconsUrl', 'Icons URL')],
+      },
+    ],
+  },
+  {
+    section: 'custom',
+    label: 'Custom Sections',
+    icon: 'jectmwql',
+    description: 'Add your own homepage sections. Pick a template per section; they render (in order) above Contact.',
+    fields: [
+      {
+        name: 'sections', label: 'Sections', type: 'list', itemLabel: 'section', itemTitleKey: 'heading',
+        fields: [
+          { name: 'template', label: 'Template', type: 'select', options: ['text', 'cards', 'callout'], rerenderOnChange: true,
+            help: 'text = heading + paragraph · cards = a grid of cards · callout = banner with a button.' },
+          { name: 'enabled', label: 'Shown on site', type: 'boolean' },
+          t('eyebrow', 'Eyebrow', { help: 'Small uppercase label above the heading (optional).' }),
+          t('heading', 'Heading'),
+          { name: 'body', label: 'Body', type: 'richtext', showIf: { field: 'template', in: ['text', 'callout'] } },
+          t('button_label', 'Button label', { showIf: { field: 'template', in: ['callout'] } }),
+          t('button_href', 'Button link', { showIf: { field: 'template', in: ['callout'] } }),
+          {
+            name: 'cards', label: 'Cards', type: 'list', itemLabel: 'card', itemTitleKey: 'title',
+            showIf: { field: 'template', in: ['cards'] },
+            fields: [icon(), t('title', 'Title'), area('text', 'Text'), t('href', 'Link (optional)')],
+          },
+        ],
       },
     ],
   },

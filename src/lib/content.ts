@@ -17,7 +17,7 @@ import { load } from './data';
 
 export const SECTIONS = [
   'site', 'theme', 'hero', 'about', 'experience',
-  'projects', 'skills', 'education', 'contact',
+  'projects', 'skills', 'education', 'contact', 'custom',
 ] as const;
 export type Section = (typeof SECTIONS)[number];
 export type ContentMap = Record<Section, any> & { __preview?: boolean };

@@ -95,6 +95,7 @@ async function main() {
     body,
     tags: JSON.stringify(meta.tags || []),
     published: meta.published ?? true,
+    ai_generated: meta.ai_generated ?? false,
   }
 
   if (rows.length) {

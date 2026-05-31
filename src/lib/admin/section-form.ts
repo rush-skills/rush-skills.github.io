@@ -94,10 +94,15 @@ export class SectionForm {
       ta.addEventListener('input', () => { parent[f.name] = ta.value; });
       control = ta;
     } else if (f.type === 'select') {
+      const opts = f.options || [];
+      // Default an unset select to its first option so showIf logic + saved value
+      // match what the user sees.
+      if ((val === '' || val == null) && opts.length) parent[f.name] = opts[0];
+      const current = parent[f.name];
       const sel = h('select', { class: 'adm-input' }) as HTMLSelectElement;
-      for (const o of f.options || []) {
+      for (const o of opts) {
         const opt = h('option', {}, o) as HTMLOptionElement;
-        if (o === val) opt.selected = true;
+        if (o === current) opt.selected = true;
         sel.append(opt);
       }
       sel.addEventListener('change', () => { parent[f.name] = sel.value; });
@@ -278,7 +283,18 @@ export class SectionForm {
         const title = (f.itemTitleKey && arr[i][f.itemTitleKey]) || `${f.itemLabel || 'Item'} ${i + 1}`;
         head.append(h('span', { class: 'adm-card-title' }, String(title)), this.itemControls(arr, i, draw));
         const body = h('div', { class: 'adm-card-body' });
-        for (const sub of f.fields || []) body.append(this.field(sub, arr[i]));
+        // Render only fields whose showIf matches this item's values; a
+        // rerenderOnChange select rebuilds the body so the visible set updates.
+        const renderBody = () => {
+          body.innerHTML = '';
+          for (const sub of f.fields || []) {
+            if (sub.showIf && !sub.showIf.in.includes(arr[i][sub.showIf.field])) continue;
+            const el = this.field(sub, arr[i]);
+            if (sub.rerenderOnChange) el.addEventListener('change', () => renderBody());
+            body.append(el);
+          }
+        };
+        renderBody();
         card.append(head, body);
         list.append(card);
       });
