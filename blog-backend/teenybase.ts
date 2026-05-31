@@ -10,12 +10,13 @@ import {
     updatedTrigger,
 } from 'teenybase/scaffolds/fields'
 
-// Backend for anks.in — blog + (later) the rest of the site's content.
-// Deployed as its own Cloudflare Worker at https://anksinblog.theserverless.dev
-// The public site (anks.in) reads from this over the REST API at /api/v1.
+// Data model for anks.in — blog now, the rest of the site's content next.
+// This config is imported by the single anks.in Worker (src/server/teeny.ts),
+// which mounts the teenybase API at /api/* alongside the Astro pages. There is
+// no separate backend service; site and API share one D1 + R2.
 //
-// appUrl drives CORS + auth-cookie/redirect behavior, so it must be the
-// public site origin in production. Override via the APP_URL var in wrangler.
+// appUrl drives auth email/redirect links. Same-origin in production, so CORS is
+// moot; override via APP_URL for local dev.
 export default {
     // Same-origin in production (single Worker), so CORS is moot; this mainly
     // affects auth email/redirect links. Overridable via APP_URL for local dev.

@@ -1,39 +1,30 @@
 {
-    // Use 'npx teeny' commands instead of 'npx wrangler' — teeny wraps wrangler
-    // with auto-resource creation, migrations, and auth.
+    // NOTE: this file exists only so `npx teeny generate` (run from this folder)
+    // has a wrangler config to read when turning teenybase.ts into SQL
+    // migrations. The site does NOT deploy from here — the real Worker is the
+    // Astro app at the repo root (../wrangler.jsonc), which mounts teenybase at
+    // /api/*. Keep the database/bucket names in sync with the root config.
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "anksinblog",
+    "name": "anksin-migrations",
     "main": "src/index.ts",
     "compatibility_date": "2026-05-31",
     "compatibility_flags": ["nodejs_compat"],
-    "observability": {
-        "enabled": true,
-        "logs": { "invocation_logs": true, "head_sampling_rate": 1 }
-    },
     "vars": {
         "RESPOND_WITH_ERRORS": "true",
-        // Public site origin — drives CORS for browser calls from anks.in.
         "APP_URL": "https://anks.in"
     },
     "d1_databases": [
         {
             "binding": "PRIMARY_DB",
-            "database_name": "anksinblog-db",
-            // teeny auto-creates the DB on first deploy and rewrites this id.
-            "database_id": "TEENY_AUTO_CREATE",
+            "database_name": "anksin-db",
+            "database_id": "PLACEHOLDER_SET_AFTER_D1_CREATE",
             "migrations_dir": "migrations"
         }
     ],
     "r2_buckets": [
         {
-            // File/image uploads (post cover images, editor image drops).
             "binding": "FILES",
-            "bucket_name": "anksinblog-files"
+            "bucket_name": "anksin-files"
         }
-    ],
-    // Custom domain for the backend. Requires theserverless.dev zone on this
-    // Cloudflare account. Comment this out to deploy to *.workers.dev first.
-    "routes": [
-        { "pattern": "anksinblog.theserverless.dev", "custom_domain": true }
     ]
 }
