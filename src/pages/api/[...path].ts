@@ -11,7 +11,7 @@ const handler: APIRoute = async ({ request, locals }) => {
   if (!runtime?.env) {
     return new Response('Cloudflare runtime unavailable', { status: 500 });
   }
-  return getTeenyApp().fetch(request, runtime.env, runtime.ctx);
+  return getTeenyApp().fetch(request, runtime.env, runtime.ctx) as Response | Promise<Response>;
 };
 
 export const GET = handler;

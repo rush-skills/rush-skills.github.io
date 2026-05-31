@@ -12,9 +12,18 @@ import {
 } from 'teenybase/worker';
 import config from '../../blog-backend/teenybase';
 
+// Local structural types — see src/env.d.ts for why we don't import
+// @cloudflare/workers-types globally (DOM global clash with the admin SPA).
+type D1DatabaseLike = unknown;
+type R2BucketLike = unknown;
+export interface ExecCtx {
+  waitUntil(p: Promise<unknown>): void;
+  passThroughOnException(): void;
+}
+
 export interface TeenyBindings {
-  PRIMARY_DB: D1Database;
-  FILES?: R2Bucket;
+  PRIMARY_DB: D1DatabaseLike;
+  FILES?: R2BucketLike;
   [key: string]: unknown;
 }
 
@@ -40,7 +49,7 @@ export function getTeenyApp() {
 export function callApi(
   path: string,
   env: TeenyBindings,
-  ctx: ExecutionContext,
+  ctx: ExecCtx,
   init?: RequestInit,
 ): Promise<Response> {
   const url = new URL(path, 'https://anks.in');
@@ -48,5 +57,5 @@ export function callApi(
     headers: { Accept: 'application/json', ...(init?.headers || {}) },
     ...init,
   });
-  return getTeenyApp().fetch(req, env, ctx);
+  return Promise.resolve(getTeenyApp().fetch(req, env as any, ctx as any));
 }

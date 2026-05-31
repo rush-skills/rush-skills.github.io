@@ -14,12 +14,17 @@
     "@astrojs/cloudflare": "^13.6.0",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.0.8",
+    "hono": "^4.12.23",
     "js-yaml": "^4.1.1",
     "marked": "^18.0.4",
     "tailwindcss": "^4.2.2",
     "teenybase": "^0.0.14"
   },
   "devDependencies": {
-    "@astrojs/sitemap": "^3.7.1"
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/sitemap": "^3.7.1",
+    "@cloudflare/workers-types": "^4.20260531.1",
+    "@types/js-yaml": "^4.0.9",
+    "wrangler": "^4.95.0"
   }
 }

@@ -1,7 +1,7 @@
 // Blog data access. The site and the teenybase API live in ONE Worker, so
 // server-side rendering calls the API in-process (no network hop, no CORS);
 // the browser/admin uses relative `/api/...` fetches.
-import { callApi, type TeenyBindings } from '../server/teeny';
+import { callApi, type TeenyBindings, type ExecCtx } from '../server/teeny';
 
 export interface Post {
   id: string;
@@ -20,7 +20,7 @@ export interface Post {
 
 export interface Runtime {
   env: TeenyBindings;
-  ctx: ExecutionContext;
+  ctx: ExecCtx;
 }
 
 function safeJsonArray(v: unknown): string[] {
