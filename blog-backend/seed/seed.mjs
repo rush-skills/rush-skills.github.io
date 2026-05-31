@@ -20,7 +20,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
-const API_BASE = (process.env.API_BASE || 'https://anksinblog.theserverless.dev').replace(/\/$/, '')
+const API_BASE = (process.env.API_BASE || 'https://anks.in').replace(/\/$/, '')
 const USER_EMAIL = process.env.USER_EMAIL
 const USER_PASSWORD = process.env.USER_PASSWORD
 const API = `${API_BASE}/api/v1`
