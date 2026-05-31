@@ -17,7 +17,7 @@ function h(tag: string, attrs: Record<string, any> = {}, ...children: (Node | st
 }
 
 const labelize = (s: string) =>
-  s.replace(/[-_]/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b\w/g, (c) => c.toUpperCase());
+  (s ?? '').replace(/[-_]/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\b\w/g, (c) => c.toUpperCase());
 
 const isHex = (s: string) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(s);
 
@@ -54,6 +54,17 @@ export class SectionForm {
   }
 
   private field(f: SecField, parent: any): HTMLElement {
+    try {
+      return this.fieldSafe(f, parent);
+    } catch (e) {
+      const box = document.createElement('div');
+      box.className = 'adm-field';
+      box.textContent = `(${(f && f.label) || (f && f.name) || 'field'}: couldn't render — ${(e as Error).message})`;
+      return box;
+    }
+  }
+
+  private fieldSafe(f: SecField, parent: any): HTMLElement {
     switch (f.type) {
       case 'group': return this.groupField(f, parent);
       case 'list': return this.listField(f, parent);

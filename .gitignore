@@ -18,3 +18,5 @@ node_modules/
 .DS_Store
 PRD.md
 .dev.vars
+
+blog-backend/node_modules/
