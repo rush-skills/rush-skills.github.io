@@ -86,6 +86,17 @@ import '../../styles/global.css';
   .adm-logout { color: var(--color-ink-tertiary); }
   .adm-main { padding: 1.75rem 2rem; max-width: 1000px; }
 
+  /* Topbar (mobile), theme toggle, drawer — desktop defaults */
+  .adm-topbar { display: none; }
+  .adm-overlay { display: none; }
+  .adm-theme-btn { background: none; border: 1px solid var(--color-border); border-radius: 8px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-ink-secondary); flex-shrink: 0; }
+  .adm-theme-btn:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .adm-theme-row { justify-content: space-between; }
+  .adm-theme-icon { display: inline-flex; }
+  .adm-hamburger { display: inline-flex; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 8px; }
+  .adm-hamburger span { display: block; width: 22px; height: 2px; background: var(--color-ink); border-radius: 2px; }
+  .adm-brand-side { margin-bottom: 1rem; }
+
   /* Head */
   .adm-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
   .adm-head h1 { font-family: var(--font-display, inherit); font-size: 26px; font-weight: 700; margin: 0; }

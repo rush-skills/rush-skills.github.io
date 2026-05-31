@@ -20,3 +20,6 @@ PRD.md
 .dev.vars
 
 blog-backend/node_modules/
+
+# Backup artifacts
+*.orig

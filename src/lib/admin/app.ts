@@ -37,6 +37,20 @@ function secNavLink(section: string): string {
   return `<a href="#/content/${d.section}" data-key="content:${d.section}" class="adm-nav-link">${esc(d.label)}</a>`;
 }
 
+// Theme toggle icon — moon when light (click → dark), sun when dark. Wrapped in a
+// span so it can be swapped on toggle.
+function themeIcon(): string {
+  const dark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const sun = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/>';
+  const moon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  return `<span class="adm-theme-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${dark ? sun : moon}</svg></span>`;
+}
+function themeIconEl(): HTMLElement {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = themeIcon().trim();
+  return tpl.content.firstChild as HTMLElement;
+}
+
 export class AdminApp {
   private root: HTMLElement;
   private current?: { form: EntityForm; entity: EntityDef; id?: string };
