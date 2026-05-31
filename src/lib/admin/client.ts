@@ -125,9 +125,11 @@ export async function insert(table: string, values: Record<string, any>): Promis
 }
 
 export async function edit(table: string, id: string, values: Record<string, any>): Promise<any> {
+  // NB: teenybase's edit takes fields at the top level, unlike insert which wraps
+  // them in { values }. Sending { values } makes it treat `values` as a column.
   return oneRecord(await request(`/table/${table}/edit/${encodeURIComponent(id)}`, {
     method: 'POST',
-    body: JSON.stringify({ values }),
+    body: JSON.stringify(values),
   }));
 }
 
@@ -136,6 +138,41 @@ export async function remove(table: string, id: string): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ where: `id = "${id.replace(/"/g, '')}"` }),
   });
+}
+
+// --- CMS content sections ---------------------------------------------------
+// Each section is one row in the `content` table with `draft` + `published` JSON.
+// SSR reads `published` straight from D1; the admin edits `draft` and promotes it.
+
+function parseMaybe(v: any): any {
+  if (v == null) return null;
+  if (typeof v === 'object') return v;
+  try { return JSON.parse(v); } catch { return null; }
+}
+
+export interface SectionRow { id?: string; draft: any; published: any }
+
+export async function getSection(section: string): Promise<SectionRow | null> {
+  const found = await list('content', { where: `section = "${section}"`, limit: 1 });
+  const r = found[0];
+  if (!r) return null;
+  return { id: r.id, draft: parseMaybe(r.draft), published: parseMaybe(r.published) };
+}
+
+/** Save the working copy (preview only — does not change the live site). */
+export async function saveSectionDraft(section: string, data: any): Promise<void> {
+  const draft = JSON.stringify(data ?? {});
+  const existing = await getSection(section);
+  if (existing?.id) await edit('content', existing.id, { draft });
+  else await insert('content', { section, draft, published: draft });
+}
+
+/** Promote the working copy to live (sets both published and draft). */
+export async function publishSection(section: string, data: any): Promise<void> {
+  const payload = JSON.stringify(data ?? {});
+  const existing = await getSection(section);
+  if (existing?.id) await edit('content', existing.id, { draft: payload, published: payload });
+  else await insert('content', { section, draft: payload, published: payload });
 }
 
 // --- File upload (R2 via teenybase file field) ------------------------------

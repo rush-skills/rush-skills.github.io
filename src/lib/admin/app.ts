@@ -1,8 +1,10 @@
 // Admin SPA controller: auth gate, hash routing, and list/edit views rendered
 // generically from ENTITIES. Mounted by /admin.
 import { ENTITIES, entityByKey, type EntityDef } from './schema';
+import { SECTION_DEFS, getSectionDef, type SectionDef } from './sections';
 import * as api from './client';
 import { EntityForm } from './form';
+import { SectionForm } from './section-form';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document): T =>
   root.querySelector(sel) as T;
@@ -24,7 +26,7 @@ export class AdminApp {
   private boot() {
     if (!api.isAuthed()) return this.renderLogin();
     this.renderShell();
-    if (!location.hash || location.hash === '#') location.hash = `#/${ENTITIES[0].key}`;
+    if (!location.hash || location.hash === '#') location.hash = `#/content/${SECTION_DEFS[0].section}`;
     else this.route();
   }
 
@@ -64,6 +66,12 @@ export class AdminApp {
         <aside class="adm-side">
           <div class="adm-brand">anks.in <span>admin</span></div>
           <nav class="adm-nav">
+            <div class="adm-nav-group">Site content</div>
+            ${SECTION_DEFS.map((s) => `
+              <a href="#/content/${s.section}" data-key="content:${s.section}" class="adm-nav-link">
+                ${esc(s.label)}
+              </a>`).join('')}
+            <div class="adm-nav-group">Collections</div>
             ${ENTITIES.map((e) => `
               <a href="#/${e.key}" data-key="${e.key}" class="adm-nav-link ${e.enabled ? '' : 'adm-nav-disabled'}">
                 ${esc(e.labelPlural)}${e.enabled ? '' : ' <span class="adm-soon">soon</span>'}
@@ -87,10 +95,17 @@ export class AdminApp {
   // --- Routing --------------------------------------------------------------
   private route() {
     if (!api.isAuthed()) return this.boot();
-    const m = location.hash.match(/^#\/([\w-]+)(?:\/(new|[^/]+))?$/);
-    if (!m) { location.hash = `#/${ENTITIES[0].key}`; return; }
+    const hash = location.hash;
+    const cm = hash.match(/^#\/content\/([\w-]+)$/);
+    if (cm) {
+      const def = getSectionDef(cm[1]);
+      if (def) { this.setActiveNav(`content:${def.section}`); this.renderSection(def); return; }
+    }
+    const m = hash.match(/^#\/([\w-]+)(?:\/(new|[^/]+))?$/);
+    const fallback = `#/content/${SECTION_DEFS[0].section}`;
+    if (!m) { location.hash = fallback; return; }
     const entity = entityByKey(m[1]);
-    if (!entity) { location.hash = `#/${ENTITIES[0].key}`; return; }
+    if (!entity) { location.hash = fallback; return; }
     this.setActiveNav(entity.key);
     if (m[2] === 'new') this.renderEdit(entity);
     else if (m[2]) this.renderEdit(entity, m[2]);
@@ -152,6 +167,74 @@ export class AdminApp {
     if (!confirm(`Delete this ${entity.labelSingular.toLowerCase()}? This can't be undone.`)) return;
     try { await api.remove(entity.table, id); this.renderList(entity); }
     catch (err) { alert(`Delete failed: ${(err as Error).message}`); }
+  }
+
+  // --- CMS section editor ---------------------------------------------------
+  private async renderSection(def: SectionDef) {
+    const main = this.main();
+    main.innerHTML = `
+      <div class="adm-head">
+        <div class="adm-head-left">
+          <h1>${esc(def.label)}</h1>
+          ${def.description ? `<p class="adm-sub">${esc(def.description)}</p>` : ''}
+        </div>
+        <div class="adm-head-actions">
+          <button class="adm-btn" id="preview-btn" title="Save a draft and open the site showing it">Preview ↗</button>
+          <button class="adm-btn" id="draft-btn">Save draft</button>
+          <button class="adm-btn adm-btn-primary" id="publish-btn">Publish</button>
+        </div>
+      </div>
+      <div class="adm-form" id="form-body">${this.skeletonRows(5)}</div>
+      <div class="adm-save-bar"><span id="save-status"></span></div>`;
+
+    let row: api.SectionRow | null = null;
+    try { row = await api.getSection(def.section); }
+    catch (err) {
+      $('#form-body').innerHTML = `<div class="adm-error">Couldn't load section: ${esc((err as Error).message)}</div>`;
+      return;
+    }
+    const data = row?.draft ?? row?.published ?? {};
+    $('#form-body').innerHTML = '';
+    const form = new SectionForm($('#form-body'), def, data);
+
+    const status = $('#save-status');
+    const saveDraft = async (): Promise<boolean> => {
+      try { await api.saveSectionDraft(def.section, form.value()); return true; }
+      catch (err) { status.innerHTML = `<span class="adm-error-inline">${esc((err as Error).message)}</span>`; return false; }
+    };
+
+    $('#draft-btn').addEventListener('click', async () => {
+      const btn = $('#draft-btn') as HTMLButtonElement;
+      btn.disabled = true; btn.textContent = 'Saving…'; status.textContent = '';
+      if (await saveDraft()) status.innerHTML = '<span class="adm-ok">Draft saved ✓ — Preview to see it, Publish to go live.</span>';
+      btn.disabled = false; btn.textContent = 'Save draft';
+    });
+
+    $('#publish-btn').addEventListener('click', async () => {
+      const btn = $('#publish-btn') as HTMLButtonElement;
+      btn.disabled = true; btn.textContent = 'Publishing…'; status.textContent = '';
+      try {
+        await api.publishSection(def.section, form.value());
+        status.innerHTML = '<span class="adm-ok">Published ✓ — live on the site now.</span>';
+      } catch (err) {
+        status.innerHTML = `<span class="adm-error-inline">${esc((err as Error).message)}</span>`;
+      }
+      btn.disabled = false; btn.textContent = 'Publish';
+    });
+
+    $('#preview-btn').addEventListener('click', async () => {
+      const btn = $('#preview-btn') as HTMLButtonElement;
+      btn.disabled = true; btn.textContent = 'Saving…';
+      const ok = await saveDraft();
+      btn.disabled = false; btn.textContent = 'Preview ↗';
+      if (!ok) return;
+      document.cookie = 'tb_preview=1; Path=/; SameSite=Lax; Max-Age=3600';
+      window.open('/', '_blank');
+    });
+
+    main.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ($('#draft-btn') as HTMLButtonElement).click(); }
+    });
   }
 
   // --- Edit / create view ---------------------------------------------------

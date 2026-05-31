@@ -22,6 +22,8 @@ import '../../styles/global.css';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Lordicon: live icon previews in the content editor -->
+    <script is:inline src="https://cdn.lordicon.com/lordicon.js" defer></script>
   </head>
   <body class="bg-surface text-ink">
     <div id="admin-root" class="adm-root">
@@ -109,7 +111,36 @@ import '../../styles/global.css';
   .adm-field { margin-bottom: 1.1rem; }
   .adm-switch { display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; font-size: 14px; font-weight: 500; }
   .adm-switch input { width: 18px; height: 18px; accent-color: var(--color-accent); }
-  .adm-save-bar { position: sticky; bottom: 0; padding: .5rem 0; min-height: 1.5rem; }
+  .adm-save-bar { position: sticky; bottom: 0; padding: .5rem 0; min-height: 1.5rem; background: var(--color-surface); }
+  .adm-sub { font-size: 13px; color: var(--color-ink-secondary); margin: .2rem 0 0; max-width: 60ch; }
+
+  /* Nav groups (sidebar) */
+  .adm-nav-group { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--color-ink-tertiary); font-weight: 700; margin: .9rem .65rem .2rem; }
+  .adm-nav-group:first-child { margin-top: 0; }
+
+  /* Color field */
+  .adm-color { display: flex; gap: .5rem; align-items: center; }
+  .adm-color-swatch { width: 46px; height: 38px; padding: 0; border: 1px solid var(--color-border); border-radius: 8px; background: none; cursor: pointer; flex-shrink: 0; }
+  .adm-color-text { flex: 1; font-family: var(--font-mono, monospace); font-size: 13px; }
+
+  /* Icon field */
+  .adm-icon-field { display: flex; gap: .6rem; align-items: center; }
+  .adm-icon-preview { width: 36px; height: 36px; flex-shrink: 0; display: grid; place-items: center; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-sunken); }
+
+  /* Nested group */
+  .adm-group { border: 1px solid var(--color-border); border-radius: 10px; padding: .2rem .85rem .6rem; margin-bottom: 1.1rem; background: var(--color-surface-sunken); }
+  .adm-group-title { font-size: 12px; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: .04em; margin: .7rem 0 .1rem; }
+
+  /* Repeatable lists */
+  .adm-list { display: flex; flex-direction: column; gap: .55rem; margin-bottom: .55rem; }
+  .adm-list-item { display: flex; gap: .4rem; align-items: flex-start; }
+  .adm-list-item textarea { flex: 1; min-height: 56px; }
+  .adm-card { border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface-raised); overflow: hidden; }
+  .adm-card-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .4rem .35rem .4rem .75rem; background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border); }
+  .adm-card-title { font-weight: 600; font-size: 13.5px; color: var(--color-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .adm-card-body { padding: .55rem .8rem .15rem; }
+  .adm-item-ctrls { display: flex; gap: .05rem; flex-shrink: 0; }
+  .adm-add { font-size: 13px; padding: .4rem .85rem; align-self: flex-start; }
 
   /* Tags */
   .adm-tags { border: 1px solid var(--color-border); border-radius: 8px; padding: .35rem; background: var(--color-surface); }

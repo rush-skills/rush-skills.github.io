@@ -97,8 +97,11 @@ export default {
             fields: [
                 ...baseFields,
                 { name: 'section', type: 'text', sqlType: 'text', notNull: true, unique: true },
-                { name: 'draft', type: 'json', sqlType: 'text' },
-                { name: 'published', type: 'json', sqlType: 'text' },
+                // Opaque JSON snapshots stored as TEXT: teenybase's `json` field type
+                // only validates JSON scalars, so we keep these as plain text and
+                // JSON.stringify / JSON.parse them ourselves (admin + src/lib/content.ts).
+                { name: 'draft', type: 'text', sqlType: 'text' },
+                { name: 'published', type: 'text', sqlType: 'text' },
             ],
             triggers: [createdTrigger, updatedTrigger],
             indexes: [{ fields: 'section' }],
