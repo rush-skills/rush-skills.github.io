@@ -80,7 +80,7 @@ export const ENTITIES: EntityDef[] = [
     key: 'links',
     labelSingular: 'Link',
     labelPlural: 'Links',
-    icon: 'xzcytjkv',
+    icon: 'hmqxevgf',
     listColumns: ['title', 'kind', 'published', 'published_at'],
     titleField: 'title',
     defaultOrder: 'published_at desc',
