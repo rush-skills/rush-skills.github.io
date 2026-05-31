@@ -1,0 +1,52 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    # Fork PRs only get a read-only token, so they can't publish to gh-pages.
+    # Restrict to PRs originating from branches in this repository.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: github.event.action != 'closed'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: github.event.action != 'closed'
+        run: npm ci
+
+      - name: Build with preview base path
+        if: github.event.action != 'closed'
+        env:
+          # Served from https://anks.in/pr-preview/pr-<N>/ so assets must be
+          # built under that subpath (consumed by base in astro.config.mjs).
+          PREVIEW_BASE: /pr-preview/pr-${{ github.event.number }}/
+        run: npm run build
+
+      # Deploys the preview on open/sync/reopen and removes it on close,
+      # then comments the preview URL on the PR.
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: ./dist
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: auto
