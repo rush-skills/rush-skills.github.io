@@ -38,7 +38,7 @@ items:
   - title: "Dubai Deals"
     subtitle: "Restaurant deals aggregator for Dubai"
     description: "Aggregates dining discounts from Careem, Zomato, Talabat, and other delivery apps into one searchable, location-aware interface, so you can compare every dining deal in Dubai without opening each app individually."
-    icon: "bsdkzyjd"
+    icon: "dkobpcrm"
     status: "Live"
     featured: true
     links:
