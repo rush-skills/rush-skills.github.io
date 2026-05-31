@@ -1,13 +1,25 @@
 import yaml from 'js-yaml';
-import fs from 'node:fs';
-import path from 'node:path';
 
-const dataDir = path.join(process.cwd(), 'src/data');
+// YAML is inlined at build time via Vite's glob (?raw), so data loading works in
+// every environment — Node, Astro's prerender step, and the Cloudflare Worker
+// runtime — with no runtime `node:fs` dependency (which the Worker lacks).
+const rawFiles = import.meta.glob('../data/*.yaml', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const dataByName: Record<string, string> = {};
+for (const [filePath, contents] of Object.entries(rawFiles)) {
+  const name = filePath.split('/').pop();
+  if (name) dataByName[name] = contents;
+}
 
 export function load(file: string): any {
-  const filePath = path.join(dataDir, file);
+  const contents = dataByName[file];
+  if (!contents) return {};
   try {
-    return yaml.load(fs.readFileSync(filePath, 'utf8')) || {};
+    return yaml.load(contents) || {};
   } catch {
     return {};
   }

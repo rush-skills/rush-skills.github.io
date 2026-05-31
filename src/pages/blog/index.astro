@@ -1,0 +1,40 @@
+---
+export const prerender = false;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { listPosts, formatDate } from '../../lib/blog';
+
+const posts = await listPosts();
+---
+<BaseLayout title="Blog — Ankur Singh" description="Writing on engineering, infrastructure, and building things.">
+  <main class="pt-28 pb-20 px-6 min-h-screen">
+    <div class="max-w-[760px] mx-auto">
+      <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">// BLOG</p>
+      <h1 class="font-display text-[34px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">Writing</h1>
+
+      {posts.length === 0 ? (
+        <div class="rounded-[8px] border border-border bg-surface-raised p-8 text-center">
+          <p class="text-ink-secondary m-0">No posts yet — check back soon.</p>
+        </div>
+      ) : (
+        <ul class="list-none p-0 m-0 flex flex-col gap-6">
+          {posts.map((post) => (
+            <li class="group">
+              <a href={`/blog/${post.slug}`} class="block rounded-[8px] border border-border bg-surface-raised p-6 no-underline transition-colors hover:border-accent">
+                <div class="flex items-center gap-3 mb-2">
+                  {post.published_at && (
+                    <time class="text-[13px] font-mono text-ink-tertiary" datetime={post.published_at}>{formatDate(post.published_at)}</time>
+                  )}
+                  {post.tags?.slice(0, 3).map((t) => (
+                    <span class="text-[12px] font-mono text-accent">#{t}</span>
+                  ))}
+                </div>
+                <h2 class="font-display text-[22px] font-bold text-ink m-0 mb-2 group-hover:text-accent transition-colors">{post.title}</h2>
+                {post.excerpt && <p class="text-[16px] text-ink-secondary leading-[1.7] m-0">{post.excerpt}</p>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </main>
+</BaseLayout>

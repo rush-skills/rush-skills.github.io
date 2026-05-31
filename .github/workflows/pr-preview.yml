@@ -45,7 +45,11 @@ jobs:
 
       - name: Deploy to Surge
         if: env.SURGE_TOKEN != '' && github.event.action != 'closed'
-        run: npx --yes surge ./dist "$PREVIEW_DOMAIN" --token "$SURGE_TOKEN"
+        # The site now builds with the Cloudflare adapter (dist/client = static
+        # assets + prerendered pages; dist/server = the Worker). Surge is static-
+        # only, so it previews the marketing pages from dist/client; /blog and
+        # /admin (SSR) only work on the real Cloudflare deploy.
+        run: npx --yes surge ./dist/client "$PREVIEW_DOMAIN" --token "$SURGE_TOKEN"
 
       - name: Tear down Surge preview
         if: env.SURGE_TOKEN != '' && github.event.action == 'closed'
