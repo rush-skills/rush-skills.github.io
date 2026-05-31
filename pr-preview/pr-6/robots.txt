@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anks.in/sitemap-index.xml
+
+# LLM discovery
+llms.txt: https://anks.in/llms.txt
+llms-full.txt: https://anks.in/llms-full.txt

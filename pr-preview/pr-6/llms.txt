@@ -1,0 +1,17 @@
+# Ankur Singh
+
+> I build scalable systems, automate operations, and ship products. 8+ years across distributed computing, cloud infrastructure, and fullstack development.
+
+- Site: https://anks.in
+- Email: hello@anks.in
+- GitHub: https://github.com/rush-skills/
+- LinkedIn: https://www.linkedin.com/in/ankursingh13
+- TheServerlessDev: https://theserverless.dev
+
+## About
+
+Ankur Singh is a fullstack and infrastructure engineer based in Bangalore, India with 8+ years of experience across distributed systems, cloud infrastructure, and product development. Previously at CERN, Tower Research Capital, and Myntra. Currently consulting through TheServerlessDev.
+
+## Detailed Information
+
+For full details including work experience, projects, skills, and education, see: https://anks.in/llms-full.txt

@@ -1,0 +1,137 @@
+# Ankur Singh
+
+> I build scalable systems, automate operations, and ship products. 8+ years across distributed computing, cloud infrastructure, and fullstack development.
+
+- Site: https://anks.in
+- Email: hello@anks.in
+- GitHub: https://github.com/rush-skills/
+- LinkedIn: https://www.linkedin.com/in/ankursingh13
+- TheServerlessDev: https://theserverless.dev
+
+## About
+
+I'm a software engineer based in Bangalore, India with 8+ years of experience across distributed systems, cloud infrastructure, and product development. I'm comfortable across the stack - from system internals to frontend applications.
+
+I spent 2.5 years at CERN in Geneva managing a 250,000-core compute cluster and building self-healing automation. Before that, I worked on HPC systems at Tower Research Capital and analytics platforms at Myntra.
+
+Today I consult through TheServerlessDev — building AI pipelines, 3D visualization platforms, and serverless backends. I'm also a maintainer and TSC member for StackStorm, and I build open source tools like WSC and VisTracer.
+
+## Experience
+
+### TheServerlessDev
+**Freelance Engineer** | Remote / Bangalore, India | Mar 2023 – Present
+Building AI pipelines, 3D visualization platforms, and serverless backends for startups and SMEs. Clients include Pixotronics (iJewel Studio), LearnWithAI, and multiple jewelry e-commerce brands (including Imagine Designs, Roman & Jules). Won Square + Google AI Hackathon 2023 with SquareCubed.
+Tech: Python, TypeScript, Next.js, Astro, Cloudflare, Supabase, AWS Lambda
+
+### CERN
+**Computing Fellow** | Geneva, Switzerland | Sep 2020 – Feb 2023
+Managed 250K-core distributed batch cluster. Built fault-tolerant auto-remediation with StackStorm. Automated support workflows, reducing manual effort and improving uptime. Presented at HEPiX .
+Tech: Python, Ruby, StackStorm, Puppet, Docker, Kafka, Kubernetes, Terraform
+
+### Tower Research Capital
+**Software Engineer, HPC** | Gurugram, India | Jun 2018 – Jul 2019
+First HPC engineer in India. Administered 30K+ core HTCondor clusters for trading research. Built real-time monitoring with ELK (50M events/day). Contributed to 500-node K8s migration. Managed petabyte-scale storage systems.
+Tech: ELK Stack, InfluxDB, Kubernetes, GPFS, Grafana, SaltStack, CFEngine
+
+### Myntra (Flipkart)
+**Software Engineer, BI/Analytics** | Bengaluru, India | Jul 2017 – Jun 2018
+Built analytics platforms for India's largest fashion e-commerce. Enhanced dashboarding platforms used by CXOs. Reduced Personify segmentation from hours to minutes for 100M customers.
+Tech: Java, Spring, Hibernate, Redshift, AWS, Redis, MySQL
+
+## Projects
+
+### ComicAdda
+*India's standup comedy discovery platform*
+Status: Live
+Discover Indian standup comedians by language, city, and style. Watch tracking, ratings, follow system, and personalized newsletters. Entirely built using AI agents orchestrating parallel development and data-mining workflows.
+- Website: https://comicadda.com/
+Tech: Next.js 15, React 19, Supabase, PostgreSQL, Tailwind CSS, Cloudflare
+
+### Dubai Deals
+*Restaurant deals aggregator for Dubai*
+Status: Live
+Aggregates dining discounts from Careem, Zomato, Talabat, and other delivery apps into one searchable, location-aware interface, so you can compare every dining deal in Dubai without opening each app individually.
+- Website: https://dubaideals.live/
+Tech: Astro, React, TypeScript, Cloudflare, Lucide
+
+### iJewel Studio
+*3D jewelry rendering platform*
+Status: Enterprise
+Platform for jewelry designers to upload, optimize, and render 3D models with photorealistic quality. Features Blender-based mesh optimization, async job queues, and scalable serverless backend.
+- Website: https://ijewel.studio/
+Tech: Next.js, React, Supabase, Cloudflare Workers, Cloud Run, Blender, WebGi
+
+### SquareCubed
+*AI-assisted 3D showroom for Square stores*
+Status: Hackathon Winner
+Virtual 3D showroom for Square e-commerce stores using Vertex AI for product understanding and WebGi for real-time rendering. Won Square + Google AI Hackathon 2023 ("Best reinvention of in-person & online experiences").
+- Devpost: https://devpost.com/software/aisquar3d
+- Website: https://squarecubed.anks.in/
+Tech: Vertex AI, Svelte, Next.js, WebGi SDK, Cloudflare Workers
+
+### WSC
+*Multi-interface writing style linter*
+Status: Open Source
+Detects weasel words, passive voice, duplicates, long sentences, nominalizations, hedging, filler adverbs, and AI tells across 8 detectors with 800+ entries. Available as a web editor, HTTP API, remote & local MCP server, CLI, and GitHub Action.
+- Website: https://wsc.theserverless.dev/
+- GitHub: https://github.com/theserverlessdev/wsc/
+Tech: SvelteKit, TypeScript, MCP, Cloudflare Workers, Vite, CSS
+
+### Cloudflare Cost Calculator
+*Estimate your Cloudflare bill*
+Status: Live
+Interactive calculator for estimating Cloudflare infrastructure costs across Workers, D1, R2, KV, and Durable Objects.
+- Website: https://theserverless.dev/calculators/
+Tech: Astro, React, CSS
+
+### VisTracer
+*Visual traceroute on a 3D globe*
+Status: Open Source
+Desktop app that executes native traceroute, enriches hops with GeoIP/ASN metadata from 5 providers (MaxMind, Team Cymru, RDAP, RIPE Stat, PeeringDB), and renders animated routes on an interactive 3D globe with day/night terminator and latency-colored arcs.
+- Website: https://vistracer.anks.in
+- GitHub: https://github.com/rush-skills/vistracer
+Tech: TypeScript, Electron, React, Three.js, Zustand, Vite
+
+### EnergyGrade
+*Rooftop solar made accessible*
+Status: Live
+Solar savings calculator and portfolio. Installed over 1MW of solar panels in India. Built during B.Tech.
+- Website: https://www.energygrade.in/
+Tech: Ruby on Rails, PostgreSQL, JavaScript
+
+### HireLoom
+*Referral-first job search for India*
+Status: WIP
+Job board aggregator for tech roles in India and remote-from-India positions. Scrapes 300+ company career pages, matches jobs to resumes using AI (BYOK: OpenAI, Anthropic, Gemini), and surfaces referral paths from LinkedIn connections.
+- Website: https://hireloom.dev/
+Tech: Astro, React, Hono, Cloudflare Workers, D1, R2, Drizzle ORM
+
+### Mouve
+*Animated Instagram stories*
+Status: Archived
+Animated story maker for Instagram powered by a Unity rendering engine. 100k+ Play Store downloads.
+- Website: https://mouve.app/
+Tech: Node.js, Sails.js, Unity
+
+## Skills
+
+**Languages:** Python, JavaScript, TypeScript, Bash, Java, SQL, Golang, Ruby, C
+**Frameworks & Libraries:** Django, FastAPI, Flask, Rails, Spring Boot, React, Next.js, SvelteKit, Astro, Hono
+**DevOps & Cloud:** Docker, Kubernetes, AWS, GCP, Terraform, Helm, Puppet, Ansible, StackStorm, CI/CD
+**Databases & Storage:** PostgreSQL, MySQL, MongoDB, Redis, Redshift, SQLite, Cloudflare D1
+
+## Education
+
+**B.Tech, Computer Science & Engineering**
+IIIT Delhi, New Delhi
+2013 – 2017
+
+- Gold Medal: Best B.Tech Project
+- Admin of Byld (SDE Club)
+- SysAdmin TA: Data Center & R&D
+- TA: Intro to Programming '14 & '15
+
+## Contact
+
+I'm open to full-time roles, freelance projects, and interesting conversations about distributed systems, AI infrastructure, or serverless architecture.
+Email: hello@anks.in
