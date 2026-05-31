@@ -9,6 +9,12 @@
   "compatibility_date": "2026-05-31",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // Serve the production site from the apex domain. anks.in is a Cloudflare zone,
+  // so this attaches the Worker as a Custom Domain (Cloudflare manages the DNS
+  // record + TLS cert automatically).
+  "routes": [
+    { "pattern": "anks.in", "custom_domain": true }
+  ],
   "vars": {
     "RESPOND_WITH_ERRORS": "true",
     "APP_URL": "https://anks.in"
