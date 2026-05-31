@@ -29,11 +29,12 @@ Cloudflare credentials are available from the build sandbox.
 
 ## 1. Create the D1 database and R2 bucket
 
-> **Already done.** These were created on the account via the Cloudflare
-> connector, and the IDs are already wired into `wrangler.jsonc` (root) and
-> `blog-backend/wrangler.jsonc`:
+> **Already done & verified.** Created on the account via the Cloudflare
+> connector; IDs are wired into `wrangler.jsonc` (root) and
+> `blog-backend/wrangler.jsonc`. The remote D1 was confirmed reachable and empty
+> (only the internal `_cf_KV` table) — `deploy.sh` step 2 applies the schema.
 >
-> - D1 `anksin-db` → `d7415070-0708-4abe-a5dd-550c3fc51c29` (APAC)
+> - D1 `anksin-db` → `d7415070-0708-4abe-a5dd-550c3fc51c29` (APAC / SIN)
 > - R2 `anksin-files`
 >
 > If you ever need to recreate them:
