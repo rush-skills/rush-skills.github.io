@@ -55,6 +55,8 @@ async function api(path, { method = 'GET', token, body } = {}) {
     method,
     headers: {
       'Content-Type': 'application/json',
+      // teenybase rejects cross-site POSTs without a matching Origin (CSRF guard).
+      Origin: API_BASE,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,

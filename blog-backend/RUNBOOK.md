@@ -78,24 +78,43 @@ npm run build
 npx wrangler deploy
 ```
 
-This deploys to `anks-in.<your-subdomain>.workers.dev`. Open it and verify:
+This deploys to `anks-in.<your-subdomain>.workers.dev`. Open it and verify
+`/`, `/blog`, and `/admin` render. **`/api/v1/health` will 500 until the next
+step** — that's expected.
 
-- `/` — the marketing site renders.
-- `/api/v1/health` — returns OK (teenybase is mounted).
-- `/blog` — renders (empty until the first post).
-- `/admin` — shows the login screen.
+> **Or just run `bash blog-backend/deploy.sh`** from the repo root, which does
+> steps 2–4 and prints the exact commands for 4a–6.
+
+## 4a. Bootstrap teenybase's internal tables (REQUIRED)
+
+Because we deploy the **Astro** Worker with `wrangler deploy` (not
+`teeny deploy`), teenybase's one-time `setup-db` doesn't run automatically. It
+creates the internal metadata tables (`_ddb_internal_kv`, migration registry,
+`$settings`). Run it once with your `ADMIN_SERVICE_TOKEN`:
+
+```bash
+URL=https://anks-in.<your-subdomain>.workers.dev
+TOKEN=<your ADMIN_SERVICE_TOKEN>
+curl -sS -X POST "$URL/api/v1/setup-db" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -H "Origin: $URL" -d '{}'
+```
+
+After this, `$URL/api/v1/health` returns OK and auth works.
 
 ## 5. Create the owner account
 
-Use teenybase's built-in admin (PocketUI) once to create your user:
+Self-serve signup is closed (`users` createRule), so create your account once
+using the admin token, which bypasses the rule:
 
-```
-https://anks-in.<your-subdomain>.workers.dev/api/v1/pocket/
+```bash
+curl -sS -X POST "$URL/api/v1/table/users/auth/sign-up" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -H "Origin: $URL" \
+  -d '{"username":"ankur","email":"you@anks.in","password":"<strong-password>","passwordConfirm":"<same>","name":"Ankur Singh"}'
 ```
 
-Log in with `POCKET_UI_EDITOR_PASSWORD`, add a row to `users` with your email +
-password. That's the account `/admin` logs in with. (Self-serve signup is closed
-by the `users` createRule.)
+That's the account `/admin` logs in with. (You can also use teenybase's built-in
+admin at `$URL/api/v1/pocket/`, logging in with `POCKET_UI_EDITOR_PASSWORD`.)
 
 ## 6. Seed the first (meta) post
 
