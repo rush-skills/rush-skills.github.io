@@ -17,7 +17,7 @@
         {
             "binding": "PRIMARY_DB",
             "database_name": "anksin-db",
-            "database_id": "PLACEHOLDER_SET_AFTER_D1_CREATE",
+            "database_id": "d7415070-0708-4abe-a5dd-550c3fc51c29",
             "migrations_dir": "migrations"
         }
     ],

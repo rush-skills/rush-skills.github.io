@@ -29,17 +29,20 @@ Cloudflare credentials are available from the build sandbox.
 
 ## 1. Create the D1 database and R2 bucket
 
+> **Already done.** These were created on the account via the Cloudflare
+> connector, and the IDs are already wired into `wrangler.jsonc` (root) and
+> `blog-backend/wrangler.jsonc`:
+>
+> - D1 `anksin-db` → `d7415070-0708-4abe-a5dd-550c3fc51c29` (APAC)
+> - R2 `anksin-files`
+>
+> If you ever need to recreate them:
+
 ```bash
 npx wrangler d1 create anksin-db
 npx wrangler r2 bucket create anksin-files
+# then put the new database_id into wrangler.jsonc
 ```
-
-Copy the `database_id` that `d1 create` prints into `wrangler.jsonc` (replace
-`PLACEHOLDER_SET_AFTER_D1_CREATE`).
-
-> These can also be created from the Cloudflare dashboard, or — since the
-> Cloudflare connector in this session can provision them — I can create them for
-> you and report back the `database_id`.
 
 ## 2. Generate and apply migrations
 
