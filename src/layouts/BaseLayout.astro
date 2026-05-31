@@ -92,7 +92,7 @@ const themeStyle = [
       "url": Astro.site?.toString() || "",
       "jobTitle": hero.subtitle,
       "email": site.email ? `mailto:${site.email}` : undefined,
-      "alumniOf": education.institution ? { "@type": "CollegeOrUniversity", "name": education.institution } : undefined,
+      "alumniOf": (education.schools?.[0]?.institution || education.institution) ? { "@type": "CollegeOrUniversity", "name": education.schools?.[0]?.institution || education.institution } : undefined,
       "sameAs": (site.social || []).map((s: any) => s.url).filter(Boolean)
     })} />
 

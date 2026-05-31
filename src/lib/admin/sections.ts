@@ -190,12 +190,17 @@ export const SECTION_DEFS: SectionDef[] = [
     fields: [
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
-      t('degree', 'Degree'),
-      t('institution', 'Institution'),
-      t('dateRange', 'Date range'),
       {
-        name: 'highlights', label: 'Highlights', type: 'list', itemLabel: 'highlight', itemTitleKey: 'text',
-        fields: [icon(), t('text', 'Text'), { name: 'featured', label: 'Featured', type: 'boolean' }],
+        name: 'schools', label: 'Education', type: 'list', itemLabel: 'qualification', itemTitleKey: 'degree',
+        fields: [
+          t('degree', 'Degree'),
+          t('institution', 'Institution'),
+          t('dateRange', 'Date range'),
+          {
+            name: 'highlights', label: 'Highlights', type: 'list', itemLabel: 'highlight', itemTitleKey: 'text',
+            fields: [icon(), t('text', 'Text'), { name: 'featured', label: 'Featured', type: 'boolean' }],
+          },
+        ],
       },
     ],
   },
