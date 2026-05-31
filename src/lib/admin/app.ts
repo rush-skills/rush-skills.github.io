@@ -13,12 +13,37 @@ function esc(s: unknown): string {
   return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 }
 
+// Load the Lordicon player from the bundled SPA — Astro drops an `is:inline`
+// external script from the admin's raw-document page, so this is what actually
+// registers <lord-icon>. Elements created before it loads upgrade retroactively.
+function ensureLordicon() {
+  if (typeof document === 'undefined') return;
+  if (customElements.get('lord-icon') || document.querySelector('script[data-lordicon]')) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.lordicon.com/lordicon.js';
+  s.defer = true;
+  s.setAttribute('data-lordicon', '');
+  document.head.appendChild(s);
+}
+
+// Sidebar grouping: one-off pages vs repeating content (same rich section editors,
+// shown under "Collections").
+const SINGLETON_SECTIONS = ['site', 'theme', 'hero', 'about', 'contact'];
+const COLLECTION_SECTIONS = ['projects', 'experience', 'skills', 'education'];
+
+function secNavLink(section: string): string {
+  const d = getSectionDef(section);
+  if (!d) return '';
+  return `<a href="#/content/${d.section}" data-key="content:${d.section}" class="adm-nav-link">${esc(d.label)}</a>`;
+}
+
 export class AdminApp {
   private root: HTMLElement;
   private current?: { form: EntityForm; entity: EntityDef; id?: string };
 
   constructor(root: HTMLElement) {
     this.root = root;
+    ensureLordicon();
     window.addEventListener('hashchange', () => this.route());
     this.boot();
   }
