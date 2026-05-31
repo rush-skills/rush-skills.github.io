@@ -1,6 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const projects = load('projects.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const projects = (await getContent(Astro)).projects || {};
 const statuses = projects.statuses || [];
 const items = projects.items || [];
 

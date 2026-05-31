@@ -82,5 +82,37 @@ export default {
                 } as TableRulesExtensionData,
             ],
         },
+
+        // --- Site content (CMS) ----------------------------------------------------
+        // Every editable region of the site is one row here, keyed by `section`
+        // (hero, about, projects, theme, …). Each row carries two JSON snapshots:
+        //   - `published`: what the live site renders
+        //   - `draft`:     the work-in-progress shown in admin Preview
+        // "Publish" copies draft -> published. The public site reads the published
+        // column straight from D1 during SSR (see src/lib/content.ts), so drafts are
+        // never exposed: the HTTP API below is locked to authenticated admins only.
+        {
+            name: 'content',
+            autoSetUid: true,
+            fields: [
+                ...baseFields,
+                { name: 'section', type: 'text', sqlType: 'text', notNull: true, unique: true },
+                { name: 'draft', type: 'json', sqlType: 'text' },
+                { name: 'published', type: 'json', sqlType: 'text' },
+            ],
+            triggers: [createdTrigger, updatedTrigger],
+            indexes: [{ fields: 'section' }],
+            extensions: [
+                {
+                    // Admin-only: SSR reads D1 directly, so nothing here is public.
+                    name: 'rules',
+                    listRule: 'auth.uid != null',
+                    viewRule: 'auth.uid != null',
+                    createRule: 'auth.uid != null',
+                    updateRule: 'auth.uid != null',
+                    deleteRule: 'auth.uid != null',
+                } as TableRulesExtensionData,
+            ],
+        },
     ],
 } satisfies DatabaseSettings

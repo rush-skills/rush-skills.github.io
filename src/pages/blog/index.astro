@@ -1,11 +1,11 @@
 ---
 export const prerender = false;
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageLayout from '../../layouts/PageLayout.astro';
 import { listPosts, formatDate } from '../../lib/blog';
 
 const posts = await listPosts((Astro.locals as any).cfContext);
 ---
-<BaseLayout title="Blog — Ankur Singh" description="Writing on engineering, infrastructure, and building things.">
+<PageLayout title="Blog — Ankur Singh" description="Writing on engineering, infrastructure, and building things.">
   <main class="pt-28 pb-20 px-6 min-h-screen">
     <div class="max-w-[760px] mx-auto">
       <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">// BLOG</p>
@@ -37,4 +37,4 @@ const posts = await listPosts((Astro.locals as any).cfContext);
       )}
     </div>
   </main>
-</BaseLayout>
+</PageLayout>

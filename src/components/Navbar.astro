@@ -1,6 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const site = load('site.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const site = (await getContent(Astro)).site || {};
 const base = import.meta.env.BASE_URL;
 const navItems = site.nav || [];
 ---

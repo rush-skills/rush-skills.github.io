@@ -1,6 +1,6 @@
 ---
-import { load } from '../lib/data';
-const experience = load('experience.yaml');
+import { getContent } from '../lib/content';
+const experience = (await getContent(Astro)).experience || {};
 const jobs = experience.jobs || [];
 ---
 <section id="experience" class="py-20 md:py-28 px-6 bg-surface scroll-mt-16">

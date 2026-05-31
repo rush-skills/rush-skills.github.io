@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import { marked } from 'marked';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageLayout from '../../layouts/PageLayout.astro';
 import { getPostBySlug, formatDate } from '../../lib/blog';
 
 const { slug } = Astro.params;
@@ -15,7 +15,7 @@ marked.setOptions({ gfm: true, breaks: false });
 const html = await marked.parse(post.body || '');
 const cover = post.cover_image && /^https?:\/\//.test(post.cover_image) ? post.cover_image : null;
 ---
-<BaseLayout title={`${post.title} — Ankur Singh`} description={post.excerpt || post.title}>
+<PageLayout title={`${post.title} — Ankur Singh`} description={post.excerpt || post.title}>
   <main class="pt-28 pb-20 px-6 min-h-screen">
     <article class="max-w-[720px] mx-auto">
       <a href="/blog" class="inline-block text-[14px] font-mono text-accent hover:text-accent-light no-underline mb-8">← All posts</a>
@@ -34,7 +34,7 @@ const cover = post.cover_image && /^https?:\/\//.test(post.cover_image) ? post.c
       <div class="post-body" set:html={html}></div>
     </article>
   </main>
-</BaseLayout>
+</PageLayout>
 
 <style>
   .post-body :global(h2) { font-family: var(--font-display, inherit); font-size: 24px; font-weight: 700; color: var(--color-ink); margin: 2rem 0 0.75rem; }

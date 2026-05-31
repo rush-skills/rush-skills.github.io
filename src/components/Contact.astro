@@ -1,7 +1,9 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const site = load('site.yaml');
-const contact = load('contact.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const content = await getContent(Astro);
+const site = content.site || {};
+const contact = content.contact || {};
 const social = site.social || [];
 ---
 <section id="contact" class="py-20 md:py-28 px-5 md:px-6 bg-surface scroll-mt-16">

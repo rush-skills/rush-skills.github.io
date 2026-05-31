@@ -1,6 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const education = load('education.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const education = (await getContent(Astro)).education || {};
 const highlights = education.highlights || [];
 ---
 <section id="education" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">

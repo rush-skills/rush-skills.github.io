@@ -1,0 +1,21 @@
+# Theme — colors and fonts, editable from /admin. These mirror the defaults in
+# src/styles/global.css; anything set here is injected as CSS variables at render
+# time and overrides the stylesheet, so you can re-skin the whole site from the
+# admin panel without touching code. Leave a value blank to fall back to the CSS.
+#
+# `light` / `dark` are maps of CSS custom-property name -> value. Any --color-*
+# token from global.css can be overridden here.
+light:
+  accent: "#2E5090"
+  accent-light: "#3A6BC5"
+  accent-dark: "#103877"
+  accent-wash: "#EBF0F9"
+dark:
+  accent: "#7BA4E0"
+  accent-light: "#9BBAEA"
+  accent-dark: "#5A86C8"
+  accent-wash: "rgba(123, 164, 224, 0.1)"
+fonts:
+  sans: "IBM Plex Sans"
+  mono: "JetBrains Mono"
+  display: "Space Grotesk"

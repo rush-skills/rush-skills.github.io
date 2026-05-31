@@ -1,6 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const about = load('about.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const about = (await getContent(Astro)).about || {};
 const paragraphs = about.paragraphs || [];
 const stats = about.stats || [];
 ---
