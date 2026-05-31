@@ -84,11 +84,27 @@ async function main() {
   // 2. Read + parse the meta post.
   const { meta, body } = parsePost(join(here, 'how-this-blog-was-built.md'))
 
-  // 3. Skip if the slug already exists.
+  // 3. Find any existing post with this slug.
+  const force = process.argv.includes('--force')
   const existing = await api(`/table/posts/list?where=${encodeURIComponent(`slug = "${meta.slug}"`)}`, { token })
-  const rows = existing.records || existing.data || existing.results || []
+  const rows = existing.records || existing.data || existing.results || existing.items || []
+
+  const fields = {
+    title: meta.title,
+    excerpt: meta.excerpt || '',
+    body,
+    tags: JSON.stringify(meta.tags || []),
+    published: meta.published ?? true,
+  }
+
   if (rows.length) {
-    console.log(`Post "${meta.slug}" already exists — nothing to do.`)
+    if (!force) {
+      console.log(`Post "${meta.slug}" already exists — pass --force to update it.`)
+      return
+    }
+    // NB: teenybase edit takes fields at the top level (insert wraps them in values).
+    await api(`/table/posts/edit/${rows[0].id}`, { method: 'POST', token, body: fields })
+    console.log(`Updated post: ${rows[0].id}`)
     return
   }
 
@@ -99,13 +115,9 @@ async function main() {
     body: {
       values: {
         author_id: authorId,
-        title: meta.title,
         slug: meta.slug,
-        excerpt: meta.excerpt || '',
-        body,
-        tags: JSON.stringify(meta.tags || []),
-        published: meta.published ?? true,
         published_at: new Date().toISOString(),
+        ...fields,
       },
     },
   })

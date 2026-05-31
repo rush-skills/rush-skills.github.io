@@ -1,275 +1,258 @@
 ---
-title: "Building this blog: one Cloudflare Worker running Astro and teenybase together"
+title: "How this site became a CMS: one Cloudflare Worker running Astro and teenybase"
 slug: "how-this-blog-was-built"
-excerpt: "A long, honest walkthrough of how anks.in became a dynamic, database-backed site — Astro SSR and a teenybase backend living inside a single Cloudflare Worker, with a custom markdown admin at /admin. Every step, every gotcha."
-tags: ["cloudflare", "teenybase", "astro", "workers", "d1", "meta"]
+excerpt: "An honest, end-to-end walkthrough of turning anks.in from a static GitHub Pages site into a fully self-editable CMS — Astro SSR and a teenybase backend inside a single Cloudflare Worker, with every section, color, and icon editable from /admin with drafts and preview. The start state, the end state, and every gotcha in between."
+tags: ["cloudflare", "teenybase", "astro", "workers", "d1", "cms", "meta"]
 published: true
 ---
 
-This is the first post on the blog, and — because I can't resist a good
-bootstrap paradox — it's about the blog itself. How does this page reach you?
-What's underneath it? The short version: the entire site, including the words
-you're reading, is rendered by **one Cloudflare Worker** that runs an Astro
-application *and* a [teenybase](https://teenybase.com) backend at the same time,
-reading from a single SQLite database at the edge.
+This is the first post on the blog and — because I can't resist a good bootstrap
+paradox — it's about the site you're looking at. Not just the blog: the *whole*
+site. How does this page reach you, and how did the words, the colors, the
+project cards, and the icons all become things I can edit from a browser instead
+of from a text editor and a `git push`?
 
-The longer version is what follows. I've tried to write the post I wish I'd
-found when I started — not a tidy "look how clean this is" tour, but the actual
-sequence of decisions, the things that didn't work the first time, and why the
-final shape is what it is.
+The short version: the entire site is rendered by **one Cloudflare Worker** that
+runs an Astro application *and* a [teenybase](https://teenybase.com) backend at
+the same time, reading from a single SQLite database at the edge. Every editable
+region lives in that database, and there's an admin at `/admin` to change it —
+with drafts, a live preview, and a publish button.
 
-## Where this started
+The longer version is the post I wish I'd found when I started: not a tidy "look
+how clean this is" tour, but the actual start and end states, the decisions in
+between, the things that broke, and why the final shape is what it is.
 
-`anks.in` used to be a static site. Astro built it to a folder of HTML, and
-GitHub Pages served that folder. This is a genuinely great setup for a portfolio:
-fast, free, nothing to break at 3am. But "static" means every change is a
-code change and a redeploy. I wanted a blog I could write from a browser, and —
-eventually — I wanted the rest of the site (projects, work history, skills) to
-be editable the same way, instead of living in YAML files I hand-edit.
+## The start state
 
-So the goal became: keep the speed and the SEO of the static site, but make the
-content come from a database, and give myself a real editor to manage it.
+`anks.in` used to be a **static site**. Astro built it to a folder of HTML, and
+GitHub Pages served that folder. The apex domain pointed at GitHub's IPs with four
+`A` records. This is a genuinely great setup for a portfolio: fast, free, nothing
+to break at 3am.
+
+But "static" means every change is a code change and a redeploy. The content lived
+in YAML files (`src/data/hero.yaml`, `projects.yaml`, and so on) that I hand-edited
+and committed. Want to fix a typo, add a project, or try a different accent color?
+Edit YAML, commit, wait for the build. Fine for an engineer; not a CMS.
+
+## The end state
+
+Same site, visually identical, but now:
+
+- It runs on a **single Cloudflare Worker** serving `/`, `/blog`, `/admin`, and
+  `/api` — one program, one origin, one D1 database, one R2 bucket.
+- The home page is **server-rendered from the database**. Every section — hero,
+  about, experience, projects, skills, education, contact — plus the **theme
+  (colors and fonts)** and **every icon** is a row in a `content` table.
+- There's an admin at `/admin` where I edit all of it through real forms
+  (repeatable project lists, color pickers, icon fields), save a **draft**,
+  **Preview** the site with my unpublished changes, then **Publish**.
+- The committed YAML still exists — as the **seed and the fallback**. A fresh
+  clone with an empty database renders the exact same site, because each section
+  falls back to its YAML. That's also what makes this repo a template: anyone can
+  clone it, run one command, and get their own copy to customise from the admin.
+- There's a Markdown **blog** (this) with its own editor.
+
+Same speed, same SEO, but the content is now data, not code.
 
 ## Choosing the pieces
 
 Three constraints shaped every decision:
 
-1. **It should run on the Cloudflare developer platform.** I already host other
-   things there; Workers + D1 (their SQLite) + R2 (their object storage) is a
-   cheap, fast, global stack.
-2. **One Worker, one account, one origin.** An earlier draft of this project had
-   a *separate* backend Worker on a different domain. That meant two deploys, two
-   sets of secrets, and CORS between them. I scrapped it. Everything now lives in
-   a single Worker that owns `anks.in` — `/`, `/blog`, `/admin`, and `/api` are
-   all the same program.
+1. **It should run on the Cloudflare developer platform.** Workers + D1 (their
+   SQLite) + R2 (their object storage) is a cheap, fast, global stack I already
+   use.
+2. **One Worker, one account, one origin.** An earlier draft had a *separate*
+   backend Worker on a different domain — two deploys, two sets of secrets, and
+   CORS between them. I scrapped it. Everything now lives in a single Worker that
+   owns `anks.in`.
 3. **The backend shouldn't be hand-rolled.** I didn't want to write auth, a REST
-   API, migrations, and an admin from scratch. That's where teenybase comes in.
+   API, migrations, and an admin from scratch. That's [teenybase](https://teenybase.com).
 
 **teenybase** is a "single-file backend": you describe your tables, auth, and
 access rules in one TypeScript file, and it gives you a D1-backed REST API, JWT
-auth with row-level security, file uploads to R2, and a built-in admin UI. It's
-built on [Hono](https://hono.dev), which matters more than it sounds like it
-should — I'll come back to that.
+auth with row-level security, file uploads to R2, and a built-in admin. It's built
+on [Hono](https://hono.dev), which matters more than it sounds like it should.
 
-**Astro** stays as the front-end framework, but switches from static output to
-**server-side rendering on Cloudflare**, so pages can read the database per
-request.
+**Astro** stays as the front-end framework but switches from static output to
+**server-side rendering on Cloudflare**, so pages can read the database per request.
 
 ## The key idea: two apps, one Worker
 
-Here's the part I want to dwell on, because it's the whole trick.
+Here's the whole trick. A Cloudflare Worker has a single entry point: a
+`fetch(request)` function. Astro's Cloudflare adapter generates one. teenybase's
+backend is, underneath, a Hono app — which is *also* just a `fetch(request)`
+handler. So "can these two coexist?" becomes "can one fetch handler call another?"
+And the answer is yes, because Hono apps compose.
 
-A Cloudflare Worker has a single entry point: a `fetch(request)` function. Astro's
-Cloudflare adapter generates one. teenybase's backend is, underneath, a Hono app
-— which is *also* just a `fetch(request)` handler. So the question "can these
-two coexist?" becomes "can one fetch handler call another?" And the answer is
-yes, trivially, because Hono apps compose.
-
-Concretely, the Astro app owns routing. One catch-all route, `/api/[...path]`,
-forwards every request straight into the teenybase Hono app:
+Astro owns routing. One catch-all route, `/api/[...path]`, forwards every request
+straight into the teenybase Hono app:
 
 ```ts
-// src/pages/api/[...path].ts — every method, the whole API surface
+// src/pages/api/[...path].ts
 export const prerender = false;
 import { getTeenyApp } from '../../server/teeny';
 
-const handler = async ({ request, locals }) => {
-  const { env, ctx } = locals.runtime;          // Cloudflare bindings (D1, R2)
-  return getTeenyApp().fetch(request, env, ctx); // hand off to teenybase
-};
+const handler = async ({ request, locals }) =>
+  getTeenyApp().fetch(request, env, locals.cfContext);  // hand off to teenybase
 export const GET = handler;
 export const POST = handler;
 // ...PUT, PATCH, DELETE, OPTIONS, HEAD
 ```
 
-teenybase takes over from `/api/v1` downward: the REST endpoints, the auth flows,
-the file uploads, and its admin dashboard. Astro handles everything else.
+Because they share an address space, the *server-rendered pages can read the
+database without a network request at all* — no CORS, no second origin, no latency
+hop. The "frontend" and the "backend" are the same Worker reaching into the same
+D1 binding.
 
-And because they share an address space, the *server-rendered pages can call the
-API without a network request at all*. When the `/blog` page needs posts, it
-doesn't `fetch('https://.../api/...')` over HTTP — it invokes the same Hono app
-in-process:
+## Making the content a database — without losing the fallback
 
-```ts
-// the blog list page, rendering on the server
-const { env, ctx } = Astro.locals.runtime;
-const res = await getTeenyApp().fetch(
-  new Request('https://anks.in/api/v1/table/posts/list?where=published%20=%20true'),
-  env, ctx,
-);
-const posts = await res.json();
-```
+The design I landed on is **DB-first, YAML-as-seed**. Every section of the site is
+one row in a `content` table, and each row carries two JSON snapshots:
 
-No CORS. No second origin. No latency hop. The "frontend" and the "backend" are
-the same Worker reaching into the same D1 binding.
+- `published` — what the live site renders.
+- `draft` — the work in progress you see in Preview.
 
-## Step 1 — Describe the data
-
-teenybase projects are scaffolded with `npx teeny create`. The schema is plain
-TypeScript, and the heart of it is the `posts` table:
+During SSR, a small loader (`src/lib/content.ts`) reads those rows **directly from
+the D1 binding** — not over HTTP — and falls back to the committed YAML for any
+section the database doesn't have yet:
 
 ```ts
-{
-  name: 'posts',
-  autoSetUid: true,
-  fields: [
-    ...baseFields,                 // id, created, updated (added for you)
-    { name: 'author_id', type: 'relation', sqlType: 'text', notNull: true,
-      foreignKey: { table: 'users', column: 'id' } },
-    { name: 'title', type: 'text', sqlType: 'text', notNull: true },
-    { name: 'slug', type: 'text', sqlType: 'text', notNull: true, unique: true },
-    { name: 'excerpt', type: 'text', sqlType: 'text' },
-    { name: 'cover_image', type: 'file', sqlType: 'text' },   // stored in R2
-    { name: 'body', type: 'text', sqlType: 'text', notNull: true }, // markdown
-    { name: 'tags', type: 'json', sqlType: 'text' },
-    { name: 'published', type: 'bool', sqlType: 'boolean' },
-    { name: 'published_at', type: 'date', sqlType: 'timestamp' },
-  ],
-  triggers: [createdTrigger, updatedTrigger],
-  indexes: [{ fields: 'slug' }, { fields: 'published' }, { fields: 'author_id' }],
-  extensions: [{
-    name: 'rules',
-    listRule: 'published == true | auth.uid == author_id',
-    viewRule: 'published == true | auth.uid == author_id',
-    createRule: 'auth.uid != null & author_id == auth.uid',
-    updateRule: 'auth.uid == author_id',
-    deleteRule: 'auth.uid == author_id',
-  }],
+const merged = yamlBaseline();                 // src/data/*.yaml — always renders
+const rows = await env.PRIMARY_DB.prepare(
+  'SELECT section, draft, published FROM content',
+).all();
+for (const r of rows.results ?? []) {
+  const val = preview ? (r.draft ?? r.published) : r.published;
+  if (val != null) merged[r.section] = JSON.parse(val);
 }
 ```
 
-The `rules` block is the part that earns its keep. Those five expressions are
-**row-level security**, enforced by teenybase at the database layer. Read them
-out loud: anyone may *list* or *view* a post if it's published, or if they're its
-author; only a logged-in user may *create* a post, and only as themselves; only
-the author may *update* or *delete*. Because the database enforces this, the API
-is safe to call directly from the browser — an unauthenticated visitor simply
-cannot see a draft, no matter what query they send.
+Reading D1 directly during SSR has a nice security property: the public site never
+calls the content API, so that API can be locked to authenticated admins only.
+**Drafts are never exposed** — the only way to see them is the admin's Preview,
+which sets a short-lived `tb_preview` cookie that the loader checks.
 
-**First gotcha.** My initial schema had `default: false` on the `published`
-field. teenybase's config validator rejected it (`default` expects a SQL
-expression, not a raw boolean). The fix was to drop the DB-level default and have
-the editor set `published` explicitly — which it does anyway. Small thing;
-thirty seconds of confusion; worth mentioning because the error message pointed
-at a field *index*, not a name.
+This is also why a fresh clone just works: empty database, every section falls
+through to YAML, identical site.
 
-**Second gotcha.** The `auth` extension needs `jwtTokenDuration` and
-`maxTokenRefresh` — leave them out and validation fails. The scaffold's template
-includes them; my hand-written version didn't at first.
+### Gotcha: teenybase's `json` field only stores JSON *scalars*
 
-## Step 2 — Make Astro and teenybase build together
-
-Switching Astro to SSR is two lines in `astro.config.mjs`: add the
-`@astrojs/cloudflare` adapter. But the moment I did, the build broke — and the
-break is instructive.
-
-My data layer (`src/lib/data.ts`) read YAML files with `node:fs`. That's fine in
-Node, but Astro now *prerenders* the static marketing pages using the Cloudflare
-runtime, where `node:fs` doesn't exist:
+I first declared the `draft` and `published` columns as teenybase's `json` field
+type. Seeding worked. Then the admin tried to save an edit and got a wall of
+validation errors:
 
 ```
-[ERROR] Error: No such module "node:fs". imported from .../data_*.mjs
+expected string, received object
+expected number, received object
+expected boolean, received object
 ```
 
-The fix was to stop reading files at runtime entirely. Vite can inline them at
-build time:
+That's a zod union — `string | number | boolean | null` — rejecting an object.
+teenybase's `json` field validates JSON *scalars*, not arbitrary nested objects.
+The fix was to store the snapshots as plain **`text`** columns and do the
+`JSON.stringify` / `JSON.parse` myself. The SQLite column was already `TEXT`, so
+no migration — just a type annotation and a redeploy.
+
+### Gotcha: `insert` and `edit` don't take the same shape
+
+The error above had a sharper twist. Editing *any* field failed identically —
+even a plain text one — and the errors were the same whether I sent a string or an
+object. That "identical regardless of input" is the tell: the failure wasn't about
+my value, it was about the **envelope**. teenybase's `insert` wants
+`{ values: { … } }`, but `edit` wants the fields at the **top level**:
 
 ```ts
-const rawFiles = import.meta.glob('../data/*.yaml', {
-  query: '?raw', import: 'default', eager: true,
-});
+// insert
+POST /api/v1/table/content/insert   { "values": { "draft": "…" } }
+// edit  — fields at the top level, NOT wrapped in { values }
+POST /api/v1/table/content/edit/:id { "draft": "…" }
 ```
 
-Now the YAML is baked into the bundle as strings, parsed with `js-yaml`, and
-there's no filesystem dependency at all. The marketing pages prerender cleanly;
-the dynamic pages render on demand.
+The admin client had been wrapping edit in `{ values }` — which made teenybase
+treat `values` as a bogus column and reject the whole payload. One line to fix,
+and it un-broke the post editor too (which had simply never been exercised).
 
-The other thing to get right: keep `output: 'static'`. With the Cloudflare
-adapter, that means "static by default, opt into SSR per route" — so the
-homepage stays prerendered HTML (great for SEO and TTFB) while `/blog`,
-`/blog/[slug]`, `/admin`, and `/api` each declare `export const prerender =
-false` and run in the Worker.
+## The admin: a schema-driven CMS
 
-**The gotcha I was bracing for that didn't happen:** I fully expected
-`teenybase/worker` to refuse to bundle inside Astro's Worker build — version
-skews, Node built-ins, the usual. It just... worked. Clean build, no "unexpected
-Node.js imports" warning. That's the Hono lineage paying off: it's written for
-exactly this runtime.
+`/admin` is a small single-page app, and it's **schema-driven**. One file describes
+every editable section as a tree of fields — text, textarea, color, icon, image,
+tags, **groups** (the hero's two CTA buttons), and **repeatable lists** (projects →
+items → links, nested two deep). A recursive renderer turns that description into a
+real form that edits a live clone of the section's JSON. No raw JSON editing; you
+get color pickers and live-animating icon previews.
 
-## Step 3 — Render the blog
+Every section editor has three actions:
 
-Two routes, both server-rendered:
+- **Save draft** — writes `draft`. The live site doesn't change.
+- **Preview** — saves the draft, sets the preview cookie, and opens the site so you
+  see exactly what Publish would ship.
+- **Publish** — promotes the draft to `published`. Live immediately.
 
-- `/blog` lists published posts, newest first.
-- `/blog/[slug]` fetches one post and renders its markdown body to HTML with
-  [`marked`](https://marked.js.org), wrapped in the site's typography.
+The theme editor is the fun one: it writes color and font values that the layout
+injects as CSS variables at render time, overriding the stylesheet. You can
+re-skin the entire site — light and dark — without touching code.
 
-Both call the API in-process as shown earlier, and both degrade gracefully: if
-the API call fails, the list shows an empty state rather than a stack trace.
-Client-loaded sections show skeleton placeholders while data arrives, so you
-never see a layout jump.
+The blog has its own editor: a split pane with a markdown toolbar, a live preview,
+keyboard shortcuts, and drag-or-paste image upload straight to R2. Authentication
+is teenybase's — the admin logs in against the `users` table, gets a JWT, and the
+row-level rules in the schema do the rest.
 
-## Step 4 — The admin
+One implementation note that cost a few minutes: `@cloudflare/workers-types`
+defines globals (like `Element`) that collide with the browser DOM types the admin
+relies on. The fix was to *not* make them global — the server code declares the
+couple of Cloudflare types it needs locally, and the browser code keeps the real
+DOM lib. Two worlds, one repo, kept apart on purpose.
 
-The brief was "a nice editor with markdown and a live preview," and then "build
-out the admin for the blog, and then for everything." So `/admin` isn't a
-single page — it's a small single-page app, and it's **schema-driven**.
+## The cutover: moving anks.in off GitHub Pages
 
-There's one file that describes every editable entity: its table, its fields and
-their types, which columns show in the list. The admin renders itself from that
-description. Today it manages blog posts; when I move projects and work history
-into the database (next section), they show up in the admin automatically,
-because adding them is a config entry, not new UI code.
+With the Worker deployed and verified on its `*.workers.dev` URL, the last step was
+DNS. `anks.in` was a Cloudflare zone already (just pointing its `A`/`AAAA` records
+at GitHub Pages), so attaching the Worker as a **Custom Domain** should have been
+one line in `wrangler.jsonc`:
 
-The post editor itself is the centerpiece: a split pane with a markdown toolbar
-(bold, headings, links, code, lists), a **live preview** that updates as you
-type, keyboard shortcuts (`Cmd/Ctrl-B`, `-I`, `-K`, `-S` to save), and
-drag-or-paste **image upload** straight to R2. Tags are entered as pills; the URL
-slug auto-derives from the title until you edit it by hand; publishing stamps the
-date automatically.
+```jsonc
+"routes": [{ "pattern": "anks.in", "custom_domain": true }]
+```
 
-Authentication is teenybase's: the admin logs in against the `users` table, gets
-a JWT, and sends it as a bearer token on every write. The row-level rules from
-Step 1 do the rest.
+It silently refused. The Custom Domain API returned the real reason:
 
-One implementation note that cost me a few minutes: `@cloudflare/workers-types`
-defines globals (like `Element`) that collide with the browser DOM types the
-admin SPA relies on. Pulling those types in globally turned the admin's DOM code
-red. The fix was to *not* make them global — the server code declares the couple
-of Cloudflare types it needs locally, and the browser code keeps the real DOM
-lib. Two worlds, one repo, kept apart on purpose.
+```
+Hostname 'anks.in' already has externally managed DNS records (A, CNAME, etc).
+```
 
-## Step 5 — Deploy and DNS
+The apex still had the four GitHub Pages `A` records (and four `AAAA`). A Custom
+Domain wants to manage that record itself, and won't clobber existing ones. So I
+deleted the eight GitHub Pages records — and *only* those, leaving the `MX` records
+so email kept working — then attached the domain. Cloudflare issued the cert, and
+within a minute `https://anks.in` was served by the Worker.
 
-The backend resources are created on first deploy. teenybase wraps Wrangler so
-that one command provisions the D1 database, creates the R2 bucket, applies the
-migrations, and ships the Worker:
+There was a brief window right after the cert provisioned where a fraction of
+requests failed — connections dropping with no Cloudflare headers at all, which is
+the signature of edge/cert propagation, not an application error. It cleared on its
+own in a few minutes. Worth knowing so you don't go chasing a bug that isn't there.
+
+## Clone-and-run
+
+Because the YAML is the seed and the database is the source of truth, this repo is
+a template. After `npx wrangler login`:
 
 ```bash
-npx teeny generate     # turn the schema into SQL migrations
-npx teeny deploy        # create D1 + R2, apply migrations, deploy the Worker
+ADMIN_EMAIL=you@example.com npm run setup
 ```
 
-Secrets — the JWT signing keys, the admin password — are uploaded as Worker
-secrets, never committed. Then the owner account is created once, and this very
-post is seeded into the database.
+One idempotent script provisions D1 + R2, wires the config, applies migrations,
+uploads strong secrets, deploys, bootstraps teenybase, creates your admin user, and
+seeds the content. It prints your live URL and admin credentials. Open `/admin` and
+make it yours — no code required.
 
-The final step is DNS: repointing `anks.in` from GitHub Pages to the Cloudflare
-Worker. I deploy to a temporary `*.workers.dev` URL first, click around, confirm
-the blog and admin both work against the live database, and only then move the
-domain. The instant the DNS flips, the whole site — marketing pages, blog, and
-admin — is served by the one Worker.
+## The whole system
 
-## What's next
+That's it: one Worker, two frameworks that turned out to be the same kind of thing
+underneath, and a SQLite file at the edge holding everything — the site content,
+the theme, the blog, and these words. The site went from *static files I edit and
+redeploy* to *a database I edit from a browser*, without giving up the speed, the
+SEO, or the "nothing to break at 3am" that made the static version good in the
+first place.
 
-Right now the blog is in the database and the rest of the site is still in YAML.
-The plan is to finish the job: migrate `projects`, `experience`, `education`, and
-`skills` into teenybase tables too. The admin is already built to handle them —
-those entities are defined in its schema, just switched off until their tables
-exist. When they're migrated, the homepage will render from the database like the
-blog does, and I'll edit my own portfolio from `/admin` instead of from a text
-editor and a git push.
-
-That's the whole system: one Worker, two frameworks that turned out to be the
-same kind of thing underneath, and a SQLite file at the edge holding everything —
-including these words.
+This site is built with [Astro](https://astro.build) and
+[teenybase](https://teenybase.com).
