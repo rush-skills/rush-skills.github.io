@@ -27,8 +27,6 @@
     "@astrojs/sitemap": "^3.7.1",
     "@cloudflare/workers-types": "^4.20260531.1",
     "@types/js-yaml": "^4.0.9",
-    "esbuild": "^0.28.0",
-    "jsdom": "^29.1.1",
     "playwright": "^1.60.0",
     "wrangler": "^4.95.0"
   }
