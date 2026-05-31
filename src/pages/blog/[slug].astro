@@ -5,8 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPostBySlug, formatDate } from '../../lib/blog';
 
 const { slug } = Astro.params;
-const runtime = (Astro.locals as any).runtime;
-const post = slug && runtime ? await getPostBySlug(runtime, slug) : null;
+const post = slug ? await getPostBySlug((Astro.locals as any).cfContext, slug) : null;
 
 if (!post) {
   return new Response('Not found', { status: 404 });

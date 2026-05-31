@@ -3,8 +3,7 @@ export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { listPosts, formatDate } from '../../lib/blog';
 
-const runtime = (Astro.locals as any).runtime;
-const posts = runtime ? await listPosts(runtime) : [];
+const posts = await listPosts((Astro.locals as any).cfContext);
 ---
 <BaseLayout title="Blog — Ankur Singh" description="Writing on engineering, infrastructure, and building things.">
   <main class="pt-28 pb-20 px-6 min-h-screen">

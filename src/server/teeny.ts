@@ -3,6 +3,11 @@
 // teenybase's worker is just a Hono app. We build it here and mount it under
 // Astro's `/api/*` route (see src/pages/api/[...path].ts). Public pages call it
 // in-process via `app.fetch(...)` — no extra subrequest, same D1/R2 bindings.
+//
+// Astro v6 exposes Cloudflare bindings via the `cloudflare:workers` module
+// rather than `Astro.locals.runtime.env` (removed in v6). `env` is a global
+// proxy resolved per request by the runtime.
+import { env } from 'cloudflare:workers';
 import {
   teenyHono,
   $Database,
@@ -12,23 +17,15 @@ import {
 } from 'teenybase/worker';
 import config from '../../blog-backend/teenybase';
 
-// Local structural types — see src/env.d.ts for why we don't import
+// Local structural type — see src/env.d.ts for why we don't import
 // @cloudflare/workers-types globally (DOM global clash with the admin SPA).
-type D1DatabaseLike = unknown;
-type R2BucketLike = unknown;
 export interface ExecCtx {
   waitUntil(p: Promise<unknown>): void;
   passThroughOnException(): void;
 }
 
-export interface TeenyBindings {
-  PRIMARY_DB: D1DatabaseLike;
-  FILES?: R2BucketLike;
-  [key: string]: unknown;
-}
-
 // Hono app is stateless across requests (the DB is rebuilt per request from the
-// request context), so we can safely cache the app instance per isolate.
+// request context), so we cache the app instance per isolate.
 let _app: ReturnType<typeof teenyHono> | null = null;
 
 export function getTeenyApp() {
@@ -44,12 +41,12 @@ export function getTeenyApp() {
 
 /**
  * Call the teenybase API in-process. `path` is an absolute API path like
- * `/api/v1/table/posts/list?...`. Returns the raw Response.
+ * `/api/v1/table/posts/list?...`. The Worker `env` (D1/R2/secrets) comes from
+ * `cloudflare:workers`; pass the page's `cfContext` for waitUntil support.
  */
 export function callApi(
   path: string,
-  env: TeenyBindings,
-  ctx: ExecCtx,
+  ctx?: ExecCtx,
   init?: RequestInit,
 ): Promise<Response> {
   const url = new URL(path, 'https://anks.in');
@@ -57,5 +54,6 @@ export function callApi(
     headers: { Accept: 'application/json', ...(init?.headers || {}) },
     ...init,
   });
-  return Promise.resolve(getTeenyApp().fetch(req, env as any, ctx as any));
+  const execCtx = ctx ?? { waitUntil() {}, passThroughOnException() {} };
+  return Promise.resolve(getTeenyApp().fetch(req, env as any, execCtx as any));
 }
