@@ -142,6 +142,17 @@ import '../../styles/global.css';
   .adm-item-ctrls { display: flex; gap: .05rem; flex-shrink: 0; }
   .adm-add { font-size: 13px; padding: .4rem .85rem; align-self: flex-start; }
 
+  /* Rich-text editor (constrained WYSIWYG) */
+  .rt-editor { border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); overflow: hidden; }
+  .rt-editor:focus-within { border-color: var(--color-accent); }
+  .rt-toolbar { display: flex; gap: .15rem; padding: .3rem .35rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface-sunken); }
+  .rt-btn { min-width: 30px; height: 28px; padding: 0 .45rem; border: 1px solid transparent; border-radius: 6px; background: none; cursor: pointer; color: var(--color-ink-secondary); font-size: 14px; line-height: 1; }
+  .rt-btn:hover { background: var(--color-surface-raised); border-color: var(--color-border); color: var(--color-ink); }
+  .rt-area { padding: .6rem .7rem; min-height: 60px; font: inherit; font-size: 14px; line-height: 1.6; color: var(--color-ink); outline: none; }
+  .rt-area:empty:before { content: attr(data-placeholder); color: var(--color-ink-tertiary); }
+  .rt-area a { color: var(--color-accent); text-decoration: underline; }
+  .adm-list-item .rt-editor { flex: 1; }
+
   /* Tags */
   .adm-tags { border: 1px solid var(--color-border); border-radius: 8px; padding: .35rem; background: var(--color-surface); }
   .adm-tags-pills { display: flex; flex-wrap: wrap; gap: .35rem; }
