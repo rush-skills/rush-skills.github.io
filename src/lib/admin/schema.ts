@@ -1,7 +1,7 @@
-// Schema-driven admin: every editable entity is described here once. The /admin
-// SPA renders list + form views generically from these definitions, so adding a
-// new teenybase table later (projects, experience, ...) is a config change, not
-// new UI code.
+// Table-backed collections for the admin (currently just the blog). Repeating
+// homepage content (projects, experience, skills, education) is managed through
+// the rich section editors in sections.ts instead of separate tables, so it does
+// NOT appear here — see SECTION_DEFS + the "Collections" group in app.ts.
 
 export type FieldType =
   | 'text'
@@ -72,83 +72,6 @@ export const ENTITIES: EntityDef[] = [
       { name: 'tags', label: 'Tags', type: 'tags', help: 'Comma or Enter to add.' },
       { name: 'published', label: 'Published', type: 'boolean' },
       { name: 'published_at', label: 'Publish date', type: 'datetime', help: 'Defaults to now when first published.' },
-    ],
-  },
-  // --- Phase 2 entities (tables added to teenybase next). Listed but disabled
-  // until their tables exist; flip `enabled` once migrated. ------------------
-  {
-    table: 'projects',
-    key: 'projects',
-    labelSingular: 'Project',
-    labelPlural: 'Projects',
-    icon: 'tsrgicte',
-    listColumns: ['title', 'status', 'featured'],
-    titleField: 'title',
-    defaultOrder: 'sort_order asc',
-    enabled: false,
-    fields: [
-      { name: 'title', label: 'Title', type: 'text', required: true },
-      { name: 'subtitle', label: 'Subtitle', type: 'text' },
-      { name: 'description', label: 'Description', type: 'textarea' },
-      { name: 'status', label: 'Status', type: 'select', options: ['Live', 'Enterprise', 'Open Source', 'Hackathon Winner', 'WIP', 'Archived'] },
-      { name: 'featured', label: 'Featured', type: 'boolean' },
-      { name: 'tech', label: 'Tech', type: 'tags' },
-      { name: 'links', label: 'Links', type: 'json', help: 'Array of { url, label, icon }.' },
-      { name: 'sort_order', label: 'Sort order', type: 'number' },
-    ],
-  },
-  {
-    table: 'experience',
-    key: 'experience',
-    labelSingular: 'Experience',
-    labelPlural: 'Experience',
-    icon: 'zhiiqoue',
-    listColumns: ['company', 'role', 'date_range'],
-    titleField: 'company',
-    defaultOrder: 'sort_order asc',
-    enabled: false,
-    fields: [
-      { name: 'company', label: 'Company', type: 'text', required: true },
-      { name: 'role', label: 'Role', type: 'text', required: true },
-      { name: 'location', label: 'Location', type: 'text' },
-      { name: 'date_range', label: 'Date range', type: 'text' },
-      { name: 'description', label: 'Description', type: 'textarea' },
-      { name: 'tech', label: 'Tech', type: 'tags' },
-      { name: 'sort_order', label: 'Sort order', type: 'number' },
-    ],
-  },
-  {
-    table: 'education',
-    key: 'education',
-    labelSingular: 'Education',
-    labelPlural: 'Education',
-    icon: 'vvyxyrur',
-    listColumns: ['degree', 'institution'],
-    titleField: 'degree',
-    defaultOrder: 'sort_order asc',
-    enabled: false,
-    fields: [
-      { name: 'degree', label: 'Degree', type: 'text', required: true },
-      { name: 'institution', label: 'Institution', type: 'text', required: true },
-      { name: 'date_range', label: 'Date range', type: 'text' },
-      { name: 'highlights', label: 'Highlights', type: 'json', help: 'Array of { text }.' },
-      { name: 'sort_order', label: 'Sort order', type: 'number' },
-    ],
-  },
-  {
-    table: 'skills',
-    key: 'skills',
-    labelSingular: 'Skill group',
-    labelPlural: 'Skills',
-    icon: 'fwkrbvja',
-    listColumns: ['name'],
-    titleField: 'name',
-    defaultOrder: 'sort_order asc',
-    enabled: false,
-    fields: [
-      { name: 'name', label: 'Category', type: 'text', required: true },
-      { name: 'items', label: 'Items', type: 'tags' },
-      { name: 'sort_order', label: 'Sort order', type: 'number' },
     ],
   },
 ];

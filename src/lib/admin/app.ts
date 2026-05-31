@@ -67,15 +67,11 @@ export class AdminApp {
           <div class="adm-brand">anks.in <span>admin</span></div>
           <nav class="adm-nav">
             <div class="adm-nav-group">Site content</div>
-            ${SECTION_DEFS.map((s) => `
-              <a href="#/content/${s.section}" data-key="content:${s.section}" class="adm-nav-link">
-                ${esc(s.label)}
-              </a>`).join('')}
+            ${SINGLETON_SECTIONS.map(secNavLink).join('')}
             <div class="adm-nav-group">Collections</div>
-            ${ENTITIES.map((e) => `
-              <a href="#/${e.key}" data-key="${e.key}" class="adm-nav-link ${e.enabled ? '' : 'adm-nav-disabled'}">
-                ${esc(e.labelPlural)}${e.enabled ? '' : ' <span class="adm-soon">soon</span>'}
-              </a>`).join('')}
+            ${ENTITIES.filter((e) => e.enabled).map((e) => `
+              <a href="#/${e.key}" data-key="${e.key}" class="adm-nav-link">${esc(e.labelPlural)}</a>`).join('')}
+            ${COLLECTION_SECTIONS.map(secNavLink).join('')}
           </nav>
           <div class="adm-side-foot">
             <a href="/" class="adm-nav-link" target="_blank">View site ↗</a>
