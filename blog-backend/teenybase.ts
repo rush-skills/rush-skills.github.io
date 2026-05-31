@@ -62,7 +62,7 @@ export default {
                 { name: 'body', type: 'text', sqlType: 'text', notNull: true },
                 // JSON array of tag strings (sqlType must be 'text').
                 { name: 'tags', type: 'json', sqlType: 'text' },
-                { name: 'published', type: 'bool', sqlType: 'boolean', default: false },
+                { name: 'published', type: 'bool', sqlType: 'boolean' },
                 { name: 'published_at', type: 'date', sqlType: 'timestamp' },
             ],
             triggers: [createdTrigger, updatedTrigger],
