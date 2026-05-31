@@ -124,19 +124,34 @@ export class SectionForm {
   }
 
   private iconControl(f: SecField, parent: any): HTMLElement {
-    const val = String(parent[f.name] ?? '');
     const row = h('div', { class: 'adm-icon-field' });
-    const preview = h('lord-icon', { class: 'adm-icon-preview', trigger: 'loop', colors: 'primary:#2E5090,secondary:#2E5090' });
-    if (val) preview.setAttribute('src', `https://cdn.lordicon.com/${val}.json`);
+    const box = h('span', { class: 'adm-icon-preview' });
     const inp = h('input', { type: 'text', class: 'adm-input', placeholder: 'lordicon hash' }) as HTMLInputElement;
-    inp.value = val;
+    inp.value = String(parent[f.name] ?? '');
+
+    // (Re)create the <lord-icon> fresh off `lordiconReady` — the player only paints
+    // elements created AFTER it loads, so mutating an existing element's src leaves
+    // it blank.
+    const paint = () => {
+      const v = String(parent[f.name] ?? '').trim();
+      box.innerHTML = '';
+      if (!v) return;
+      const ic = document.createElement('lord-icon');
+      ic.setAttribute('src', `https://cdn.lordicon.com/${v}.json`);
+      ic.setAttribute('trigger', 'loop');
+      ic.setAttribute('colors', 'primary:#2E5090,secondary:#2E5090');
+      ic.style.width = '30px';
+      ic.style.height = '30px';
+      box.appendChild(ic);
+    };
+    let timer: any;
     inp.addEventListener('input', () => {
-      const v = inp.value.trim();
-      parent[f.name] = v;
-      if (v) preview.setAttribute('src', `https://cdn.lordicon.com/${v}.json`);
-      else preview.removeAttribute('src');
+      parent[f.name] = inp.value.trim();
+      clearTimeout(timer);
+      timer = setTimeout(() => lordiconReady.then(paint), 300);
     });
-    row.append(preview, inp);
+    lordiconReady.then(paint);
+    row.append(box, inp);
     return row;
   }
 
