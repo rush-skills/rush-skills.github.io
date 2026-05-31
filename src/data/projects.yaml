@@ -11,28 +11,46 @@ statuses:
     color: "#2E5090"
   - label: "Hackathon Winner"
     color: "#C4820E"
+  - label: "WIP"
+    color: "#D97706"
   - label: "Archived"
     color: "#6B7280"
 
 items:
-  - title: "HireLoom"
-    subtitle: "Referral-first job search for India"
-    description: "Job board aggregator for tech roles in India and remote-from-India positions. Scrapes 300+ company career pages, matches jobs to resumes using AI (BYOK: OpenAI, Anthropic, Gemini), and surfaces referral paths from LinkedIn connections."
-    icon: "wjyqkiew"
+  - title: "ComicAdda"
+    subtitle: "India's standup comedy discovery platform"
+    description: "Discover Indian standup comedians by language, city, and style. Watch tracking, ratings, follow system, and personalized newsletters. Entirely built using AI agents orchestrating parallel development and data-mining workflows."
+    icon: "ebvizisb"
     status: "Live"
     featured: true
     links:
-      - url: "https://hireloom.dev/"
+      - url: "https://comicadda.com/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Next.js 15
+      - React 19
+      - Supabase
+      - PostgreSQL
+      - Tailwind CSS
+      - Cloudflare
+
+  - title: "Dubai Deals"
+    subtitle: "Restaurant deals aggregator for Dubai"
+    description: "Aggregates dining discounts from Careem, Zomato, Talabat, and other delivery apps into one searchable, location-aware interface, so you can compare every dining deal in Dubai without opening each app individually."
+    icon: "dkobpcrm"
+    status: "Live"
+    featured: true
+    links:
+      - url: "https://dubaideals.live/"
         icon: "hmqxevgf"
         label: "Website"
     tech:
       - Astro
       - React
-      - Hono
-      - Cloudflare Workers
-      - D1
-      - R2
-      - Drizzle ORM
+      - TypeScript
+      - Cloudflare
+      - Lucide
 
   - title: "iJewel Studio"
     subtitle: "3D jewelry rendering platform"
@@ -52,27 +70,6 @@ items:
       - Cloud Run
       - Blender
       - WebGi
-
-  - title: "WSC"
-    subtitle: "Multi-interface writing style linter"
-    description: "Detects weasel words, passive voice, duplicates, long sentences, nominalizations, hedging, filler adverbs, and AI tells across 8 detectors with 800+ entries. Available as a web editor, HTTP API, remote & local MCP server, CLI, and GitHub Action."
-    icon: "exymduqj"
-    status: "Open Source"
-    featured: true
-    links:
-      - url: "https://wsc.theserverless.dev/"
-        icon: "hmqxevgf"
-        label: "Website"
-      - url: "https://github.com/theserverlessdev/wsc/"
-        icon: "jjxzcivr"
-        label: "GitHub"
-    tech:
-      - SvelteKit
-      - TypeScript
-      - MCP
-      - Cloudflare Workers
-      - Vite
-      - CSS
 
   - title: "SquareCubed"
     subtitle: "AI-assisted 3D showroom for Square stores"
@@ -98,23 +95,26 @@ items:
       - WebGi SDK
       - Cloudflare Workers
 
-  - title: "ComicAdda"
-    subtitle: "India's standup comedy discovery platform"
-    description: "Discover Indian standup comedians by language, city, and style. Watch tracking, ratings, follow system, and personalized newsletters. Entirely built using AI agents orchestrating parallel development and data-mining workflows."
-    icon: "ebvizisb"
-    status: "Live"
+  - title: "WSC"
+    subtitle: "Multi-interface writing style linter"
+    description: "Detects weasel words, passive voice, duplicates, long sentences, nominalizations, hedging, filler adverbs, and AI tells across 8 detectors with 800+ entries. Available as a web editor, HTTP API, remote & local MCP server, CLI, and GitHub Action."
+    icon: "exymduqj"
+    status: "Open Source"
     featured: false
     links:
-      - url: "https://comicadda.com/"
+      - url: "https://wsc.theserverless.dev/"
         icon: "hmqxevgf"
         label: "Website"
+      - url: "https://github.com/theserverlessdev/wsc/"
+        icon: "jjxzcivr"
+        label: "GitHub"
     tech:
-      - Next.js 15
-      - React 19
-      - Supabase
-      - PostgreSQL
-      - Tailwind CSS
-      - Cloudflare
+      - SvelteKit
+      - TypeScript
+      - MCP
+      - Cloudflare Workers
+      - Vite
+      - CSS
 
   - title: "Cloudflare Cost Calculator"
     subtitle: "Estimate your Cloudflare bill"
@@ -166,6 +166,25 @@ items:
       - Ruby on Rails
       - PostgreSQL
       - JavaScript
+
+  - title: "HireLoom"
+    subtitle: "Referral-first job search for India"
+    description: "Job board aggregator for tech roles in India and remote-from-India positions. Scrapes 300+ company career pages, matches jobs to resumes using AI (BYOK: OpenAI, Anthropic, Gemini), and surfaces referral paths from LinkedIn connections."
+    icon: "wjyqkiew"
+    status: "WIP"
+    featured: false
+    links:
+      - url: "https://hireloom.dev/"
+        icon: "hmqxevgf"
+        label: "Website"
+    tech:
+      - Astro
+      - React
+      - Hono
+      - Cloudflare Workers
+      - D1
+      - R2
+      - Drizzle ORM
 
   - title: "Mouve"
     subtitle: "Animated Instagram stories"
