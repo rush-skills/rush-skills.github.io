@@ -7,6 +7,9 @@ node_modules/
 # astro
 .astro/
 
+# cloudflare adapter / wrangler local state
+.wrangler/
+
 # env
 .env
 .env.*
