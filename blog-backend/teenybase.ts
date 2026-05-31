@@ -17,7 +17,9 @@ import {
 // appUrl drives CORS + auth-cookie/redirect behavior, so it must be the
 // public site origin in production. Override via the APP_URL var in wrangler.
 export default {
-    appUrl: process.env.APP_URL || 'http://localhost:8787',
+    // Same-origin in production (single Worker), so CORS is moot; this mainly
+    // affects auth email/redirect links. Overridable via APP_URL for local dev.
+    appUrl: (typeof process !== 'undefined' && process.env?.APP_URL) || 'https://anks.in',
     jwtSecret: '$JWT_SECRET',
     tables: [
         // --- Authors / admin users -------------------------------------------------

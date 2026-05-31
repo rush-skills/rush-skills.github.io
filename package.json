@@ -16,7 +16,8 @@
     "astro": "^6.0.8",
     "js-yaml": "^4.1.1",
     "marked": "^18.0.4",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "teenybase": "^0.0.14"
   },
   "devDependencies": {
     "@astrojs/sitemap": "^3.7.1"

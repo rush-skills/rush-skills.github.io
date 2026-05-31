@@ -1,0 +1,30 @@
+{
+  // Single Worker for all of anks.in: Astro SSR (pages/blog/admin) + the
+  // teenybase API/admin mounted at /api/*, sharing one D1 + R2.
+  // `main` / assets are injected by the @astrojs/cloudflare adapter at build;
+  // this file supplies the bindings (used in `astro dev` via platformProxy and
+  // at deploy via `wrangler deploy`).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "anks-in",
+  "compatibility_date": "2026-05-31",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "vars": {
+    "RESPOND_WITH_ERRORS": "true",
+    "APP_URL": "https://anks.in"
+  },
+  "d1_databases": [
+    {
+      "binding": "PRIMARY_DB",
+      "database_name": "anksin-db",
+      "database_id": "PLACEHOLDER_SET_AFTER_D1_CREATE",
+      "migrations_dir": "blog-backend/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "anksin-files"
+    }
+  ]
+}
