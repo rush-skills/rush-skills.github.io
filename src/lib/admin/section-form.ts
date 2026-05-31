@@ -26,6 +26,15 @@ const clone = (v: any) => {
   catch { return JSON.parse(JSON.stringify(v ?? {})); }
 };
 
+// Resolves once the Lordicon player has registered <lord-icon> (the admin SPA
+// injects the script — see ensureLordicon in app.ts). The player only paints
+// elements created AFTER it loads, so we create each icon lazily off this promise
+// and rebuild on edit, rather than mutating an existing element's src.
+const lordiconReady: Promise<unknown> =
+  typeof customElements !== 'undefined'
+    ? customElements.whenDefined('lord-icon').catch(() => {})
+    : Promise.resolve();
+
 export class SectionForm {
   data: any;
 
