@@ -4,6 +4,7 @@
 // `value()` is the edited document. No DOM scraping.
 import type { SecField, SectionDef } from './sections';
 import { uploadFile } from './client';
+import { RichTextEditor } from './richtext';
 
 function h(tag: string, attrs: Record<string, any> = {}, ...children: (Node | string)[]): HTMLElement {
   const node = document.createElement(tag);
@@ -69,6 +70,8 @@ export class SectionForm {
       case 'group': return this.groupField(f, parent);
       case 'list': return this.listField(f, parent);
       case 'textlist': return this.textlistField(f, parent);
+      case 'richtext': return this.richtextField(f, parent);
+      case 'richtextlist': return this.richtextlistField(f, parent);
       case 'tags': return this.tagsField(f, parent);
       case 'boolean': return this.boolField(f, parent);
       default: return this.scalarField(f, parent);
@@ -282,6 +285,43 @@ export class SectionForm {
     };
     const add = h('button', { type: 'button', class: 'adm-btn adm-add' }, `+ Add ${f.itemLabel || 'item'}`);
     add.addEventListener('click', () => { arr.push({}); draw(); });
+    wrap.append(list, add); draw();
+    return wrap;
+  }
+
+  // --- Rich text (constrained WYSIWYG -> sanitized HTML) --------------------
+  private richtextField(f: SecField, parent: any): HTMLElement {
+    const wrap = h('div', { class: 'adm-field' }, this.labelEl(f));
+    const host = h('div');
+    new RichTextEditor(host, {
+      value: String(parent[f.name] ?? ''),
+      placeholder: f.placeholder || '',
+      onChange: (html) => { parent[f.name] = html; },
+    });
+    wrap.append(host);
+    if (f.help) wrap.append(h('p', { class: 'adm-help' }, f.help));
+    return wrap;
+  }
+
+  // Repeatable list of rich-text values (e.g. About paragraphs).
+  private richtextlistField(f: SecField, parent: any): HTMLElement {
+    if (!Array.isArray(parent[f.name])) parent[f.name] = [];
+    const arr: string[] = parent[f.name];
+    const wrap = h('div', { class: 'adm-field' }, this.labelEl(f));
+    if (f.help) wrap.append(h('p', { class: 'adm-help' }, f.help));
+    const list = h('div', { class: 'adm-list' });
+    const draw = () => {
+      list.innerHTML = '';
+      arr.forEach((s, i) => {
+        const row = h('div', { class: 'adm-list-item' });
+        const host = h('div', { class: 'adm-rt-host' });
+        new RichTextEditor(host, { value: s ?? '', onChange: (html) => { arr[i] = html; } });
+        row.append(host, this.itemControls(arr, i, draw));
+        list.append(row);
+      });
+    };
+    const add = h('button', { type: 'button', class: 'adm-btn adm-add' }, '+ Add');
+    add.addEventListener('click', () => { arr.push(''); draw(); });
     wrap.append(list, add); draw();
     return wrap;
   }

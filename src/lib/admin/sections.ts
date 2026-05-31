@@ -13,9 +13,11 @@ export type SecFieldType =
   | 'number'
   | 'tags'
   | 'image'
-  | 'group'      // fixed-key nested object
-  | 'list'       // repeatable array of objects (of `fields`)
-  | 'textlist';  // repeatable array of strings
+  | 'group'        // fixed-key nested object
+  | 'list'         // repeatable array of objects (of `fields`)
+  | 'textlist'     // repeatable array of strings
+  | 'richtext'     // constrained WYSIWYG -> sanitized HTML (bold/italic/link)
+  | 'richtextlist'; // repeatable array of rich-text HTML strings
 
 export interface SecField {
   name: string;
@@ -117,7 +119,7 @@ export const SECTION_DEFS: SectionDef[] = [
     fields: [
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
-      { name: 'paragraphs', label: 'Paragraphs', type: 'textlist', help: 'Plain text or inline HTML. One box per paragraph.' },
+      { name: 'paragraphs', label: 'Paragraphs', type: 'richtextlist', help: 'One box per paragraph. Use Bold, Italic, or Link — formatting is kept simple on purpose.' },
       {
         name: 'stats', label: 'Stats', type: 'list', itemLabel: 'stat', itemTitleKey: 'label',
         fields: [icon(), t('value', 'Value'), t('label', 'Label')],
@@ -219,7 +221,7 @@ export const SECTION_DEFS: SectionDef[] = [
       },
       {
         name: 'footer', label: 'Footer', type: 'group',
-        fields: [area('copyright', 'Copyright (HTML allowed)'), t('iconsAttribution', 'Icons attribution'), t('iconsUrl', 'Icons URL')],
+        fields: [{ name: 'copyright', label: 'Copyright', type: 'richtext', help: 'Use Bold / Italic / Link.' }, t('iconsAttribution', 'Icons attribution'), t('iconsUrl', 'Icons URL')],
       },
     ],
   },
