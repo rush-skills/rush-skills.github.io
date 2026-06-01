@@ -3,7 +3,7 @@ import { getContent } from '../lib/content';
 const experience = (await getContent(Astro)).experience || {};
 const jobs = experience.jobs || [];
 ---
-<section id="experience" class="py-20 md:py-28 px-6 bg-surface scroll-mt-16">
+<section id="experience" class="py-20 md:py-28 px-6 scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
     {(experience.label || experience.heading) && (
       <div class="reveal">

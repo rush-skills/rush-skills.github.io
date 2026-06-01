@@ -4,7 +4,7 @@ import { getContent } from '../lib/content';
 const skills = (await getContent(Astro)).skills || {};
 const categories = skills.categories || [];
 ---
-<section id="skills" class="py-20 md:py-28 px-6 bg-surface scroll-mt-16">
+<section id="skills" class="py-20 md:py-28 px-6 scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
     {(skills.label || skills.heading) && (
       <div class="reveal">
@@ -20,7 +20,7 @@ const categories = skills.categories || [];
     {categories.length > 0 && (
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {categories.map((cat: any, i: number) => (
-          <div class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-sunken rounded-[8px] p-6`}>
+          <div class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} card-glow bg-surface-raised rounded-[8px] p-6`}>
             <div class="flex items-center gap-3 mb-4">
               {cat.icon && <lord-icon src={liSrc(cat.icon)} trigger="morph" colors={LI.dark} class="li-xl"></lord-icon>}
               {cat.name && <h3 class="font-mono text-[14px] font-medium text-accent m-0 uppercase tracking-[0.08em]">{cat.name}</h3>}

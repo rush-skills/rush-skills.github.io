@@ -29,7 +29,10 @@ function ensureLordicon() {
 // Sidebar grouping: one-off pages vs repeating content (same rich section editors,
 // shown under "Collections").
 const SINGLETON_SECTIONS = ['site', 'theme', 'hero', 'about', 'contact', 'custom'];
-const COLLECTION_SECTIONS = ['projects', 'experience', 'skills', 'education'];
+// Ordered to follow the public site top-to-bottom (Experience/"Work" before
+// Projects). The table-backed collections (Blog Posts, Links) render first — see
+// renderShell.
+const COLLECTION_SECTIONS = ['experience', 'projects', 'skills', 'education'];
 
 function secNavLink(section: string): string {
   const d = getSectionDef(section);
@@ -211,7 +214,7 @@ export class AdminApp {
           <tbody>
             ${rows.map((r) => `
               <tr data-id="${esc(r.id)}">
-                ${cols.map((c, i) => `<td>${i === 0
+                ${cols.map((c, i) => `<td data-label="${esc(labelFor(entity, c))}">${i === 0
                   ? `<a href="#/${entity.key}/${esc(r.id)}" class="adm-link">${esc(cell(r, c)) || '<em>untitled</em>'}</a>`
                   : esc(cell(r, c))}</td>`).join('')}
                 <td class="adm-row-actions">

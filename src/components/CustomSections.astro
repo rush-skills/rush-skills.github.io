@@ -7,12 +7,12 @@ import { getContent } from '../lib/content';
 
 const custom = (await getContent(Astro)).custom || {};
 const sections = (custom.sections || []).filter((s: any) => s && s.enabled !== false && s.template);
-
-// Alternate the background so stacked custom sections don't blur together.
-const bg = (i: number) => (i % 2 === 0 ? 'bg-surface' : 'bg-surface-sunken');
+// Backgrounds alternate globally via `.bands > section:nth-of-type()` (see
+// global.css), so custom sections stay in step with the rest of the page no
+// matter how many there are — no per-component parity to drift out of sync.
 ---
-{sections.map((s: any, i: number) => (
-  <section class={`py-20 md:py-28 px-6 ${bg(i)} scroll-mt-16`}>
+{sections.map((s: any) => (
+  <section class="py-20 md:py-28 px-6 scroll-mt-16">
     <div class="max-w-[960px] mx-auto">
       {(s.eyebrow || s.heading) && (
         <div class="reveal mb-8">

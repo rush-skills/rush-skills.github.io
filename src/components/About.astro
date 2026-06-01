@@ -5,7 +5,7 @@ const about = (await getContent(Astro)).about || {};
 const paragraphs = about.paragraphs || [];
 const stats = about.stats || [];
 ---
-<section id="about" class="py-20 md:py-28 px-6 bg-surface-sunken scroll-mt-16">
+<section id="about" class="py-20 md:py-28 px-6 scroll-mt-16">
   <div class="max-w-[960px] mx-auto">
     {(about.label || about.heading) && (
       <div class="reveal">
