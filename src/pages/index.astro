@@ -47,9 +47,9 @@ const recentLinks = home.links !== false ? await listLinks(ctx, 5) : [];
     {sectionOn('about') && (about.paragraphs || about.stats) && <About />}
     {sectionOn('experience') && experience.jobs?.length && <Experience />}
     {sectionOn('projects') && projects.items?.length && <Projects />}
-    {home.blog !== false && <BlogTeaser posts={recentPosts} />}
     {sectionOn('skills') && skills.categories?.length && <Skills />}
     {sectionOn('education') && (education.schools?.length || education.degree || education.highlights?.length) && <Education />}
+    {home.blog !== false && <BlogTeaser posts={recentPosts} />}
     {home.links !== false && <LinksTeaser links={recentLinks} />}
     <CustomSections />
     {sectionOn('contact') && (contact.heading || site.email) && <Contact />}

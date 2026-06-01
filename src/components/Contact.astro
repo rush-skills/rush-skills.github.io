@@ -1,5 +1,5 @@
 ---
-import { LI, liSrc } from '../lib/data';
+import { LI, liSrc, eyebrowText } from '../lib/data';
 import { getContent } from '../lib/content';
 const content = await getContent(Astro);
 const site = content.site || {};
@@ -10,7 +10,7 @@ const social = site.social || [];
   <div class="max-w-[640px] mx-auto text-center">
     {(contact.label || contact.heading) && (
       <div class="reveal">
-        {contact.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{contact.label}</p>}
+        {contact.label && <p class="eyebrow-num text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{eyebrowText(contact.label)}</p>}
         {contact.heading && (
           <h2 class="font-display text-[28px] md:text-[44px] font-bold text-ink mb-6 tracking-[-0.01em]">
             {contact.heading}

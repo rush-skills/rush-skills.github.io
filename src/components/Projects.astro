@@ -1,5 +1,5 @@
 ---
-import { LI, liSrc } from '../lib/data';
+import { LI, liSrc, eyebrowText } from '../lib/data';
 import { getContent } from '../lib/content';
 const projects = (await getContent(Astro)).projects || {};
 const statuses = projects.statuses || [];
@@ -16,7 +16,7 @@ const defaultColor = '#6B7280';
   <div class="max-w-[1100px] mx-auto">
     {(projects.label || projects.heading) && (
       <div class="reveal">
-        {projects.label && <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{projects.label}</p>}
+        {projects.label && <p class="eyebrow-num text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">{eyebrowText(projects.label)}</p>}
         {projects.heading && (
           <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink mb-10 tracking-[-0.01em]">
             {projects.heading}

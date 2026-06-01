@@ -100,6 +100,15 @@
 .bands > section:nth-of-type(odd)  { background-color: var(--color-surface); }
 .bands > section:nth-of-type(even) { background-color: var(--color-surface-sunken); }
 
+/* Section eyebrows are numbered automatically by position (01 //, 02 //, …), so
+   the sequence is always correct even as sections are reordered or hidden. The
+   bare label text comes from the CMS via eyebrowText(); CSS adds the number. */
+.bands { counter-reset: eyebrow; }
+.eyebrow-num::before {
+  counter-increment: eyebrow;
+  content: counter(eyebrow, decimal-leading-zero) " // ";
+}
+
 /* ---------------------------------------------------------------------------
    Navbar: the desktop links show until they no longer fit the row, then the bar
    collapses to a hamburger (JS measures overflow — robust to any number of

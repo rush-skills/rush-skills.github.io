@@ -34,3 +34,10 @@ export const LI = {
 
 // Lord Icon CDN URL from hash
 export const liSrc = (hash: string) => `https://cdn.lordicon.com/${hash}.json`;
+
+// Strip any baked-in "01 // " or "// " prefix from a section eyebrow. The number
+// + separator are re-added by CSS (a counter on `.eyebrow-num`, see global.css)
+// so they sequence automatically by position — staying correct no matter the
+// order or which sections are hidden.
+export const eyebrowText = (s: unknown) =>
+  String(s ?? '').replace(/^\s*\d+\s*\/\/\s*/, '').replace(/^\/\/\s*/, '').trim();
