@@ -7,6 +7,9 @@ node_modules/
 # astro
 .astro/
 
+# cloudflare adapter / wrangler local state
+.wrangler/
+
 # env
 .env
 .env.*
@@ -14,3 +17,9 @@ node_modules/
 # OS
 .DS_Store
 PRD.md
+.dev.vars
+
+blog-backend/node_modules/
+
+# Backup artifacts
+*.orig

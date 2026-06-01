@@ -1,4 +1,7 @@
 ---
+// SSR so the page reads live content from D1 (the CMS). Falls back to the
+// committed YAML when the DB is empty (fresh clone) — see src/lib/content.ts.
+export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
@@ -7,18 +10,20 @@ import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
 import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
+import CustomSections from '../components/CustomSections.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
-import { load } from '../lib/data';
+import { getContent } from '../lib/content';
 
-const site = load('site.yaml');
-const hero = load('hero.yaml');
-const about = load('about.yaml');
-const experience = load('experience.yaml');
-const projects = load('projects.yaml');
-const skills = load('skills.yaml');
-const education = load('education.yaml');
-const contact = load('contact.yaml');
+const content = await getContent(Astro);
+const site = content.site || {};
+const hero = content.hero || {};
+const about = content.about || {};
+const experience = content.experience || {};
+const projects = content.projects || {};
+const skills = content.skills || {};
+const education = content.education || {};
+const contact = content.contact || {};
 ---
 <BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
   <Navbar />
@@ -27,7 +32,8 @@ const contact = load('contact.yaml');
   {experience.jobs?.length && <Experience />}
   {projects.items?.length && <Projects />}
   {skills.categories?.length && <Skills />}
-  {(education.degree || education.highlights?.length) && <Education />}
+  {(education.schools?.length || education.degree || education.highlights?.length) && <Education />}
+  <CustomSections />
   {(contact.heading || site.email) && <Contact />}
   <Footer />
 </BaseLayout>

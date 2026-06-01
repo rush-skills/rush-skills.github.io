@@ -1,7 +1,9 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const site = load('site.yaml');
-const contact = load('contact.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const content = await getContent(Astro);
+const site = content.site || {};
+const contact = content.contact || {};
 const social = site.social || [];
 const footer = contact.footer || {};
 ---
@@ -20,5 +22,13 @@ const footer = contact.footer || {};
         ))}
       </div>
     )}
+  </div>
+  <div class="max-w-[1200px] mx-auto mt-4 pt-4 border-t border-border/60 text-center">
+    <p class="m-0 text-[12px] text-ink-tertiary font-mono">
+      Built with
+      <a href="https://astro.build" target="_blank" rel="noopener" class="text-ink-tertiary hover:text-accent transition-colors no-underline">Astro</a>
+      and
+      <a href="https://teenybase.com" target="_blank" rel="noopener" class="text-ink-tertiary hover:text-accent transition-colors no-underline">teenybase</a>
+    </p>
   </div>
 </footer>

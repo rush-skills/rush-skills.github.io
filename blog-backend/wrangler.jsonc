@@ -1,0 +1,30 @@
+{
+    // NOTE: this file exists only so `npx teeny generate` (run from this folder)
+    // has a wrangler config to read when turning teenybase.ts into SQL
+    // migrations. The site does NOT deploy from here — the real Worker is the
+    // Astro app at the repo root (../wrangler.jsonc), which mounts teenybase at
+    // /api/*. Keep the database/bucket names in sync with the root config.
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "anksin-migrations",
+    "main": "src/index.ts",
+    "compatibility_date": "2026-05-31",
+    "compatibility_flags": ["nodejs_compat"],
+    "vars": {
+        "RESPOND_WITH_ERRORS": "true",
+        "APP_URL": "https://anks.in"
+    },
+    "d1_databases": [
+        {
+            "binding": "PRIMARY_DB",
+            "database_name": "anksin-db",
+            "database_id": "d7415070-0708-4abe-a5dd-550c3fc51c29",
+            "migrations_dir": "migrations"
+        }
+    ],
+    "r2_buckets": [
+        {
+            "binding": "FILES",
+            "bucket_name": "anksin-files"
+        }
+    ]
+}

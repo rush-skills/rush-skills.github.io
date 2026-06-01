@@ -1,0 +1,9 @@
+node_modules
+.local-persist
+.teeny
+.tmp.*.json
+.dev.vars
+.prod.vars
+# Migrations ARE committed — they're the schema source of truth for
+# `wrangler d1 migrations apply`, the clone-and-run setup, and Cloudflare Workers
+# Builds (which runs the build from a fresh git checkout).

@@ -1,6 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const skills = load('skills.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const skills = (await getContent(Astro)).skills || {};
 const categories = skills.categories || [];
 ---
 <section id="skills" class="py-20 md:py-28 px-6 bg-surface scroll-mt-16">

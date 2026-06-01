@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { load } from '../lib/data';
+import { getContent } from '../lib/content';
 
 interface Props {
   title: string;
@@ -10,11 +10,32 @@ interface Props {
 const { title, description } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 
-const site = load('site.yaml');
-const hero = load('hero.yaml');
-const education = load('education.yaml');
+const content = await getContent(Astro);
+const site = content.site || {};
+const hero = content.hero || {};
+const education = content.education || {};
+const theme = content.theme || {};
+const preview = content.__preview === true;
 
 const ogImageUrl = site.ogImage ? new URL(site.ogImage, Astro.site).toString() : undefined;
+
+// Fonts are theme-driven (these defaults mirror the original design). The Google
+// Fonts request is built from whatever the theme specifies, so changing a font in
+// /admin actually loads it.
+const fonts = { display: 'Space Grotesk', mono: 'JetBrains Mono', sans: 'IBM Plex Sans', ...(theme.fonts || {}) };
+const gf = (n: string) => `family=${String(n).trim().replace(/\s+/g, '+')}:wght@400;500;600;700`;
+const fontsHref = `https://fonts.googleapis.com/css2?${[fonts.display, fonts.mono, fonts.sans].filter(Boolean).map(gf).join('&')}&display=swap`;
+
+// Theme colors -> inline CSS variables that override src/styles/global.css at
+// render time (re-skin the whole site from the admin, no code changes). Emitted
+// last in <head> so source order wins the cascade. `light`/`dark` are maps of
+// CSS custom-property name (minus the --color- prefix) to value.
+const cssVars = (map: Record<string, string> = {}) =>
+  Object.entries(map || {}).map(([k, v]) => `--color-${k}:${v};`).join('');
+const themeStyle = [
+  `:root{${cssVars(theme.light)}--font-sans:"${fonts.sans}",system-ui,sans-serif;--font-mono:"${fonts.mono}",ui-monospace,monospace;--font-display:"${fonts.display}",system-ui,sans-serif;}`,
+  theme.dark ? `.dark{${cssVars(theme.dark)}}` : '',
+].filter(Boolean).join('');
 ---
 <!DOCTYPE html>
 <html lang={site.lang || "en"}>
@@ -38,11 +59,11 @@ const ogImageUrl = site.ogImage ? new URL(site.ogImage, Astro.site).toString() :
       })();
     </script>
 
-    <!-- Fonts -->
+    <!-- Fonts (theme-driven) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" as="style" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="preload" href={fontsHref} as="style" />
+    <link href={fontsHref} rel="stylesheet" />
 
     <!-- Lord Icon -->
     <script is:inline src="https://cdn.lordicon.com/lordicon.js" defer></script>
@@ -71,13 +92,22 @@ const ogImageUrl = site.ogImage ? new URL(site.ogImage, Astro.site).toString() :
       "url": Astro.site?.toString() || "",
       "jobTitle": hero.subtitle,
       "email": site.email ? `mailto:${site.email}` : undefined,
-      "alumniOf": education.institution ? { "@type": "CollegeOrUniversity", "name": education.institution } : undefined,
+      "alumniOf": (education.schools?.[0]?.institution || education.institution) ? { "@type": "CollegeOrUniversity", "name": education.schools?.[0]?.institution || education.institution } : undefined,
       "sameAs": (site.social || []).map((s: any) => s.url).filter(Boolean)
     })} />
 
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}favicon.svg`} />
+
+    <!-- Theme overrides (admin-editable colors/fonts) — last so it wins the cascade -->
+    <style is:inline set:html={themeStyle}></style>
   </head>
   <body class="bg-surface text-ink min-h-screen transition-colors duration-300">
+    {preview && (
+      <div class="fixed bottom-0 inset-x-0 z-[100] bg-accent text-ink-on-dark text-[13px] font-mono flex items-center justify-center gap-4 py-2 px-4">
+        <span>Preview — showing unpublished drafts</span>
+        <a href="/preview/exit" class="underline text-ink-on-dark hover:opacity-80">Exit preview</a>
+      </div>
+    )}
     <slot />
 
     <!-- Scroll reveal observer -->

@@ -1,0 +1,54 @@
+---
+export const prerender = false;
+import { marked } from 'marked';
+import PageLayout from '../layouts/PageLayout.astro';
+import { listLinks, linkHost, KIND_LABELS } from '../lib/links';
+import { formatDate } from '../lib/blog';
+
+const links = await listLinks((Astro.locals as any).cfContext);
+marked.setOptions({ gfm: true, breaks: true });
+const noteHtml = (s?: string | null) => (s ? marked.parseInline(s) : '');
+---
+<PageLayout title="Links — Ankur Singh" description="Articles, videos, and things worth sharing.">
+  <main class="pt-28 pb-20 px-6 min-h-screen">
+    <div class="max-w-[760px] mx-auto">
+      <div class="flex items-center justify-between gap-4 mb-3">
+        <p class="text-[14px] font-mono text-accent tracking-[0.12em] uppercase m-0">// LINKS</p>
+        <a href="/links.xml" class="text-[12px] font-mono text-ink-tertiary hover:text-accent transition-colors no-underline">RSS</a>
+      </div>
+      <h1 class="font-display text-[34px] md:text-[44px] font-bold text-ink mb-3 tracking-[-0.01em]">Worth sharing</h1>
+      <p class="text-[16px] text-ink-secondary leading-[1.7] mb-10 max-w-[60ch]">Articles, videos, and bookmarks I've found interesting — a running feed.</p>
+
+      {links.length === 0 ? (
+        <div class="rounded-[8px] border border-border bg-surface-raised p-8 text-center">
+          <p class="text-ink-secondary m-0">Nothing shared yet — check back soon.</p>
+        </div>
+      ) : (
+        <ul class="list-none p-0 m-0 flex flex-col gap-5">
+          {links.map((item) => (
+            <li class="group rounded-[8px] border border-border bg-surface-raised p-5 transition-colors hover:border-accent">
+              <div class="flex items-center gap-2.5 mb-1.5 flex-wrap text-[12px] font-mono text-ink-tertiary">
+                {item.kind && KIND_LABELS[item.kind] && (
+                  <span class="uppercase tracking-[0.06em] text-accent bg-accent-wash rounded px-1.5 py-0.5">{KIND_LABELS[item.kind]}</span>
+                )}
+                {item.published_at && <time datetime={item.published_at}>{formatDate(item.published_at)}</time>}
+                {linkHost(item.url) && <span class="text-ink-tertiary">· {linkHost(item.url)}</span>}
+              </div>
+              <a href={item.url} target="_blank" rel="noopener" class="block no-underline">
+                <h2 class="font-display text-[19px] font-bold text-ink m-0 group-hover:text-accent transition-colors">
+                  {item.title} <span class="text-ink-tertiary font-normal">↗</span>
+                </h2>
+              </a>
+              {item.note && <p class="text-[15px] text-ink-secondary leading-[1.7] mt-2 mb-0" set:html={noteHtml(item.note)} />}
+              {item.tags?.length > 0 && (
+                <div class="flex flex-wrap gap-2 mt-2.5">
+                  {item.tags.map((t) => <span class="text-[12px] font-mono text-accent">#{t}</span>)}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </main>
+</PageLayout>

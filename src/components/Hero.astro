@@ -1,6 +1,7 @@
 ---
-import { load, LI, liSrc } from '../lib/data';
-const hero = load('hero.yaml');
+import { LI, liSrc } from '../lib/data';
+import { getContent } from '../lib/content';
+const hero = (await getContent(Astro)).hero || {};
 ---
 <section class="min-h-svh flex items-center px-5 md:px-6 pt-20 pb-8 md:pb-16 bg-surface">
   <div class="max-w-[780px] mx-auto md:mx-0 md:ml-[max(calc((100%-1100px)/2),2rem)]">

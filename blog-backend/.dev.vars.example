@@ -1,0 +1,8 @@
+# Local dev secrets for teenybase. Copy to `.dev.vars` (gitignored) and edit.
+# For production, set the same keys as Worker secrets — see RUNBOOK.md.
+JWT_SECRET=dev-jwt-secret-change-in-production
+JWT_SECRET_USERS=dev-users-jwt-secret-change-in-production
+ADMIN_JWT_SECRET=dev-admin-jwt-secret-change-in-production
+ADMIN_SERVICE_TOKEN=dev-admin-token
+POCKET_UI_VIEWER_PASSWORD=viewer
+POCKET_UI_EDITOR_PASSWORD=editor
