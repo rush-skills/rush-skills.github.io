@@ -136,9 +136,22 @@ import '../../styles/global.css';
   .adm-color-swatch { width: 46px; height: 38px; padding: 0; border: 1px solid var(--color-border); border-radius: 8px; background: none; cursor: pointer; flex-shrink: 0; }
   .adm-color-text { flex: 1; font-family: var(--font-mono, monospace); font-size: 13px; }
 
-  /* Icon field */
+  /* Icon field + curated picker gallery */
   .adm-icon-field { display: flex; gap: .6rem; align-items: center; }
+  .adm-icon-field .adm-input { flex: 1; min-width: 0; }
   .adm-icon-preview { width: 38px; height: 38px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-sunken); box-sizing: border-box; }
+  .adm-icon-browse { flex-shrink: 0; padding: .5rem .7rem; font-size: 13px; }
+  .adm-icon-gallery { margin-top: .5rem; border: 1px solid var(--color-border); border-radius: 10px; padding: .6rem; background: var(--color-surface-sunken); }
+  .adm-icon-gallery[hidden] { display: none; }
+  .adm-icon-search { margin-bottom: .5rem; }
+  .adm-icon-grid { max-height: 290px; overflow-y: auto; }
+  .adm-icon-grid-group { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--color-ink-tertiary); font-weight: 700; margin: .55rem .15rem .3rem; }
+  .adm-icon-grid-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: .4rem; }
+  .adm-icon-cell { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .5rem .25rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-raised); cursor: pointer; color: var(--color-ink-secondary); transition: border-color .15s, color .15s, background .15s; }
+  .adm-icon-cell:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .adm-icon-cell-active { border-color: var(--color-accent); background: var(--color-accent-wash); color: var(--color-accent); }
+  .adm-icon-cell-preview { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+  .adm-icon-cell-label { font-size: 10.5px; text-align: center; line-height: 1.2; }
 
   /* Nested group */
   .adm-group { border: 1px solid var(--color-border); border-radius: 10px; padding: .2rem .85rem .6rem; margin-bottom: 1.1rem; background: var(--color-surface-sunken); }
