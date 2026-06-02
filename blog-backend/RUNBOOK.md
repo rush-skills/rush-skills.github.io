@@ -1,9 +1,14 @@
 # Deploy runbook — anks.in (single Cloudflare Worker)
 
 The whole site is **one Cloudflare Worker** on your account: Astro SSR for the
-pages (`/`, `/blog`, `/admin`) plus the [teenybase](https://teenybase.com) API
+pages (`/`, `/blog`, `/links`, `/admin`) plus the [teenybase](https://teenybase.com) API
 mounted at `/api/*`, all sharing one D1 database and one R2 bucket. There is no
 separate backend service.
+
+> **Deploys are automatic.** The repo is connected to **Cloudflare Workers
+> Builds**, so a push to `master` builds and deploys the Worker (and PRs get
+> preview deployments). See [`CI-CD.md`](CI-CD.md). The steps below are for the
+> initial provisioning / a manual deploy fallback.
 
 - Site + API code: the repo root (Astro). Build with `npm run build`.
 - Data model: `blog-backend/teenybase.ts` (imported by the Worker at
@@ -125,8 +130,10 @@ USER_EMAIL=you@example.com USER_PASSWORD=your-password \
 node blog-backend/seed/seed.mjs
 ```
 
-Idempotent — it skips if the `how-this-blog-was-built` slug already exists. You
-can also just paste the markdown into a new post from `/admin`.
+Idempotent — it skips if the `how-this-blog-was-built` slug already exists; pass
+`--force` to **update** an existing post from the markdown (the live blog renders
+from D1, so editing the seed file alone won't change the published post). You can
+also just edit the post from `/admin`.
 
 ## 7. Point anks.in at the Worker
 
@@ -148,7 +155,7 @@ work against the live database, then retire the old GitHub Pages deploy.
 | Local dev (site + API + admin) | `npm run dev` (bindings via Miniflare) |
 | Schema change | edit `blog-backend/teenybase.ts` → `teeny generate` → `wrangler d1 migrations apply` → `wrangler deploy` |
 | Type check | `npx astro check` |
-| Deploy | `npm run build && npx wrangler deploy` |
+| Deploy | **push to `master`** → Workers Builds auto-builds & deploys (see [`CI-CD.md`](CI-CD.md)). Manual fallback: `npm run build && npx wrangler deploy` |
 
 ## Useful endpoints (same origin)
 

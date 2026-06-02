@@ -19,11 +19,14 @@ A portfolio **and** a self-hosted CMS on a single Cloudflare Worker:
   API, auth, and admin — both in one Worker, sharing one D1 database + R2 bucket.
 - Every region of the site (hero, about, experience, projects, skills, education,
   contact, **plus colors, fonts, and icons**) is editable from `/admin` — no code or
-  redeploys. Edits save as **drafts**, you **Preview** them, then **Publish**.
+  redeploys. Each section can be **shown/hidden**, projects can carry a **cover
+  image**, and icons are picked from a **built-in gallery**. Edits save as
+  **drafts**, you **Preview** them, then **Publish**.
 - Content lives in D1 and is read during SSR. The committed `src/data/*.yaml` is the
   **seed** and the fallback, so a fresh clone always renders.
 - There's a Markdown **blog** at `/blog` and a **links feed** at `/links`, both
-  managed from the admin, with **RSS** (`/rss.xml`, `/links.xml`).
+  managed from the admin, with **RSS** (`/rss.xml`, `/links.xml`). The home page
+  teases the most recent of each.
 
 ## Continuous deployment
 
