@@ -14,12 +14,9 @@ const delay = (i: number) => (i === 1 ? 'delay-1' : i === 2 ? 'delay-2' : '');
 {posts.length > 0 && (
   <section id="blog" class="py-20 md:py-28 px-6 scroll-mt-16">
     <div class="max-w-[1100px] mx-auto">
-      <div class="reveal flex flex-wrap items-end justify-between gap-4 mb-10">
-        <div>
-          <p class="eyebrow-num text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">WRITING</p>
-          <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink tracking-[-0.01em] m-0">From the blog</h2>
-        </div>
-        <a href="/blog" class="text-[15px] font-medium text-accent hover:text-accent-light transition-colors no-underline whitespace-nowrap">View all posts →</a>
+      <div class="reveal mb-10">
+        <p class="eyebrow-num text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">WRITING</p>
+        <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink tracking-[-0.01em] m-0">From the blog</h2>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -40,6 +37,10 @@ const delay = (i: number) => (i === 1 ? 'delay-1' : i === 2 ? 'delay-2' : '');
             )}
           </a>
         ))}
+      </div>
+
+      <div class="reveal flex justify-center mt-12">
+        <a href="/blog" class="inline-flex items-center gap-2 px-6 py-2.5 text-[15px] font-medium text-ink-secondary hover:text-accent transition-colors no-underline bg-transparent border border-border rounded-full hover:border-accent">View all posts →</a>
       </div>
     </div>
   </section>
