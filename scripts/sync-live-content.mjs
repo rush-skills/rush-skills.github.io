@@ -41,7 +41,9 @@ const wrangler = (args) =>
 function readRows() {
   const out = wrangler(['execute', DB, '--remote', '--json', '--command',
     "SELECT id, section, published, draft FROM content WHERE section IN ('site','projects')"]);
-  const parsed = JSON.parse(out);
+  // wrangler may print a banner before the JSON; parse from the first [ or {.
+  const start = out.search(/[[{]/);
+  const parsed = JSON.parse(start >= 0 ? out.slice(start) : out);
   const results = Array.isArray(parsed) ? (parsed[0]?.results ?? []) : (parsed.results ?? []);
   const map = {};
   for (const r of results) map[r.section] = r;
