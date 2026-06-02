@@ -1,0 +1,49 @@
+---
+// Recent links on the home page (between Education and Contact). Mirrors
+// BlogTeaser: data comes from index.astro, renders nothing when empty.
+import { marked } from 'marked';
+import { linkHost, KIND_LABELS, type LinkItem } from '../lib/links';
+import { formatDate } from '../lib/blog';
+
+interface Props {
+  links?: LinkItem[];
+}
+const { links = [] } = Astro.props;
+marked.setOptions({ gfm: true, breaks: true });
+const noteHtml = (s?: string | null) => (s ? marked.parseInline(s) : '');
+const delay = (i: number) => (i >= 1 && i <= 5 ? `delay-${i}` : '');
+---
+{links.length > 0 && (
+  <section id="links" class="py-20 md:py-28 px-6 scroll-mt-16">
+    <div class="max-w-[1100px] mx-auto">
+      <div class="reveal mb-10">
+        <p class="eyebrow-num text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">LINKS</p>
+        <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink tracking-[-0.01em] m-0">Worth sharing</h2>
+      </div>
+
+      <ul class="list-none p-0 m-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {links.map((item, i) => (
+          <li class={`reveal ${delay(i)} group card-glow bg-surface-raised rounded-[8px] p-5`}>
+            <div class="flex items-center gap-2.5 mb-1.5 flex-wrap text-[12px] font-mono text-ink-tertiary">
+              {item.kind && KIND_LABELS[item.kind] && (
+                <span class="uppercase tracking-[0.06em] text-accent bg-accent-wash rounded px-1.5 py-0.5">{KIND_LABELS[item.kind]}</span>
+              )}
+              {item.published_at && <time datetime={item.published_at}>{formatDate(item.published_at)}</time>}
+              {linkHost(item.url) && <span>· {linkHost(item.url)}</span>}
+            </div>
+            <a href={item.url} target="_blank" rel="noopener" class="block no-underline">
+              <h3 class="font-display text-[18px] font-bold text-ink m-0 group-hover:text-accent transition-colors">
+                {item.title} <span class="text-ink-tertiary font-normal">↗</span>
+              </h3>
+            </a>
+            {item.note && <p class="text-[15px] text-ink-secondary leading-[1.7] mt-1.5 mb-0" set:html={noteHtml(item.note)} />}
+          </li>
+        ))}
+      </ul>
+
+      <div class="reveal flex justify-center mt-12">
+        <a href="/links" class="inline-flex items-center gap-2 px-6 py-2.5 text-[15px] font-medium text-ink-secondary hover:text-accent transition-colors no-underline bg-transparent border border-border rounded-full hover:border-accent">View all links →</a>
+      </div>
+    </div>
+  </section>
+)}

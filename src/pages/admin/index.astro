@@ -45,7 +45,7 @@ import '../../styles/global.css';
   .adm-boot { display: grid; place-items: center; min-height: 100vh; color: var(--color-ink-tertiary); font-family: var(--font-mono, monospace); }
 
   /* Buttons */
-  .adm-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem 1rem; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-surface-raised); color: var(--color-ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all .15s; }
+  .adm-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem 1rem; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-surface-raised); color: var(--color-ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; transition: all .15s; }
   .adm-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
   .adm-btn-primary { background: var(--color-accent); color: var(--color-ink-on-dark, #fff); border-color: var(--color-accent); }
   .adm-btn-primary:hover { filter: brightness(1.08); color: var(--color-ink-on-dark, #fff); }
@@ -84,7 +84,9 @@ import '../../styles/global.css';
   .adm-soon { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; background: var(--color-border); color: var(--color-ink-tertiary); padding: .1rem .35rem; border-radius: 4px; }
   .adm-side-foot { margin-top: auto; border-top: 1px solid var(--color-border); padding-top: .5rem; }
   .adm-logout { color: var(--color-ink-tertiary); }
-  .adm-main { padding: 1.75rem 2rem; max-width: 1000px; }
+  /* min-width:0 lets the 1fr grid track shrink instead of letting wide content
+     (tables, long titles) blow the page out horizontally on narrow screens. */
+  .adm-main { padding: 1.75rem 2rem; max-width: 1000px; min-width: 0; }
 
   /* Topbar (mobile), theme toggle, drawer — desktop defaults */
   .adm-topbar { display: none; }
@@ -134,9 +136,22 @@ import '../../styles/global.css';
   .adm-color-swatch { width: 46px; height: 38px; padding: 0; border: 1px solid var(--color-border); border-radius: 8px; background: none; cursor: pointer; flex-shrink: 0; }
   .adm-color-text { flex: 1; font-family: var(--font-mono, monospace); font-size: 13px; }
 
-  /* Icon field */
+  /* Icon field + curated picker gallery */
   .adm-icon-field { display: flex; gap: .6rem; align-items: center; }
+  .adm-icon-field .adm-input { flex: 1; min-width: 0; }
   .adm-icon-preview { width: 38px; height: 38px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-sunken); box-sizing: border-box; }
+  .adm-icon-browse { flex-shrink: 0; padding: .5rem .7rem; font-size: 13px; }
+  .adm-icon-gallery { margin-top: .5rem; border: 1px solid var(--color-border); border-radius: 10px; padding: .6rem; background: var(--color-surface-sunken); }
+  .adm-icon-gallery[hidden] { display: none; }
+  .adm-icon-search { margin-bottom: .5rem; }
+  .adm-icon-grid { max-height: 290px; overflow-y: auto; }
+  .adm-icon-grid-group { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--color-ink-tertiary); font-weight: 700; margin: .55rem .15rem .3rem; }
+  .adm-icon-grid-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: .4rem; }
+  .adm-icon-cell { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .5rem .25rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-raised); cursor: pointer; color: var(--color-ink-secondary); transition: border-color .15s, color .15s, background .15s; }
+  .adm-icon-cell:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .adm-icon-cell-active { border-color: var(--color-accent); background: var(--color-accent-wash); color: var(--color-accent); }
+  .adm-icon-cell-preview { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+  .adm-icon-cell-label { font-size: 10.5px; text-align: center; line-height: 1.2; }
 
   /* Nested group */
   .adm-group { border: 1px solid var(--color-border); border-radius: 10px; padding: .2rem .85rem .6rem; margin-bottom: 1.1rem; background: var(--color-surface-sunken); }
@@ -145,10 +160,13 @@ import '../../styles/global.css';
   /* Repeatable lists */
   .adm-list { display: flex; flex-direction: column; gap: .55rem; margin-bottom: .55rem; }
   .adm-list-item { display: flex; gap: .4rem; align-items: flex-start; }
-  .adm-list-item textarea { flex: 1; min-height: 56px; }
+  .adm-list-item textarea { flex: 1; min-width: 0; min-height: 56px; }
+  .adm-list-item .adm-rt-host { flex: 1; min-width: 0; }
   .adm-card { border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface-raised); overflow: hidden; }
   .adm-card-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .4rem .35rem .4rem .75rem; background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border); }
-  .adm-card-title { font-weight: 600; font-size: 13.5px; color: var(--color-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* flex:1 + min-width:0 so a long item title ellipsizes instead of forcing the
+     card (and the whole page) wider than the viewport. */
+  .adm-card-title { flex: 1; min-width: 0; font-weight: 600; font-size: 13.5px; color: var(--color-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .adm-card-body { padding: .55rem .8rem .15rem; }
   .adm-item-ctrls { display: flex; gap: .05rem; flex-shrink: 0; }
   .adm-add { font-size: 13px; padding: .4rem .85rem; align-self: flex-start; }
@@ -208,6 +226,45 @@ import '../../styles/global.css';
     .md-input { min-height: 240px; }
   }
   @media (min-width: 821px) { .adm-brand-side { display: block; } }
+
+  /* Phones: list tables would overflow, so stack each row into a labelled card
+     (labels come from each cell's data-label). */
+  @media (max-width: 640px) {
+    .adm-table, .adm-table tbody { display: block; width: 100%; }
+    .adm-table thead { display: none; }
+    .adm-table tr {
+      display: block;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-surface-raised);
+      padding: .35rem .85rem;
+      margin-bottom: .65rem;
+    }
+    .adm-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: .4rem 0;
+      border: none;
+      border-bottom: 1px solid var(--color-border);
+      text-align: right;
+      word-break: break-word;
+    }
+    .adm-table tr td:last-child { border-bottom: none; }
+    .adm-table td::before {
+      content: attr(data-label);
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--color-ink-tertiary);
+      text-align: left;
+    }
+    .adm-table td.adm-row-actions { justify-content: flex-end; }
+    .adm-table td.adm-row-actions::before { content: ""; }
+  }
 
   /* Post body (shared preview typography) */
   .post-body h2 { font-size: 20px; font-weight: 700; margin: 1.5rem 0 .5rem; color: var(--color-ink); }

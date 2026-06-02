@@ -5,6 +5,7 @@
 import type { SecField, SectionDef } from './sections';
 import { uploadFile } from './client';
 import { RichTextEditor } from './richtext';
+import { ICON_CATALOG } from './icon-catalog';
 
 function h(tag: string, attrs: Record<string, any> = {}, ...children: (Node | string)[]): HTMLElement {
   const node = document.createElement(tag);
@@ -143,10 +144,12 @@ export class SectionForm {
   }
 
   private iconControl(f: SecField, parent: any): HTMLElement {
+    const wrap = h('div', { class: 'adm-icon-control' });
     const row = h('div', { class: 'adm-icon-field' });
     const box = h('span', { class: 'adm-icon-preview' });
     const inp = h('input', { type: 'text', class: 'adm-input', placeholder: 'lordicon hash' }) as HTMLInputElement;
     inp.value = String(parent[f.name] ?? '');
+    const browse = h('button', { type: 'button', class: 'adm-btn adm-icon-browse' }, 'Browse') as HTMLButtonElement;
 
     // (Re)create the <lord-icon> fresh off `lordiconReady` — the player only paints
     // elements created AFTER it loads, so mutating an existing element's src leaves
@@ -163,15 +166,72 @@ export class SectionForm {
       ic.style.height = '30px';
       box.appendChild(ic);
     };
+    const setValue = (v: string) => {
+      parent[f.name] = v;
+      inp.value = v;
+      lordiconReady.then(paint);
+      grid.querySelectorAll('.adm-icon-cell').forEach((c) =>
+        c.classList.toggle('adm-icon-cell-active', (c as HTMLElement).dataset.hash === v));
+    };
     let timer: any;
     inp.addEventListener('input', () => {
       parent[f.name] = inp.value.trim();
       clearTimeout(timer);
       timer = setTimeout(() => lordiconReady.then(paint), 300);
     });
+
+    // Curated gallery (built lazily on first open). Lets editors click an icon
+    // instead of pasting a hash. See src/lib/admin/icon-catalog.ts.
+    const gallery = h('div', { class: 'adm-icon-gallery', hidden: 'hidden' });
+    const search = h('input', { type: 'text', class: 'adm-input adm-icon-search', placeholder: 'Filter icons…' }) as HTMLInputElement;
+    const grid = h('div', { class: 'adm-icon-grid' });
+    let built = false;
+    const build = (q = '') => {
+      grid.innerHTML = '';
+      const needle = q.trim().toLowerCase();
+      for (const group of ICON_CATALOG) {
+        const matches = group.icons.filter((ic) => !needle || ic.label.toLowerCase().includes(needle) || ic.hash.includes(needle));
+        if (!matches.length) continue;
+        grid.append(h('div', { class: 'adm-icon-grid-group' }, group.group));
+        const items = h('div', { class: 'adm-icon-grid-items' });
+        for (const ic of matches) {
+          const cell = h('button', { type: 'button', class: 'adm-icon-cell', title: `${ic.label} · ${ic.hash}`, 'data-hash': ic.hash });
+          if (ic.hash === String(parent[f.name] ?? '')) cell.classList.add('adm-icon-cell-active');
+          const prev = h('span', { class: 'adm-icon-cell-preview' });
+          lordiconReady.then(() => {
+            const el = document.createElement('lord-icon');
+            el.setAttribute('src', `https://cdn.lordicon.com/${ic.hash}.json`);
+            el.setAttribute('trigger', 'hover');
+            el.setAttribute('colors', 'primary:#2E5090,secondary:#2E5090');
+            el.style.width = '32px';
+            el.style.height = '32px';
+            prev.appendChild(el);
+          });
+          cell.append(prev, h('span', { class: 'adm-icon-cell-label' }, ic.label));
+          cell.addEventListener('click', () => setValue(ic.hash));
+          items.append(cell);
+        }
+        grid.append(items);
+      }
+      if (!grid.childElementCount) grid.append(h('p', { class: 'adm-help' }, 'No icons match.'));
+    };
+    search.addEventListener('input', () => build(search.value));
+    browse.addEventListener('click', () => {
+      if (gallery.hasAttribute('hidden')) {
+        if (!built) { build(); built = true; }
+        gallery.removeAttribute('hidden');
+        browse.textContent = 'Close';
+      } else {
+        gallery.setAttribute('hidden', 'hidden');
+        browse.textContent = 'Browse';
+      }
+    });
+    gallery.append(search, grid);
+
+    row.append(box, inp, browse);
+    wrap.append(row, gallery);
     lordiconReady.then(paint);
-    row.append(box, inp);
-    return row;
+    return wrap;
   }
 
   private imageControl(f: SecField, parent: any): HTMLElement {
@@ -213,10 +273,13 @@ export class SectionForm {
     const wrap = h('div', { class: 'adm-field' });
     const lab = h('label', { class: 'adm-switch' });
     const cb = h('input', { type: 'checkbox' }) as HTMLInputElement;
-    cb.checked = !!parent[f.name];
+    // Unset booleans fall back to `default` (so an untouched "enabled" reads as
+    // on). We only write on change, so the default stays implicit until edited.
+    cb.checked = parent[f.name] === undefined ? !!f.default : !!parent[f.name];
     cb.addEventListener('change', () => { parent[f.name] = cb.checked; });
     lab.append(cb, h('span', {}, f.label || labelize(f.name)));
     wrap.append(lab);
+    if (f.help) wrap.append(h('p', { class: 'adm-help' }, f.help));
     return wrap;
   }
 

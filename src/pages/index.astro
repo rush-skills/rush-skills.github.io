@@ -8,12 +8,16 @@ import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
+import BlogTeaser from '../components/BlogTeaser.astro';
 import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
+import LinksTeaser from '../components/LinksTeaser.astro';
 import CustomSections from '../components/CustomSections.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import { getContent } from '../lib/content';
+import { listPosts } from '../lib/blog';
+import { listLinks } from '../lib/links';
 
 const content = await getContent(Astro);
 const site = content.site || {};
@@ -24,16 +28,31 @@ const projects = content.projects || {};
 const skills = content.skills || {};
 const education = content.education || {};
 const contact = content.contact || {};
+const home = site.home || {};
+
+// A section is shown unless its content explicitly sets enabled === false, so
+// people can hide regions that don't apply to them (managed from /admin).
+const sectionOn = (key: string) => (content as any)[key]?.enabled !== false;
+
+// Recent blog posts + links for the home-page teaser sections (skip the query
+// entirely when the feed is turned off).
+const ctx = (Astro.locals as any).cfContext;
+const recentPosts = home.blog !== false ? await listPosts(ctx, 3) : [];
+const recentLinks = home.links !== false ? await listLinks(ctx, 5) : [];
 ---
 <BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
   <Navbar />
-  {(hero.name || hero.subtitle) && <Hero />}
-  {(about.paragraphs || about.stats) && <About />}
-  {experience.jobs?.length && <Experience />}
-  {projects.items?.length && <Projects />}
-  {skills.categories?.length && <Skills />}
-  {(education.schools?.length || education.degree || education.highlights?.length) && <Education />}
-  <CustomSections />
-  {(contact.heading || site.email) && <Contact />}
+  <main class="bands">
+    {(hero.name || hero.subtitle) && <Hero />}
+    {sectionOn('about') && (about.paragraphs || about.stats) && <About />}
+    {sectionOn('experience') && experience.jobs?.length && <Experience />}
+    {sectionOn('projects') && projects.items?.length && <Projects />}
+    {sectionOn('skills') && skills.categories?.length && <Skills />}
+    {sectionOn('education') && (education.schools?.length || education.degree || education.highlights?.length) && <Education />}
+    {home.blog !== false && <BlogTeaser posts={recentPosts} />}
+    {home.links !== false && <LinksTeaser links={recentLinks} />}
+    <CustomSections />
+    {sectionOn('contact') && (contact.heading || site.email) && <Contact />}
+  </main>
   <Footer />
 </BaseLayout>

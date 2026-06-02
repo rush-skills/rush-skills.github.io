@@ -35,6 +35,9 @@ export interface SecField {
   // A select that rebuilds its surrounding list-item body on change, so showIf
   // fields update. Put on the template/discriminator selector.
   rerenderOnChange?: boolean;
+  // Default for a boolean when the stored value is undefined, so e.g. an unset
+  // "enabled" toggle still shows as on.
+  default?: boolean;
 }
 
 export interface SectionDef {
@@ -48,8 +51,16 @@ export interface SectionDef {
 // Small builders to keep the schema readable.
 const t = (name: string, label?: string, extra: Partial<SecField> = {}): SecField => ({ name, label, type: 'text', ...extra });
 const area = (name: string, label?: string, extra: Partial<SecField> = {}): SecField => ({ name, label, type: 'textarea', ...extra });
-const icon = (name = 'icon', label = 'Icon'): SecField => ({ name, label, type: 'icon', help: 'Lordicon hash (e.g. tsrgicte). Browse at lordicon.com.' });
+const icon = (name = 'icon', label = 'Icon'): SecField => ({ name, label, type: 'icon', help: 'Pick from the gallery, or paste a Lordicon hash.' });
 const color = (name: string, label?: string): SecField => ({ name, label, type: 'color' });
+
+// Reusable "show on site" toggle (defaults on). The home page skips a section
+// whose content has enabled === false, so people can hide regions that don't
+// apply to them without deleting the content.
+const enabledField: SecField = {
+  name: 'enabled', label: 'Show this section on the site', type: 'boolean', default: true,
+  help: 'Turn this off to hide the section from the page entirely (its content is kept).',
+};
 
 const linkFields: SecField[] = [t('label', 'Label'), t('url', 'URL'), icon()];
 const ctaGroup = (name: string, label: string): SecField => ({
@@ -73,6 +84,13 @@ export const SECTION_DEFS: SectionDef[] = [
       color('themeColor', 'Browser theme color'),
       { name: 'ogImage', label: 'OG / social image', type: 'image', help: 'Used for link previews.' },
       {
+        name: 'home', label: 'Home-page feeds', type: 'group',
+        fields: [
+          { name: 'blog', label: 'Show recent blog posts', type: 'boolean', default: true, help: 'The "From the blog" section on the home page.' },
+          { name: 'links', label: 'Show recent links', type: 'boolean', default: true, help: 'The "Worth sharing" links section on the home page.' },
+        ],
+      },
+      {
         name: 'nav', label: 'Navigation', type: 'list', itemLabel: 'link', itemTitleKey: 'label',
         fields: [t('label', 'Label'), t('href', 'Link', { help: '#section or /path' }), icon()],
       },
@@ -85,7 +103,7 @@ export const SECTION_DEFS: SectionDef[] = [
   {
     section: 'theme',
     label: 'Theme & Colors',
-    icon: 'rODHGiqE',
+    icon: 'qhgmphtg',
     description: 'Re-skin the whole site. Colors override the stylesheet at render time; fonts are loaded from Google Fonts.',
     fields: [
       {
@@ -123,6 +141,7 @@ export const SECTION_DEFS: SectionDef[] = [
     label: 'About',
     icon: 'kdduutaw',
     fields: [
+      enabledField,
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
       { name: 'paragraphs', label: 'Paragraphs', type: 'richtextlist', help: 'One box per paragraph. Use Bold, Italic, or Link — formatting is kept simple on purpose.' },
@@ -137,6 +156,7 @@ export const SECTION_DEFS: SectionDef[] = [
     label: 'Experience',
     icon: 'zhiiqoue',
     fields: [
+      enabledField,
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
       {
@@ -155,6 +175,7 @@ export const SECTION_DEFS: SectionDef[] = [
     label: 'Projects',
     icon: 'tsrgicte',
     fields: [
+      enabledField,
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
       {
@@ -166,6 +187,7 @@ export const SECTION_DEFS: SectionDef[] = [
         name: 'items', label: 'Projects', type: 'list', itemLabel: 'project', itemTitleKey: 'title',
         fields: [
           icon(), t('title', 'Title'), t('subtitle', 'Subtitle'),
+          { name: 'image', label: 'Cover image', type: 'image', help: 'Rendered as the card background — a screenshot of the project works great.' },
           t('status', 'Status', { help: 'Must match a status label above.' }),
           { name: 'featured', label: 'Featured', type: 'boolean' },
           area('description', 'Description'),
@@ -183,6 +205,7 @@ export const SECTION_DEFS: SectionDef[] = [
     label: 'Skills',
     icon: 'fwkrbvja',
     fields: [
+      enabledField,
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
       {
@@ -196,6 +219,7 @@ export const SECTION_DEFS: SectionDef[] = [
     label: 'Education',
     icon: 'vvyxyrur',
     fields: [
+      enabledField,
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
       {
@@ -217,6 +241,7 @@ export const SECTION_DEFS: SectionDef[] = [
     label: 'Contact & Footer',
     icon: 'ozlkyfxg',
     fields: [
+      enabledField,
       t('label', 'Eyebrow'),
       t('heading', 'Heading'),
       area('description', 'Description'),
@@ -234,7 +259,7 @@ export const SECTION_DEFS: SectionDef[] = [
   {
     section: 'custom',
     label: 'Custom Sections',
-    icon: 'jectmwql',
+    icon: 'gxexvjie',
     description: 'Add your own homepage sections. Pick a template per section; they render (in order) above Contact.',
     fields: [
       {

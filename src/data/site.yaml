@@ -19,7 +19,10 @@ social:
   - label: "TheServerlessDev"
     url: "https://theserverless.dev"
 
-# Navigation items
+# Navigation items. Order mirrors the home-page section order top-to-bottom so the
+# scroll-spy highlight flows left-to-right as you scroll. Blog and Links point at
+# the home-page teaser sections (#blog / #links); each section links out to its
+# full page (/blog, /links).
 nav:
   - label: "About"
     href: "#about"
@@ -37,8 +40,11 @@ nav:
     href: "#education"
     icon: "vvyxyrur"
   - label: "Blog"
-    href: "/blog"
+    href: "#blog"
     icon: "wxnxiano"
+  - label: "Links"
+    href: "#links"
+    icon: "hmqxevgf"
   - label: "Contact"
     href: "#contact"
     icon: "ozlkyfxg"

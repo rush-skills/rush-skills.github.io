@@ -90,6 +90,71 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Home-page section bands. Backgrounds alternate by DOM position (not per
+   component), so the surface/sunken rhythm stays consistent from the first
+   section to the last no matter how many render — custom sections, the blog and
+   links teasers, and conditionally-hidden sections all stay in step. Driven from
+   index.astro's <main class="bands">.
+--------------------------------------------------------------------------- */
+.bands > section:nth-of-type(odd)  { background-color: var(--color-surface); }
+.bands > section:nth-of-type(even) { background-color: var(--color-surface-sunken); }
+
+/* Section eyebrows are numbered automatically by position (01 //, 02 //, …), so
+   the sequence is always correct even as sections are reordered or hidden. The
+   bare label text comes from the CMS via eyebrowText(); CSS adds the number. */
+.bands { counter-reset: eyebrow; }
+.eyebrow-num::before {
+  counter-increment: eyebrow;
+  content: counter(eyebrow, decimal-leading-zero) " // ";
+}
+
+/* ---------------------------------------------------------------------------
+   Navbar: the desktop links show until they no longer fit the row, then the bar
+   collapses to a hamburger (JS measures overflow — robust to any number of
+   CMS-defined nav items, at any viewport). An animated "active" underline tracks
+   the section currently in view as you scroll.
+--------------------------------------------------------------------------- */
+/* Reading-progress bar pinned to the very top edge, tracking scroll position. */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  z-index: 60;
+  will-change: transform;
+  pointer-events: none;
+}
+
+#nav-links { flex-shrink: 0; }
+#navbar[data-collapsed="true"] #nav-links { display: none; }
+#navbar[data-collapsed="true"] #nav-toggle { display: flex; }
+#navbar:not([data-collapsed="true"]) #nav-toggle { display: none; }
+#navbar:not([data-collapsed="true"]) #mobile-menu { display: none !important; }
+.nav-link { white-space: nowrap; }
+.nav-link.active { color: var(--color-accent); }
+#nav-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--color-accent);
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1),
+              width .35s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity .25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  #nav-indicator { transition: opacity .2s ease; }
+}
+
 /* Scroll-triggered reveal animations */
 .reveal {
   opacity: 0;

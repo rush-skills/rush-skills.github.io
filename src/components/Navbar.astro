@@ -4,51 +4,60 @@ import { getContent } from '../lib/content';
 const site = (await getContent(Astro)).site || {};
 const base = import.meta.env.BASE_URL;
 const navItems = site.nav || [];
+// Section anchors (href="#id") drive the scroll-spy; derive the section id once.
+const sectionOf = (href: string) => (href && href.startsWith('#') ? href.slice(1) : null);
 ---
 <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-  <div class="max-w-[1200px] mx-auto px-6 h-[64px] flex items-center justify-between">
-    <a href={base} class="font-display text-[18px] font-bold text-ink no-underline hover:text-accent transition-colors tracking-[-0.01em]">
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="nav-inner relative max-w-[1200px] mx-auto px-6 h-[64px] flex items-center justify-between gap-4">
+    <a href={base} class="nav-logo whitespace-nowrap font-display text-[18px] font-bold text-ink no-underline hover:text-accent transition-colors tracking-[-0.01em] shrink-0">
       {site.name || ''}
     </a>
 
-    <ul class="hidden md:flex items-center gap-7 list-none m-0 p-0">
-      {navItems.map((item: any) => (
-        <li>
-          <a href={item.href} class="inline-flex items-center gap-1.5 text-[15px] text-ink-secondary hover:text-accent transition-colors no-underline font-medium">
-            {item.icon && <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LI.dark} class="li-sm"></lord-icon>}
-            {item.label}
-          </a>
-        </li>
-      ))}
-      <li>
-        <button id="theme-toggle" class="inline-flex items-center text-[15px] text-ink-secondary hover:text-accent transition-colors cursor-pointer bg-transparent border-none p-0 translate-y-[1.5px]" aria-label="Toggle dark mode">
+    <div class="flex items-center gap-6">
+      <ul id="nav-links" class="flex items-center gap-7 list-none m-0 p-0">
+        {navItems.map((item: any) => (
+          <li>
+            <a
+              href={item.href}
+              data-section={sectionOf(item.href)}
+              class="nav-link inline-flex items-center gap-1.5 text-[15px] text-ink-secondary hover:text-accent transition-colors no-underline font-medium"
+            >
+              {item.icon && <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LI.dark} class="li-sm"></lord-icon>}
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="flex items-center gap-1 shrink-0">
+        <button id="theme-toggle" class="inline-flex items-center justify-center p-2 text-ink-secondary hover:text-accent transition-colors cursor-pointer bg-transparent border-none" aria-label="Toggle dark mode">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="dark:hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
-      </li>
-    </ul>
-
-    <div class="md:hidden flex items-center gap-2">
-      <button id="theme-toggle-mobile" class="p-2 text-ink-secondary hover:text-accent transition-all cursor-pointer bg-transparent border-none" aria-label="Toggle dark mode">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dark:hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-      {navItems.length > 0 && (
-        <button id="mobile-menu-btn" class="flex flex-col gap-[6px] p-2 bg-transparent border-none cursor-pointer relative z-50" aria-label="Toggle menu" aria-expanded="false">
-          <span class="block w-6 h-[2px] bg-ink transition-all duration-300" id="bar1"></span>
-          <span class="block w-6 h-[2px] bg-ink transition-all duration-300" id="bar2"></span>
-          <span class="block w-6 h-[2px] bg-ink transition-all duration-300" id="bar3"></span>
-        </button>
-      )}
+        {navItems.length > 0 && (
+          <button id="nav-toggle" class="flex-col gap-[6px] p-2 bg-transparent border-none cursor-pointer relative z-50" aria-label="Toggle menu" aria-expanded="false">
+            <span class="block w-6 h-[2px] bg-ink transition-all duration-300" id="bar1"></span>
+            <span class="block w-6 h-[2px] bg-ink transition-all duration-300" id="bar2"></span>
+            <span class="block w-6 h-[2px] bg-ink transition-all duration-300" id="bar3"></span>
+          </button>
+        )}
+      </div>
     </div>
+
+    <span id="nav-indicator" aria-hidden="true"></span>
   </div>
 
   {navItems.length > 0 && (
-    <div id="mobile-menu" class="hidden md:hidden bg-surface-raised/95 backdrop-blur-lg border-b border-border">
+    <div id="mobile-menu" class="hidden bg-surface-raised/95 backdrop-blur-lg border-b border-border">
       <ul class="list-none m-0 p-0 py-4">
         {navItems.map((item: any) => (
           <li>
-            <a href={item.href} class="flex items-center gap-2.5 px-6 py-3 text-[17px] text-ink-secondary hover:text-accent transition-colors no-underline">
+            <a
+              href={item.href}
+              data-section={sectionOf(item.href)}
+              class="nav-link flex items-center gap-2.5 px-6 py-3 text-[17px] text-ink-secondary hover:text-accent transition-colors no-underline"
+            >
               {item.icon && <lord-icon src={liSrc(item.icon)} trigger="morph" colors={LI.dark} class="li-md"></lord-icon>}
               {item.label}
             </a>
@@ -61,58 +70,133 @@ const navItems = site.nav || [];
 
 <script>
   const navbar = document.getElementById('navbar');
-  if (navbar) {
-    const scrollClasses = ['bg-surface/90', 'backdrop-blur-lg', 'border-b', 'border-border/50', 'shadow-[0_1px_3px_rgba(0,0,0,0.05)]'];
-    function updateNavbar() {
-      if (window.scrollY > 50) {
-        navbar!.classList.add(...scrollClasses);
-      } else {
-        navbar!.classList.remove(...scrollClasses);
-      }
-    }
-    updateNavbar();
-    window.addEventListener('scroll', updateNavbar);
-  }
-
-  const btn = document.getElementById('mobile-menu-btn');
+  const navInner = navbar?.querySelector('.nav-inner') as HTMLElement | null;
+  const navLinks = document.getElementById('nav-links');
+  const indicator = document.getElementById('nav-indicator');
+  const toggle = document.getElementById('nav-toggle');
   const menu = document.getElementById('mobile-menu');
-  const bar1 = document.getElementById('bar1');
-  const bar2 = document.getElementById('bar2');
-  const bar3 = document.getElementById('bar3');
+  const bars = ['bar1', 'bar2', 'bar3'].map((id) => document.getElementById(id));
+  const progress = document.getElementById('scroll-progress');
 
-  if (btn && menu) {
-    btn.addEventListener('click', () => {
-      const isOpen = !menu.classList.contains('hidden');
-      menu.classList.toggle('hidden');
-      btn.setAttribute('aria-expanded', String(!isOpen));
-      if (!isOpen) {
-        bar1?.classList.add('rotate-45', 'translate-y-[8px]');
-        bar2?.classList.add('opacity-0');
-        bar3?.classList.add('-rotate-45', '-translate-y-[8px]');
-      } else {
-        bar1?.classList.remove('rotate-45', 'translate-y-[8px]');
-        bar2?.classList.remove('opacity-0');
-        bar3?.classList.remove('-rotate-45', '-translate-y-[8px]');
-      }
-    });
-
-    menu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        menu.classList.add('hidden');
-        btn.setAttribute('aria-expanded', 'false');
-        bar1?.classList.remove('rotate-45', 'translate-y-[8px]');
-        bar2?.classList.remove('opacity-0');
-        bar3?.classList.remove('-rotate-45', '-translate-y-[8px]');
-      });
-    });
+  // --- Scrolled background -------------------------------------------------
+  const scrollClasses = ['bg-surface/90', 'backdrop-blur-lg', 'border-b', 'border-border/50', 'shadow-[0_1px_3px_rgba(0,0,0,0.05)]'];
+  function updateNavbarBg() {
+    if (!navbar) return;
+    if (window.scrollY > 50) navbar.classList.add(...scrollClasses);
+    else navbar.classList.remove(...scrollClasses);
   }
 
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  // --- Reading-progress bar ------------------------------------------------
+  function updateProgress() {
+    if (!progress) return;
+    const el = document.documentElement;
+    const max = el.scrollHeight - el.clientHeight;
+    progress.style.transform = `scaleX(${max > 0 ? Math.min(window.scrollY / max, 1) : 0})`;
+  }
+
+  // --- Mobile menu (shown only while collapsed) ----------------------------
+  function setMenu(open: boolean) {
+    if (!menu || !toggle) return;
+    menu.classList.toggle('hidden', !open);
+    toggle.setAttribute('aria-expanded', String(open));
+    bars[0]?.classList.toggle('rotate-45', open);
+    bars[0]?.classList.toggle('translate-y-[8px]', open);
+    bars[1]?.classList.toggle('opacity-0', open);
+    bars[2]?.classList.toggle('-rotate-45', open);
+    bars[2]?.classList.toggle('-translate-y-[8px]', open);
+  }
+  toggle?.addEventListener('click', () => setMenu(menu?.classList.contains('hidden') ?? false));
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+  // --- Overflow-aware collapse ---------------------------------------------
+  // Show the horizontal links until they no longer fit the row; then collapse to
+  // the hamburger. Measured live, so it adapts to the number of CMS nav items
+  // and font loading instead of guessing a breakpoint.
+  function fit() {
+    if (!navbar || !navInner) return;
+    navbar.removeAttribute('data-collapsed');           // measure as if expanded
+    const overflow = navInner.scrollWidth > navInner.clientWidth + 1;
+    if (overflow) {
+      navbar.setAttribute('data-collapsed', 'true');
+    } else {
+      setMenu(false);                                   // keep dropdown closed when expanded
+    }
+    positionIndicator();
+  }
+
+  // --- Active-section indicator (animated underline) -----------------------
+  let activeId: string | null = null;
+
+  function positionIndicator() {
+    if (!indicator || !navInner || !navLinks) return;
+    const collapsed = navbar?.getAttribute('data-collapsed') === 'true';
+    const link = activeId
+      ? navLinks.querySelector(`a[data-section="${activeId}"]`) as HTMLElement | null
+      : null;
+    if (collapsed || !link) { indicator.style.opacity = '0'; return; }
+    const lr = link.getBoundingClientRect();
+    const nr = navInner.getBoundingClientRect();
+    indicator.style.width = `${lr.width}px`;
+    indicator.style.transform = `translateX(${lr.left - nr.left}px)`;
+    indicator.style.opacity = '1';
+  }
+
+  function setActive(id: string | null) {
+    if (id === activeId) return;
+    activeId = id;
+    document.querySelectorAll('a[data-section]').forEach((a) =>
+      a.classList.toggle('active', a.getAttribute('data-section') === id));
+    positionIndicator();
+  }
+
+  // --- Scroll spy ----------------------------------------------------------
+  // Active = the last section whose top has crossed a line ~30% down the
+  // viewport, so the highlight steps left→right in document order as you scroll.
+  function spy() {
+    const secs = Array.from(document.querySelectorAll('main.bands > section[id]')) as HTMLElement[];
+    if (!secs.length) return;
+    const line = window.innerHeight * 0.3 + 64;
+    let current: string | null = null;
+    for (const s of secs) {
+      if (s.getBoundingClientRect().top <= line) current = s.id;
+    }
+    // Snap to the final section when scrolled to the very bottom.
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+      current = secs[secs.length - 1].id;
+    }
+    setActive(current);
+  }
+
+  // --- Wiring --------------------------------------------------------------
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    updateNavbarBg();
+    if (!ticking) {
+      requestAnimationFrame(() => { updateProgress(); spy(); ticking = false; });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  let resizeTimer: ReturnType<typeof setTimeout>;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { fit(); spy(); }, 100);
+  });
+
+  updateNavbarBg();
+  updateProgress();
+  fit();
+  spy();
+  window.addEventListener('load', () => { fit(); spy(); });
+  if ((document as any).fonts?.ready) (document as any).fonts.ready.then(() => fit());
+
+  // --- Smooth-scroll for in-page anchors -----------------------------------
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {
       const href = (anchor as HTMLAnchorElement).getAttribute('href');
       if (!href || href === '#') return;
-      // On sub-pages (e.g. /blog) section anchors don't exist — send the user
-      // back to the home page section instead of scrolling nowhere.
+      // On sub-pages (e.g. /blog) the section anchors don't exist — send the
+      // visitor to the matching home-page section instead of scrolling nowhere.
       if (location.pathname !== '/' && location.pathname !== '') {
         e.preventDefault();
         window.location.href = '/' + href;

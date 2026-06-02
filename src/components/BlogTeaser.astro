@@ -1,0 +1,47 @@
+---
+// Recent blog posts on the home page (between Projects and Skills). Data is
+// fetched once in index.astro and passed in, so this stays a pure view. Renders
+// nothing when there are no posts, so the section — and the alternating-band
+// rhythm — simply skips it.
+import { formatDate, type Post } from '../lib/blog';
+
+interface Props {
+  posts?: Post[];
+}
+const { posts = [] } = Astro.props;
+const delay = (i: number) => (i === 1 ? 'delay-1' : i === 2 ? 'delay-2' : '');
+---
+{posts.length > 0 && (
+  <section id="blog" class="py-20 md:py-28 px-6 scroll-mt-16">
+    <div class="max-w-[1100px] mx-auto">
+      <div class="reveal mb-10">
+        <p class="eyebrow-num text-[14px] font-mono text-accent tracking-[0.12em] uppercase mb-3">WRITING</p>
+        <h2 class="font-display text-[32px] md:text-[44px] font-bold text-ink tracking-[-0.01em] m-0">From the blog</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {posts.map((post, i) => (
+          <a href={`/blog/${post.slug}`} class={`reveal ${delay(i)} group card-glow bg-surface-raised rounded-[8px] p-6 no-underline flex flex-col`}>
+            <div class="flex items-center gap-3 mb-2 flex-wrap text-[13px] font-mono text-ink-tertiary">
+              {post.published_at && <time datetime={post.published_at}>{formatDate(post.published_at)}</time>}
+              {post.ai_generated ? (
+                <span class="inline-flex items-center text-[11px] uppercase tracking-[0.06em] text-accent bg-accent-wash rounded px-1.5 py-0.5">AI-assisted</span>
+              ) : null}
+            </div>
+            <h3 class="font-display text-[20px] font-bold text-ink m-0 mb-2 group-hover:text-accent transition-colors">{post.title}</h3>
+            {post.excerpt && <p class="text-[15px] text-ink-secondary leading-[1.7] m-0">{post.excerpt}</p>}
+            {post.tags?.length > 0 && (
+              <div class="flex flex-wrap gap-2 mt-3">
+                {post.tags.slice(0, 3).map((t) => <span class="text-[12px] font-mono text-accent">#{t}</span>)}
+              </div>
+            )}
+          </a>
+        ))}
+      </div>
+
+      <div class="reveal flex justify-center mt-12">
+        <a href="/blog" class="inline-flex items-center gap-2 px-6 py-2.5 text-[15px] font-medium text-ink-secondary hover:text-accent transition-colors no-underline bg-transparent border border-border rounded-full hover:border-accent">View all posts →</a>
+      </div>
+    </div>
+  </section>
+)}
