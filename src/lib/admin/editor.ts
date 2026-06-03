@@ -16,6 +16,7 @@ export class MarkdownEditor {
   el: HTMLElement;
   private textarea!: HTMLTextAreaElement;
   private preview!: HTMLElement;
+  private editorEl!: HTMLElement; // the .md-editor node (kept as a ref — it moves to <body> in focus mode)
   private opts: MarkdownEditorOptions;
 
   constructor(container: HTMLElement, opts: MarkdownEditorOptions = {}) {
@@ -50,6 +51,7 @@ export class MarkdownEditor {
           <span class="md-sep"></span>
           <button type="button" data-md="image" title="Upload image">🖼️</button>
           <span class="md-spacer"></span>
+          <button type="button" data-md="toggle-fullpage" title="Focus mode — full-page editor (Esc to exit)" class="md-toggle">⤢ Focus</button>
           <button type="button" data-md="toggle-preview" title="Toggle preview" class="md-toggle">Preview</button>
         </div>
         <div class="md-panes">
@@ -62,6 +64,7 @@ export class MarkdownEditor {
 
     this.textarea = this.el.querySelector('.md-input') as HTMLTextAreaElement;
     this.preview = this.el.querySelector('.md-preview') as HTMLElement;
+    this.editorEl = this.el.querySelector('.md-editor') as HTMLElement;
     const fileInput = this.el.querySelector('.md-file') as HTMLInputElement;
     this.textarea.value = initial;
     this.updatePreview();
@@ -78,7 +81,8 @@ export class MarkdownEditor {
         e.preventDefault();
         const cmd = (btn as HTMLElement).dataset.md!;
         if (cmd === 'image') fileInput.click();
-        else if (cmd === 'toggle-preview') this.el.querySelector('.md-editor')!.classList.toggle('md-preview-only');
+        else if (cmd === 'toggle-preview') this.editorEl.classList.toggle('md-preview-only');
+        else if (cmd === 'toggle-fullpage') this.toggleFullpage();
         else this.applyCommand(cmd);
       });
     });
@@ -122,6 +126,7 @@ export class MarkdownEditor {
       // soft-tab (2 spaces), don't trap focus on shift+tab
       if (!e.shiftKey) { e.preventDefault(); this.insertAtCursor('  '); }
     }
+    else if (e.key === 'Escape' && this.isFullpage()) { e.preventDefault(); this.toggleFullpage(false); }
   }
 
   private getSelection() {
@@ -201,5 +206,33 @@ export class MarkdownEditor {
     }
     this.updatePreview();
     this.opts.onChange?.(this.value);
+  }
+
+  private isFullpage(): boolean {
+    return this.editorEl.classList.contains('md-fullpage');
+  }
+
+  /** Toggle distraction-free, full-page editing (editor + live preview, side by
+   *  side). The editor node is moved to <body> so it fills the viewport reliably,
+   *  regardless of any transformed or clipping ancestor in the admin layout. */
+  private toggleFullpage(force?: boolean) {
+    const ed = this.editorEl;
+    const on = force ?? !ed.classList.contains('md-fullpage');
+    if (on) {
+      document.body.appendChild(ed);
+      ed.classList.add('md-fullpage');
+      document.body.classList.add('md-fullpage-lock');
+      this.textarea.focus();
+    } else {
+      ed.classList.remove('md-fullpage');
+      document.body.classList.remove('md-fullpage-lock');
+      this.el.appendChild(ed); // restore into its form field
+    }
+    const btn = ed.querySelector('[data-md="toggle-fullpage"]') as HTMLElement | null;
+    if (btn) {
+      btn.innerHTML = on ? '✕ Exit' : '⤢ Focus';
+      btn.title = on ? 'Exit focus mode (Esc)' : 'Focus mode — full-page editor (Esc to exit)';
+      btn.classList.toggle('md-fullpage-active', on);
+    }
   }
 }
