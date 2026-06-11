@@ -15,7 +15,7 @@ marked.setOptions({ gfm: true, breaks: false });
 const html = await marked.parse(post.body || '');
 const cover = post.cover_image && /^https?:\/\//.test(post.cover_image) ? post.cover_image : null;
 ---
-<PageLayout title={`${post.title} — Ankur Singh`} description={post.excerpt || post.title}>
+<PageLayout title={`${post.title} — Ankur Singh`} description={post.excerpt || post.title} ogImage={`/og/post/${post.slug}.png`}>
   <main class="pt-28 pb-20 px-6 min-h-screen">
     <article class="max-w-[720px] mx-auto">
       <a href="/blog" class="inline-block text-[14px] font-mono text-accent hover:text-accent-light no-underline mb-8">← All posts</a>
