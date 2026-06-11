@@ -27,6 +27,11 @@ A portfolio **and** a self-hosted CMS on a single Cloudflare Worker:
 - There's a Markdown **blog** at `/blog` and a **links feed** at `/links`, both
   managed from the admin, with **RSS** (`/rss.xml`, `/links.xml`). The home page
   teases the most recent of each.
+- Every project gets a **detail page** at `/projects/<slug>` (slug + markdown
+  write-up editable in the admin; slugs derive from titles by default), and
+  `/cv` renders a **print-ready résumé** from the same content.
+- **Open Graph cards** are generated on the Worker (satori + resvg wasm) at
+  `/og/...` for every page, post, and project, using the theme's font and colors.
 
 ## Continuous deployment
 
