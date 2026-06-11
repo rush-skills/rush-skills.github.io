@@ -1,0 +1,98 @@
+---
+// Project detail page. Items come from the same CMS `projects` section the home
+// grid renders; the slug is item.slug or derived from the title (src/lib/slug),
+// so existing projects get pages with no data migration. An optional markdown
+// `body` (editable in /admin) becomes the write-up; without one the page still
+// stands as screenshot + description + links.
+export const prerender = false;
+import { marked } from 'marked';
+import PageLayout from '../../layouts/PageLayout.astro';
+import { getContent } from '../../lib/content';
+import { projectSlug } from '../../lib/slug';
+import { LI, liSrc } from '../../lib/data';
+
+const { slug } = Astro.params;
+const content = await getContent(Astro);
+const projects = content.projects || {};
+const items: any[] = projects.enabled !== false ? projects.items || [] : [];
+const project = slug ? items.find((p) => projectSlug(p) === slug) : null;
+
+if (!project) {
+  return new Response('Not found', { status: 404 });
+}
+
+const statusColors: Record<string, string> = {};
+(projects.statuses || []).forEach((s: any) => { if (s.color) statusColors[s.label] = s.color; });
+const color = statusColors[project.status] || '#6B7280';
+
+marked.setOptions({ gfm: true, breaks: false });
+const bodyHtml = project.body ? await marked.parse(project.body) : '';
+const links: any[] = project.links || [];
+---
+<PageLayout
+  title={`${project.title} — Ankur Singh`}
+  description={project.subtitle || project.description || project.title}
+  ogImage={`/og/project/${projectSlug(project)}.png`}
+>
+  <main class="pt-28 pb-20 px-6 min-h-screen">
+    <article class="max-w-[860px] mx-auto">
+      <a href="/#projects" class="inline-block text-[14px] font-mono text-accent hover:text-accent-light no-underline mb-8">← All projects</a>
+
+      <div class="flex items-start justify-between gap-4 mb-2">
+        <h1 class="font-display text-[32px] md:text-[42px] font-bold text-ink m-0 tracking-[-0.01em] leading-[1.12]">{project.title}</h1>
+        {project.status && (
+          <span class="mt-2 inline-block px-2.5 py-1 text-[12px] font-medium rounded font-mono uppercase whitespace-nowrap" style={`color: ${color}; background: ${color}1f;`}>{project.status}</span>
+        )}
+      </div>
+      {project.subtitle && <p class="text-[18px] text-accent font-medium mt-0 mb-5">{project.subtitle}</p>}
+
+      {(links.length > 0 || project.tech?.length > 0) && (
+        <div class="flex items-center gap-3 flex-wrap mb-8">
+          {links.map((link: any, i: number) => (
+            <a href={link.url} target="_blank" rel="noopener"
+              class={`inline-flex items-center gap-2 rounded-[6px] text-[14px] font-medium px-4 py-2 no-underline transition-colors ${i === 0 ? 'bg-accent text-ink-on-dark hover:opacity-90' : 'border border-border text-ink-secondary hover:border-accent hover:text-accent'}`}>
+              {link.icon && <lord-icon src={liSrc(link.icon)} trigger="morph" colors={i === 0 ? LI.light : LI.dark} class="li-sm"></lord-icon>}
+              {link.label || link.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {project.image && (
+        <div class="rounded-[10px] border border-border overflow-hidden mb-8 bg-surface-sunken">
+          <img src={project.image} alt={`${project.title} screenshot`} class="w-full block" loading="eager" decoding="async" />
+        </div>
+      )}
+
+      {bodyHtml
+        ? <div class="post-body" set:html={bodyHtml}></div>
+        : project.description && <p class="text-[17px] leading-[1.8] text-ink-secondary">{project.description}</p>}
+
+      {project.tech?.length > 0 && (
+        <div class="mt-10 pt-6 border-t border-border">
+          <p class="text-[13px] font-mono uppercase tracking-[0.1em] text-ink-tertiary mb-3 mt-0">Built with</p>
+          <div class="flex flex-wrap gap-1.5">
+            {project.tech.map((t: string) => (
+              <span class="inline-block px-2.5 py-1 text-[13px] font-medium rounded bg-accent-wash text-accent font-mono">{t}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
+  </main>
+</PageLayout>
+
+<style>
+  .post-body :global(h2) { font-family: var(--font-display, inherit); font-size: 24px; font-weight: 700; color: var(--color-ink); margin: 2rem 0 0.75rem; }
+  .post-body :global(h3) { font-size: 19px; font-weight: 600; color: var(--color-ink); margin: 1.5rem 0 0.5rem; }
+  .post-body :global(p) { font-size: 17px; line-height: 1.8; color: var(--color-ink-secondary); margin: 0 0 1.1rem; }
+  .post-body :global(ul), .post-body :global(ol) { color: var(--color-ink-secondary); font-size: 17px; line-height: 1.8; padding-left: 1.4rem; margin: 0 0 1.1rem; }
+  .post-body :global(li) { margin: 0.3rem 0; }
+  .post-body :global(a) { color: var(--color-accent); text-decoration: underline; }
+  .post-body :global(strong) { color: var(--color-ink); font-weight: 600; }
+  .post-body :global(code) { font-family: ui-monospace, monospace; font-size: 0.9em; background: var(--color-accent-wash); color: var(--color-accent); padding: 0.15em 0.4em; border-radius: 4px; }
+  .post-body :global(pre) { background: var(--color-surface-sunken); border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem 1.25rem; overflow-x: auto; margin: 0 0 1.25rem; }
+  .post-body :global(pre code) { background: none; color: var(--color-ink); padding: 0; }
+  .post-body :global(blockquote) { border-left: 3px solid var(--color-accent); padding-left: 1rem; margin: 0 0 1.1rem; color: var(--color-ink-tertiary); }
+  .post-body :global(img) { max-width: 100%; border-radius: 8px; border: 1px solid var(--color-border); }
+</style>

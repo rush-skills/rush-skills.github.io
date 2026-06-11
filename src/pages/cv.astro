@@ -1,0 +1,167 @@
+---
+// /cv — a print-friendly résumé generated from the same CMS content the site
+// renders (experience, skills, education, contact). Edit the site in /admin and
+// the CV updates itself. "Download PDF" is the browser's print-to-PDF over a
+// dedicated @media print stylesheet.
+export const prerender = false;
+import PageLayout from '../layouts/PageLayout.astro';
+import { getContent } from '../lib/content';
+
+const content = await getContent(Astro);
+const site = content.site || {};
+const hero = content.hero || {};
+const about = content.about || {};
+const experience = content.experience || {};
+const skills = content.skills || {};
+const education = content.education || {};
+const projects = content.projects || {};
+
+const enabled = (s: any) => s && s.enabled !== false;
+const fullName = site.fullName || 'Ankur Singh';
+const role = (hero.subtitle || '').toString();
+const domain = (Astro.site?.host || 'anks.in');
+
+// Plain-text summary: the about paragraphs are stored as HTML for the site.
+const ENT: Record<string, string> = { '&ndash;': '–', '&mdash;': '—', '&amp;': '&', '&nbsp;': ' ', '&#39;': '’', '&quot;': '"' };
+const strip = (h: string) =>
+  h.replace(/<[^>]+>/g, '').replace(/&[a-z#0-9]+;/gi, (e) => ENT[e] ?? e).replace(/\s+/g, ' ').trim();
+const summary: string[] = (about.paragraphs || []).map(strip);
+
+const jobs: any[] = enabled(experience) ? experience.jobs || [] : [];
+const categories: any[] = enabled(skills) ? skills.categories || [] : [];
+const schools: any[] = enabled(education) ? education.schools || [] : [];
+const featured: any[] = enabled(projects) ? (projects.items || []).filter((p: any) => p.featured).slice(0, 4) : [];
+const linkedin = (site.social || []).find((s: any) => /linkedin/i.test(s.label || s.url || ''));
+const github = (site.social || []).find((s: any) => /github/i.test(s.label || s.url || ''));
+const dash = (s: string) => String(s || '').replace(/&ndash;/g, '–').replace(/&mdash;/g, '—');
+---
+<PageLayout title={`CV — ${fullName}`} description={`Curriculum vitae of ${fullName} — ${role.toLowerCase()}.`} ogImage="/og/page/cv.png">
+  <main class="cv pt-28 pb-20 px-6 min-h-screen">
+    <div class="max-w-[820px] mx-auto">
+
+      <div class="cv-actions flex items-center justify-between mb-10 print:hidden">
+        <a href="/" class="text-[14px] font-mono text-accent no-underline hover:text-accent-light">← anks.in</a>
+        <button id="cv-print" class="inline-flex items-center gap-2 rounded-[6px] bg-accent text-ink-on-dark text-[14px] font-medium px-4 py-2 border-0 cursor-pointer hover:opacity-90">
+          Download PDF
+        </button>
+      </div>
+
+      <!-- Header -->
+      <header class="mb-8 pb-6 border-b-2 border-ink">
+        <h1 class="font-display text-[34px] font-bold text-ink m-0 tracking-[-0.01em]">{fullName}</h1>
+        {role && <p class="m-0 mt-1 text-[15px] font-mono uppercase tracking-[0.08em] text-accent">{role}</p>}
+        <p class="m-0 mt-3 text-[14px] text-ink-secondary flex flex-wrap gap-x-4 gap-y-1">
+          {site.email && <a href={`mailto:${site.email}`} class="text-ink-secondary no-underline">{site.email}</a>}
+          <a href={`https://${domain}`} class="text-ink-secondary no-underline">{domain}</a>
+          {github && <a href={github.url} class="text-ink-secondary no-underline">{github.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
+          {linkedin && <a href={linkedin.url} class="text-ink-secondary no-underline">{linkedin.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
+        </p>
+      </header>
+
+      {summary.length > 0 && (
+        <section class="cv-section">
+          <h2>Summary</h2>
+          {summary.map((p) => <p class="cv-p">{p}</p>)}
+        </section>
+      )}
+
+      {jobs.length > 0 && (
+        <section class="cv-section">
+          <h2>Experience</h2>
+          {jobs.map((j: any) => (
+            <div class="cv-item">
+              <div class="cv-item-head">
+                <h3>{j.role} · <span class="cv-co">{j.company}</span></h3>
+                <span class="cv-dates">{dash(j.dateRange)}</span>
+              </div>
+              {j.location && <p class="cv-loc">{j.location}</p>}
+              {j.description && <p class="cv-p">{strip(j.description)}</p>}
+              {j.tech?.length > 0 && <p class="cv-tech">{j.tech.join(' · ')}</p>}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {featured.length > 0 && (
+        <section class="cv-section">
+          <h2>Selected Projects</h2>
+          {featured.map((p: any) => (
+            <div class="cv-item">
+              <div class="cv-item-head">
+                <h3>{p.title}{p.subtitle && <span class="cv-co"> — {p.subtitle}</span>}</h3>
+                {p.links?.[0]?.url && <a class="cv-dates cv-link" href={p.links[0].url}>{p.links[0].url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
+              </div>
+              {p.description && <p class="cv-p">{strip(p.description)}</p>}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {categories.length > 0 && (
+        <section class="cv-section">
+          <h2>Skills</h2>
+          {categories.map((c: any) => (
+            <p class="cv-skill"><strong>{c.name}:</strong> {(c.items || []).join(', ')}</p>
+          ))}
+        </section>
+      )}
+
+      {schools.length > 0 && (
+        <section class="cv-section">
+          <h2>Education</h2>
+          {schools.map((s: any) => (
+            <div class="cv-item">
+              <div class="cv-item-head">
+                <h3>{s.degree} · <span class="cv-co">{s.institution}</span></h3>
+                <span class="cv-dates">{dash(s.dateRange)}</span>
+              </div>
+              {s.highlights?.filter((x: any) => x.featured).map((x: any) => <p class="cv-p">{x.text}</p>)}
+            </div>
+          ))}
+        </section>
+      )}
+
+      <p class="cv-foot print:block text-[12px] text-ink-tertiary mt-10">
+        Generated from the live content at {domain}/cv
+      </p>
+    </div>
+  </main>
+</PageLayout>
+
+<script>
+  document.getElementById('cv-print')?.addEventListener('click', () => window.print());
+</script>
+
+<style>
+  .cv-section { margin: 0 0 1.6rem; }
+  .cv-section h2 {
+    font-family: var(--font-mono, monospace); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent);
+    border-bottom: 1px solid var(--color-border); padding-bottom: 0.35rem; margin: 0 0 0.85rem;
+  }
+  .cv-item { margin: 0 0 1.1rem; }
+  .cv-item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .cv-item h3 { font-size: 16px; font-weight: 600; color: var(--color-ink); margin: 0; }
+  .cv-co { color: var(--color-ink-secondary); font-weight: 500; }
+  .cv-dates { font-family: var(--font-mono, monospace); font-size: 12.5px; color: var(--color-ink-tertiary); white-space: nowrap; }
+  .cv-link { text-decoration: none; }
+  .cv-loc { font-size: 13px; color: var(--color-ink-tertiary); margin: 0.1rem 0 0; }
+  .cv-p { font-size: 14.5px; line-height: 1.65; color: var(--color-ink-secondary); margin: 0.35rem 0 0; }
+  .cv-tech { font-family: var(--font-mono, monospace); font-size: 12.5px; color: var(--color-ink-tertiary); margin: 0.35rem 0 0; }
+  .cv-skill { font-size: 14.5px; line-height: 1.7; color: var(--color-ink-secondary); margin: 0 0 0.45rem; }
+  .cv-skill strong { color: var(--color-ink); font-weight: 600; }
+  .cv-foot { font-family: var(--font-mono, monospace); }
+
+  /* Print: black-on-white, compact, no site chrome. */
+  @media print {
+    :global(nav), :global(footer), .cv-actions { display: none !important; }
+    :global(body) { background: #fff !important; }
+    .cv { padding: 0 !important; }
+    .cv * { color: #111 !important; }
+    .cv .cv-dates, .cv .cv-loc, .cv .cv-tech, .cv .cv-foot { color: #555 !important; }
+    .cv-section h2 { color: #111 !important; border-color: #999; }
+    .cv a { text-decoration: none !important; }
+    .cv-section, .cv-item { break-inside: avoid; }
+  }
+  @page { margin: 1.4cm 1.6cm; }
+</style>

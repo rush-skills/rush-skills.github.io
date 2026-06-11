@@ -1,6 +1,7 @@
 ---
 import { LI, liSrc, eyebrowText } from '../lib/data';
 import { getContent } from '../lib/content';
+import { projectSlug } from '../lib/slug';
 const projects = (await getContent(Astro)).projects || {};
 const statuses = projects.statuses || [];
 const items = projects.items || [];
@@ -52,6 +53,7 @@ const defaultColor = '#6B7280';
         const allLinks = project.links || [];
         const primaryUrl = allLinks[0]?.url;
         const extraLinks = allLinks.slice(1);
+        const slug = projectSlug(project);
         return (
         <div
           class={`reveal ${i % 2 === 1 ? 'delay-1' : ''} group card-glow bg-surface-raised rounded-[8px] flex flex-col overflow-hidden ${primaryUrl ? 'cursor-pointer' : ''}`}
@@ -89,7 +91,7 @@ const defaultColor = '#6B7280';
                   ))}
                 </div>
               )}
-              {extraLinks.length > 0 && (
+              {(extraLinks.length > 0 || slug) && (
                 <div class="flex items-center gap-3 flex-wrap mt-4 pt-4 border-t border-border">
                   {extraLinks.map((link: any) => (
                     <a href={link.url} target="_blank" rel="noopener" class="project-extra-link inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-tertiary hover:text-accent transition-colors no-underline" aria-label={link.label || ''}>
@@ -97,6 +99,11 @@ const defaultColor = '#6B7280';
                       {link.label}
                     </a>
                   ))}
+                  {slug && (
+                    <a href={`/projects/${slug}`} class="inline-flex items-center gap-1 text-[13px] font-medium text-accent hover:text-accent-light transition-colors no-underline ml-auto" aria-label={`${project.title} details`}>
+                      Details →
+                    </a>
+                  )}
                 </div>
               )}
             </div>

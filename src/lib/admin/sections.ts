@@ -191,6 +191,8 @@ export const SECTION_DEFS: SectionDef[] = [
           t('status', 'Status', { help: 'Must match a status label above.' }),
           { name: 'featured', label: 'Featured', type: 'boolean' },
           area('description', 'Description'),
+          t('slug', 'Detail page slug', { help: 'The page lives at /projects/<slug>. Leave blank to derive it from the title.' }),
+          area('body', 'Write-up (Markdown)', { help: 'Long-form story for the detail page. Blank = the page shows the description instead.' }),
           { name: 'tech', label: 'Tech', type: 'tags' },
           {
             name: 'links', label: 'Links', type: 'list', itemLabel: 'link', itemTitleKey: 'label',
