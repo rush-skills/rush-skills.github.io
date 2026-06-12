@@ -21,3 +21,10 @@ declare module 'cloudflare:workers' {
     APP_URL?: string;
   };
 }
+
+// Wasm imported with `?module` arrives as a compiled WebAssembly.Module
+// (Workers don't allow compiling wasm from bytes at runtime).
+declare module '*.wasm?module' {
+  const mod: WebAssembly.Module;
+  export default mod;
+}

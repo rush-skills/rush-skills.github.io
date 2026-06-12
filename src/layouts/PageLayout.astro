@@ -10,11 +10,12 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title: string;
   description: string;
+  ogImage?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogImage } = Astro.props;
 ---
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} ogImage={ogImage}>
   <Navbar />
   <slot />
   <Footer />

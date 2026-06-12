@@ -5,9 +5,11 @@ import { getContent } from '../lib/content';
 interface Props {
   title: string;
   description: string;
+  /** Path of the OG card for this page; defaults to the generated site card. */
+  ogImage?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogImage } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 
 const content = await getContent(Astro);
@@ -17,7 +19,9 @@ const education = content.education || {};
 const theme = content.theme || {};
 const preview = content.__preview === true;
 
-const ogImageUrl = site.ogImage ? new URL(site.ogImage, Astro.site).toString() : undefined;
+// Every page gets a card: an explicit per-page image wins, then the generated
+// site-wide card (which itself falls back to the static /og.png on failure).
+const ogImageUrl = new URL(ogImage || '/og/site.png', Astro.site).toString();
 
 // Fonts are theme-driven (these defaults mirror the original design). The Google
 // Fonts request is built from whatever the theme specifies, so changing a font in
@@ -76,13 +80,15 @@ const themeStyle = [
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.fullName || site.name} />
-    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content={ogImageUrl ? "summary_large_image" : "summary"} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- JSON-LD -->
     <script type="application/ld+json" set:html={JSON.stringify({

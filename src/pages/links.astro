@@ -9,7 +9,7 @@ const links = await listLinks((Astro.locals as any).cfContext);
 marked.setOptions({ gfm: true, breaks: true });
 const noteHtml = (s?: string | null) => (s ? marked.parseInline(s) : '');
 ---
-<PageLayout title="Links — Ankur Singh" description="Articles, videos, and things worth sharing.">
+<PageLayout title="Links — Ankur Singh" description="Articles, videos, and things worth sharing." ogImage="/og/page/links.png">
   <main class="pt-28 pb-20 px-6 min-h-screen">
     <div class="max-w-[760px] mx-auto">
       <div class="flex items-center justify-between gap-4 mb-3">
