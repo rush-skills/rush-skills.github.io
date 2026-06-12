@@ -21,6 +21,22 @@ items:
     subtitle: "India's standup comedy discovery platform"
     image: "/projects/comicadda.jpg"
     description: "Discover Indian standup comedians by language, city, and style. Watch tracking, ratings, follow system, and personalized newsletters. Entirely built using AI agents orchestrating parallel development and data-mining workflows."
+    body: |
+      India's standup scene is thriving across a dozen languages and as many
+      cities, but it's scattered — comedians live across YouTube, Instagram, and
+      ticketing sites with no single place to discover them. ComicAdda pulls them
+      together: browse by language, city, and style, track what you've watched,
+      rate specials, follow comedians, and get a personalized newsletter when the
+      people you follow drop something new.
+
+      What makes it unusual is how it's built. ComicAdda is **entirely built by AI
+      agents** — I set up workflows where agents orchestrate parallel development
+      and run the data-mining pipelines that keep the catalog current, scraping and
+      enriching comedian and special metadata across sources. It's as much an
+      experiment in agent-driven engineering as it is a product.
+
+      Under the hood it's Next.js 15 and React 19, with Supabase and Postgres for
+      data and Cloudflare at the edge.
     icon: "ebvizisb"
     status: "Live"
     featured: true
@@ -40,6 +56,15 @@ items:
     subtitle: "Restaurant deals aggregator for Dubai"
     image: "/projects/dubai-deals.jpg"
     description: "Aggregates dining discounts from Careem, Zomato, Talabat, and other delivery apps into one searchable, location-aware interface, so you can compare every dining deal in Dubai without opening each app individually."
+    body: |
+      Every delivery app in Dubai — Careem, Zomato, Talabat — runs its own dining
+      discounts, so finding the best deal near you means hunting through four apps.
+      Dubai Deals aggregates them into one searchable, location-aware interface:
+      every dining offer in the city, filtered to where you are, without opening a
+      single delivery app.
+
+      It's a fast, static-first Astro site with React islands for the interactive
+      search and filtering, TypeScript throughout, deployed on Cloudflare.
     icon: "dkobpcrm"
     status: "Live"
     featured: true
@@ -58,6 +83,17 @@ items:
     subtitle: "3D jewelry rendering platform"
     image: "/projects/ijewel-studio.jpg"
     description: "Platform for jewelry designers to upload, optimize, and render 3D models with photorealistic quality. Features Blender-based mesh optimization, async job queues, and scalable serverless backend."
+    body: |
+      iJewel Studio lets jewelry designers upload their 3D models and get
+      photorealistic renders back — no render farm, no graphics workstation. The
+      hard part is the pipeline: raw 3D jewelry models are heavy and inconsistent,
+      so the platform runs **Blender-based mesh optimization** to clean and lighten
+      them, pushes the expensive work through async job queues, and renders on a
+      serverless backend that scales up only when there's work to do.
+
+      The in-browser viewer uses WebGi for real-time, photoreal 3D. Built for
+      Pixotronics on Next.js and React, with Supabase, Cloudflare Workers, and
+      Cloud Run carrying the compute-heavy stages.
     icon: "ugllxeyl"
     status: "Enterprise"
     featured: true
@@ -78,6 +114,15 @@ items:
     subtitle: "AI-assisted 3D showroom for Square stores"
     image: "/projects/squarecubed.jpg"
     description: 'Virtual 3D showroom for Square e-commerce stores using Vertex AI for product understanding and WebGi for real-time rendering. Won Square + Google AI Hackathon 2023 ("Best reinvention of in-person & online experiences").'
+    body: |
+      SquareCubed turns a flat Square e-commerce store into a virtual 3D showroom
+      you can walk through. It uses **Vertex AI** to understand a store's products
+      and **WebGi** to render them in real time, so a merchant's existing catalog
+      becomes an explorable space with no extra 3D modeling work.
+
+      It won the **Square + Google AI Hackathon 2023**, taking "Best reinvention of
+      in-person & online experiences." Built with Svelte and Next.js on the WebGi
+      SDK, with Cloudflare Workers tying it together.
     icon: "oajcrtsi"
     status: "Hackathon Winner"
     featured: true
@@ -103,6 +148,16 @@ items:
     subtitle: "Multi-interface writing style linter"
     image: "/projects/wsc.jpg"
     description: "Detects weasel words, passive voice, duplicates, long sentences, nominalizations, hedging, filler adverbs, and AI tells across 8 detectors with 800+ entries. Available as a web editor, HTTP API, remote & local MCP server, CLI, and GitHub Action."
+    body: |
+      WSC (Writing Style Checker) is a linter for prose. It flags the things that
+      quietly weaken writing — weasel words, passive voice, duplicates, overlong
+      sentences, nominalizations, hedging, filler adverbs, and the tells of
+      AI-generated text — across **8 detectors backed by 800+ curated entries**.
+
+      The idea is that it should meet you wherever you write: a web editor, an HTTP
+      API, a CLI, a GitHub Action for CI, and both **remote and local MCP servers**
+      so AI assistants can lint through the same engine. Open source, built on
+      SvelteKit and TypeScript, deployed on Cloudflare Workers.
     icon: "exymduqj"
     status: "Open Source"
     featured: false
@@ -125,6 +180,14 @@ items:
     subtitle: "Estimate your Cloudflare bill"
     image: "/projects/cloudflare-cost-calculator.jpg"
     description: "Interactive calculator for estimating Cloudflare infrastructure costs across Workers, D1, R2, KV, and Durable Objects."
+    body: |
+      Cloudflare's developer platform is cheap, but its pricing spans Workers, D1,
+      R2, KV, and Durable Objects — each with its own request, storage, and
+      operation tiers — so "what will this actually cost?" is harder to answer than
+      it should be. This calculator lets you model a workload across all of them and
+      get a realistic monthly estimate before you commit.
+
+      A small, fast Astro and React tool, part of the TheServerlessDev calculators.
     icon: "bsdkzyjd"
     status: "Live"
     featured: false
@@ -141,6 +204,17 @@ items:
     subtitle: "Visual traceroute on a 3D globe"
     image: "/projects/vistracer.jpg"
     description: "Desktop app that executes native traceroute, enriches hops with GeoIP/ASN metadata from 5 providers (MaxMind, Team Cymru, RDAP, RIPE Stat, PeeringDB), and renders animated routes on an interactive 3D globe with day/night terminator and latency-colored arcs."
+    body: |
+      VisTracer makes `traceroute` visual. It runs a **native traceroute**, enriches
+      every hop with GeoIP and ASN metadata pulled from **five providers** — MaxMind,
+      Team Cymru, RDAP, RIPE Stat, and PeeringDB — and draws the resulting path on an
+      interactive **3D globe**, complete with a real day/night terminator and arcs
+      colored by latency.
+
+      The desktop shell is **Tauri** — a Rust core behind a web frontend — which keeps
+      the binary small and, more importantly, lets the Rust side handle the privileged
+      native networking a traceroute needs. The globe and interface are React and
+      Three.js with Zustand for state, bundled by Vite. Open source on GitHub.
     icon: "rpviwvwn"
     status: "Open Source"
     featured: false
@@ -153,7 +227,8 @@ items:
         label: "GitHub"
     tech:
       - TypeScript
-      - Electron
+      - Tauri
+      - Rust
       - React
       - Three.js
       - Zustand
@@ -163,6 +238,14 @@ items:
     subtitle: "Rooftop solar made accessible"
     image: "/projects/energygrade.jpg"
     description: "Solar savings calculator and portfolio. Installed over 1MW of solar panels in India. Built during B.Tech."
+    body: |
+      EnergyGrade makes rooftop solar legible to homeowners: a savings calculator
+      that turns roof and consumption details into an honest payback estimate,
+      alongside a portfolio of real installations. And the work was real — **over
+      1 MW of solar installed across India**. I built it during my B.Tech, one of
+      my first end-to-end products.
+
+      A dependable Ruby on Rails and PostgreSQL app.
     icon: "qncyoyoi"
     status: "Live"
     featured: false
@@ -179,6 +262,16 @@ items:
     subtitle: "Referral-first job search for India"
     image: "/projects/hireloom.jpg"
     description: "Job board aggregator for tech roles in India and remote-from-India positions. Scrapes 300+ company career pages, matches jobs to resumes using AI (BYOK: OpenAI, Anthropic, Gemini), and surfaces referral paths from LinkedIn connections."
+    body: |
+      The Indian tech job hunt is fragmented and runs on referrals, so HireLoom is
+      built around both facts. It aggregates roles from **300+ company career pages**
+      (plus remote-from-India positions), matches them against your resume with AI on
+      a **bring-your-own-key** basis — OpenAI, Anthropic, or Gemini — and, the part I
+      care about most, surfaces **referral paths** by mapping each opening to your
+      LinkedIn connections, so you apply where you actually know someone.
+
+      A serverless, edge-native build: Astro and React on the front, Hono on
+      Cloudflare Workers, with D1, R2, and Drizzle ORM. A work in progress.
     icon: "wjyqkiew"
     status: "WIP"
     featured: false
@@ -199,6 +292,13 @@ items:
     subtitle: "Animated Instagram stories"
     image: "/projects/mouve.jpg"
     description: "Animated story maker for Instagram powered by a Unity rendering engine. 100k+ Play Store downloads."
+    body: |
+      Mouve was an animated story maker for Instagram, built before story-creation
+      tools were everywhere. You composed animated stories that a **Unity rendering
+      engine** turned into polished, shareable video. It found a real audience —
+      **100k+ downloads on the Play Store** — before I archived it.
+
+      Backend on Node.js and Sails.js, with Unity doing the heavy rendering.
     icon: "wsaaegar"
     status: "Archived"
     featured: false
