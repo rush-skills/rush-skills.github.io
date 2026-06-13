@@ -155,5 +155,33 @@ export default {
                 } as TableRulesExtensionData,
             ],
         },
+
+        // --- Page view counters (analytics) ----------------------------------------
+        // One row per path with a hit count. Reads are admin-only (shown in
+        // /admin → Analytics). Increments happen via a direct, atomic D1 upsert in
+        // the public /beacon route (src/pages/beacon.ts) — never through this API —
+        // so counts can't be inflated via the table API and there's no public write
+        // rule to expose.
+        {
+            name: 'views',
+            autoSetUid: true,
+            fields: [
+                ...baseFields,
+                { name: 'path', type: 'text', sqlType: 'text', notNull: true, unique: true },
+                { name: 'count', type: 'number', sqlType: 'integer' },
+            ],
+            triggers: [createdTrigger, updatedTrigger],
+            indexes: [{ fields: 'path' }, { fields: 'count' }],
+            extensions: [
+                {
+                    name: 'rules',
+                    listRule: 'auth.uid != null',
+                    viewRule: 'auth.uid != null',
+                    createRule: 'auth.uid != null',
+                    updateRule: 'auth.uid != null',
+                    deleteRule: 'auth.uid != null',
+                } as TableRulesExtensionData,
+            ],
+        },
     ],
 } satisfies DatabaseSettings

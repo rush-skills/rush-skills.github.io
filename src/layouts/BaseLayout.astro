@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { getContent } from '../lib/content';
+import CommandPalette from '../components/CommandPalette.astro';
 
 interface Props {
   title: string;
@@ -115,6 +116,19 @@ const themeStyle = [
       </div>
     )}
     <slot />
+
+    <!-- Page-view beacon (real browsers only; skips admin/api) -->
+    <script is:inline>
+      (function () {
+        try {
+          var p = location.pathname;
+          if (p.indexOf('/admin') === 0 || p.indexOf('/api') === 0) return;
+          if (navigator.sendBeacon) navigator.sendBeacon('/beacon?p=' + encodeURIComponent(p));
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
+
+    <CommandPalette />
 
     <!-- Scroll reveal observer -->
     <script>

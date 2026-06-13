@@ -1,0 +1,173 @@
+---
+// Site-wide search + command palette. Open with ⌘K / Ctrl+K (or any element with
+// [data-search-open]). Fetches /search.json once and filters client-side.
+---
+<div id="cmdk" class="cmdk" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="cmdk-backdrop" data-cmdk-close></div>
+  <div class="cmdk-panel" role="combobox" aria-expanded="true" aria-haspopup="listbox" aria-controls="cmdk-results">
+    <div class="cmdk-input-row">
+      <svg class="cmdk-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="cmdk-input" type="text" placeholder="Search posts, projects, links…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search" />
+      <kbd class="cmdk-esc">esc</kbd>
+    </div>
+    <div id="cmdk-results" class="cmdk-results" role="listbox"></div>
+    <div class="cmdk-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cmdk { position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-start; justify-content: center; }
+  .cmdk[hidden] { display: none; }
+  .cmdk-backdrop { position: absolute; inset: 0; background: rgba(10, 12, 18, 0.5); backdrop-filter: blur(2px); }
+  .cmdk-panel {
+    position: relative; width: min(640px, calc(100vw - 2rem)); margin-top: 12vh; max-height: 70vh;
+    display: flex; flex-direction: column; background: var(--color-surface-raised, #fff);
+    border: 1px solid var(--color-border); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 24px 60px -12px rgba(0,0,0,0.35); animation: cmdk-in 0.14s ease-out;
+  }
+  @keyframes cmdk-in { from { opacity: 0; transform: translateY(-6px) scale(0.99); } to { opacity: 1; transform: none; } }
+  .cmdk-input-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.85rem 1rem; border-bottom: 1px solid var(--color-border); }
+  .cmdk-search-icon { color: var(--color-ink-tertiary); flex-shrink: 0; }
+  #cmdk-input { flex: 1; border: none; outline: none; background: none; color: var(--color-ink); font-size: 16px; font-family: inherit; }
+  #cmdk-input::placeholder { color: var(--color-ink-tertiary); }
+  .cmdk-esc { font-family: var(--font-mono, monospace); font-size: 11px; color: var(--color-ink-tertiary); border: 1px solid var(--color-border); border-radius: 5px; padding: 1px 6px; }
+  .cmdk-results { overflow-y: auto; padding: 6px; flex: 1; }
+  .cmdk-group { font-family: var(--font-mono, monospace); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-tertiary); padding: 8px 10px 4px; }
+  .cmdk-item { display: flex; align-items: center; gap: 0.7rem; padding: 9px 10px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+  .cmdk-item[aria-selected="true"] { background: var(--color-accent-wash); }
+  .cmdk-item-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .cmdk-item-title { font-size: 14.5px; font-weight: 500; color: var(--color-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cmdk-item[aria-selected="true"] .cmdk-item-title { color: var(--color-accent); }
+  .cmdk-item-sub { font-size: 12.5px; color: var(--color-ink-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cmdk-chip { flex-shrink: 0; font-family: var(--font-mono, monospace); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-accent); background: var(--color-accent-wash); border-radius: 5px; padding: 3px 7px; }
+  .cmdk-meta { flex-shrink: 0; font-family: var(--font-mono, monospace); font-size: 11px; color: var(--color-ink-tertiary); }
+  .cmdk-empty { padding: 28px 12px; text-align: center; color: var(--color-ink-tertiary); font-size: 14px; }
+  .cmdk-foot { display: flex; gap: 1.1rem; padding: 0.5rem 1rem; border-top: 1px solid var(--color-border); font-size: 11px; color: var(--color-ink-tertiary); }
+  .cmdk-foot kbd { font-family: var(--font-mono, monospace); font-size: 10px; border: 1px solid var(--color-border); border-radius: 4px; padding: 0 4px; margin-right: 1px; }
+  @media (max-width: 640px) { .cmdk-panel { margin-top: 6vh; max-height: 82vh; } .cmdk-foot { display: none; } }
+</style>
+
+<script>
+  type Item = { type: string; title: string; sub?: string; url: string; text?: string; meta?: string; external?: boolean };
+  const TYPE_LABEL: Record<string, string> = { page: 'Page', post: 'Post', project: 'Project', link: 'Link' };
+
+  const root = document.getElementById('cmdk')!;
+  const input = document.getElementById('cmdk-input') as HTMLInputElement;
+  const results = document.getElementById('cmdk-results')!;
+  let index: Item[] = [];
+  let loaded = false;
+  let view: Item[] = [];
+  let sel = 0;
+
+  async function loadIndex() {
+    if (loaded) return;
+    try {
+      const r = await fetch('/search.json', { headers: { Accept: 'application/json' } });
+      const data = await r.json();
+      index = Array.isArray(data.items) ? data.items : [];
+      loaded = true;
+    } catch { /* keep empty; palette still navigates pages */ }
+  }
+
+  function esc(s: string) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!)); }
+
+  function fuzzy(hay: string, needle: string): boolean {
+    let i = 0;
+    for (const ch of hay) { if (ch === needle[i]) i++; if (i === needle.length) return true; }
+    return needle.length === 0;
+  }
+
+  function rank(q: string): Item[] {
+    const ql = q.trim().toLowerCase();
+    if (!ql) return index.filter((i) => i.type === 'page');
+    const scored: { it: Item; s: number }[] = [];
+    for (const it of index) {
+      const t = it.title.toLowerCase();
+      const sub = (it.sub || '').toLowerCase();
+      const x = (it.text || '').toLowerCase();
+      let s = -1;
+      if (t === ql) s = 100;
+      else if (t.startsWith(ql)) s = 82;
+      else if (t.includes(ql)) s = 64;
+      else if (sub.includes(ql)) s = 44;
+      else if (x.includes(ql)) s = 28;
+      else if (fuzzy(t, ql)) s = 12;
+      if (s >= 0) scored.push({ it, s });
+    }
+    scored.sort((a, b) => b.s - a.s);
+    return scored.slice(0, 24).map((x) => x.it);
+  }
+
+  function render(q: string) {
+    view = rank(q);
+    sel = 0;
+    if (!view.length) {
+      results.innerHTML = `<div class="cmdk-empty">No matches${loaded ? '' : ' yet — loading…'}</div>`;
+      return;
+    }
+    results.innerHTML = view.map((it, i) => `
+      <a class="cmdk-item" role="option" data-i="${i}" href="${esc(it.url)}"${it.external ? ' target="_blank" rel="noopener"' : ''} aria-selected="${i === 0}">
+        <span class="cmdk-chip">${esc(TYPE_LABEL[it.type] || it.type)}</span>
+        <span class="cmdk-item-body">
+          <span class="cmdk-item-title">${esc(it.title)}</span>
+          ${it.sub ? `<span class="cmdk-item-sub">${esc(it.sub)}</span>` : ''}
+        </span>
+        ${it.meta ? `<span class="cmdk-meta">${esc(it.meta)}</span>` : ''}
+      </a>`).join('');
+    results.querySelectorAll<HTMLElement>('.cmdk-item').forEach((el) => {
+      el.addEventListener('mousemove', () => setSel(Number(el.dataset.i)));
+      el.addEventListener('click', (e) => { e.preventDefault(); go(view[Number(el.dataset.i)]); });
+    });
+  }
+
+  function setSel(i: number) {
+    const els = results.querySelectorAll<HTMLElement>('.cmdk-item');
+    if (!els.length) return;
+    sel = (i + els.length) % els.length;
+    els.forEach((el, j) => el.setAttribute('aria-selected', String(j === sel)));
+    els[sel].scrollIntoView({ block: 'nearest' });
+  }
+
+  function go(it: Item | undefined) {
+    if (!it) return;
+    close();
+    if (it.external) window.open(it.url, '_blank', 'noopener');
+    else window.location.assign(it.url);
+  }
+
+  function open() {
+    if (!root.hasAttribute('hidden')) return;
+    root.removeAttribute('hidden');
+    document.documentElement.style.overflow = 'hidden';
+    input.value = '';
+    input.focus();
+    render('');
+    loadIndex().then(() => { if (!root.hasAttribute('hidden')) render(input.value); });
+  }
+  function close() {
+    root.setAttribute('hidden', '');
+    document.documentElement.style.overflow = '';
+  }
+
+  input.addEventListener('input', () => render(input.value));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setSel(sel + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setSel(sel - 1); }
+    else if (e.key === 'Enter') { e.preventDefault(); go(view[sel]); }
+    else if (e.key === 'Escape') { e.preventDefault(); close(); }
+  });
+  root.querySelectorAll('[data-cmdk-close]').forEach((el) => el.addEventListener('click', close));
+
+  // Global: ⌘K / Ctrl+K to open; trigger buttons; Esc handled on input.
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); open(); }
+    else if (e.key === 'Escape' && !root.hasAttribute('hidden')) close();
+  });
+  document.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('[data-search-open]')) { e.preventDefault(); open(); }
+  });
+</script>

@@ -22,6 +22,7 @@ export const GET: APIRoute = async (ctx) => {
     { loc: `${base}/`, priority: '1.0' },
     { loc: `${base}/blog`, priority: '0.8' },
     { loc: `${base}/links`, priority: '0.6' },
+    { loc: `${base}/projects`, priority: '0.7' },
     { loc: `${base}/cv`, priority: '0.6' },
     ...posts.map((p) => ({
       loc: `${base}/blog/${p.slug}`,
