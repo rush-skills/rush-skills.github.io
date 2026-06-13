@@ -23,8 +23,26 @@ export function getUser(): AuthUser | null {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
+// Decode a JWT's `exp` (seconds) without verifying the signature — enough to
+// know, client-side, whether the stored session has already expired.
+function tokenExp(token: string): number | null {
+  try {
+    const part = token.split('.')[1];
+    if (!part) return null;
+    const json = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof json.exp === 'number' ? json.exp : null;
+  } catch { return null; }
+}
+
+// Authed only if a token exists AND it hasn't expired. (Previously this just
+// checked for the token's presence, so an expired token rendered an empty/broken
+// admin shell instead of the login screen.)
 export function isAuthed(): boolean {
-  return !!getToken();
+  const t = getToken();
+  if (!t) return false;
+  const exp = tokenExp(t);
+  if (exp != null && Date.now() >= exp * 1000) return false;
+  return true;
 }
 
 export function logout() {
@@ -59,6 +77,12 @@ async function request<T = any>(path: string, init: RequestInit = {}): Promise<T
   let data: any;
   try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
   if (!res.ok) {
+    if (res.status === 401 && getToken()) {
+      // Session no longer valid (expired/revoked): clear it and signal the app to
+      // show the login screen. Deferred so the caller's own catch runs first.
+      logout();
+      setTimeout(() => { try { window.dispatchEvent(new CustomEvent('admin:unauthorized')); } catch { /* non-browser */ } }, 0);
+    }
     const msg = data?.error?.message || data?.message || data?.error || `Request failed (${res.status})`;
     throw new ApiError(typeof msg === 'string' ? msg : JSON.stringify(msg), res.status);
   }

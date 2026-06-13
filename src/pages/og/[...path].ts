@@ -13,10 +13,11 @@ import { renderOgPng, type OgCard } from '../../lib/og';
 
 export const prerender = false;
 
-const PAGES: Record<string, { title: string; subtitle: string }> = {
+const PAGES: Record<string, { title: string; subtitle: string; kind?: string }> = {
   blog: { title: 'Blog', subtitle: 'Notes on infrastructure, serverless, and the things I build.' },
   links: { title: 'Links', subtitle: 'Articles, videos, and bookmarks worth remembering.' },
-  cv: { title: 'Curriculum Vitae', subtitle: 'Experience, skills, and education — generated from the live site.' },
+  cv: { title: 'Curriculum Vitae', subtitle: 'Experience, skills, and education — generated from the live site.', kind: 'CV' },
+  projects: { title: 'Projects', subtitle: "Products, open-source tools, and experiments.", kind: 'Projects' },
 };
 
 export const GET: APIRoute = async (ctx) => {
@@ -41,7 +42,7 @@ export const GET: APIRoute = async (ctx) => {
     if (ns === 'site') {
       card = { ...base, kind: 'Portfolio', title: fullName, subtitle: hero.description || site.description, footerLeft: 'anks.in', footerLeftSub: undefined };
     } else if (ns === 'page' && slug && PAGES[slug]) {
-      card = { ...base, kind: slug === 'cv' ? 'CV' : 'Index', ...PAGES[slug] };
+      card = { ...base, kind: PAGES[slug].kind || 'Index', ...PAGES[slug] };
     } else if (ns === 'post' && slug) {
       const post = await getPostBySlug((ctx.locals as any).cfContext, slug);
       if (post) {

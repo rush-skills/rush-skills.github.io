@@ -62,11 +62,21 @@ export class AdminApp {
     this.root = root;
     ensureLordicon();
     window.addEventListener('hashchange', () => this.route());
+    // Any API call that comes back 401 (expired/revoked session) drops us back to
+    // the login screen instead of leaving a broken/empty shell.
+    window.addEventListener('admin:unauthorized', () => {
+      api.logout();
+      this.renderLogin('Your session has expired — please sign in again.');
+    });
     this.boot();
   }
 
   private boot() {
-    if (!api.isAuthed()) return this.renderLogin();
+    if (!api.isAuthed()) {
+      const stale = !!api.getToken(); // token present but expired/invalid
+      if (stale) api.logout();
+      return this.renderLogin(stale ? 'Your session has expired — please sign in again.' : '');
+    }
     this.renderShell();
     if (!location.hash || location.hash === '#') location.hash = `#/content/${SECTION_DEFS[0].section}`;
     else this.route();
@@ -122,6 +132,9 @@ export class AdminApp {
             ${ENTITIES.filter((e) => e.enabled).map((e) => `
               <a href="#/${e.key}" data-key="${e.key}" class="adm-nav-link">${esc(e.labelPlural)}</a>`).join('')}
             ${COLLECTION_SECTIONS.map(secNavLink).join('')}
+            <div class="adm-nav-group">Tools</div>
+            <a href="#/analytics" data-key="analytics" class="adm-nav-link">Analytics</a>
+            <a href="#/quick-add" data-key="quick-add" class="adm-nav-link">Quick Add</a>
           </nav>
           <div class="adm-side-foot">
             <button class="adm-nav-link adm-theme-row" id="adm-theme-side"><span>Theme</span> ${themeIcon()}</button>
@@ -164,6 +177,8 @@ export class AdminApp {
   private route() {
     if (!api.isAuthed()) return this.boot();
     const hash = location.hash;
+    if (hash === '#/analytics') { this.setActiveNav('analytics'); this.renderAnalytics(); return; }
+    if (hash === '#/quick-add') { this.setActiveNav('quick-add'); this.renderBookmarklet(); return; }
     const cm = hash.match(/^#\/content\/([\w-]+)$/);
     if (cm) {
       const def = getSectionDef(cm[1]);
@@ -303,6 +318,55 @@ export class AdminApp {
     main.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ($('#draft-btn') as HTMLButtonElement).click(); }
     });
+  }
+
+  // --- Analytics (D1 view counters) -----------------------------------------
+  private async renderAnalytics() {
+    const main = this.main();
+    main.innerHTML = `<div class="adm-head"><h1>Analytics</h1></div><div id="an-body">${this.skeletonRows()}</div>`;
+    try {
+      const rows = await api.list('views', { order: 'count desc', limit: 500 });
+      if (!rows.length) {
+        $('#an-body').innerHTML = `<div class="adm-empty"><p>No page views recorded yet.</p><p class="adm-help">Views are counted as visitors load pages (real browsers only).</p></div>`;
+        return;
+      }
+      const total = rows.reduce((a, r) => a + (Number(r.count) || 0), 0);
+      $('#an-body').innerHTML = `
+        <p class="adm-sub">${total.toLocaleString()} views across ${rows.length} ${rows.length === 1 ? 'page' : 'pages'}.</p>
+        <table class="adm-table">
+          <thead><tr><th>Path</th><th>Views</th><th>Last viewed</th></tr></thead>
+          <tbody>${rows.map((r) => `
+            <tr>
+              <td data-label="Path"><a class="adm-link" href="${esc(r.path)}" target="_blank" rel="noopener">${esc(r.path)}</a></td>
+              <td data-label="Views">${Number(r.count) || 0}</td>
+              <td data-label="Last viewed">${esc(cell(r, 'updated'))}</td>
+            </tr>`).join('')}</tbody>
+        </table>`;
+    } catch (err) {
+      $('#an-body').innerHTML = `<div class="adm-error">Couldn't load analytics: ${esc((err as Error).message)}</div>`;
+    }
+  }
+
+  // --- Quick Add bookmarklet ------------------------------------------------
+  private renderBookmarklet() {
+    const main = this.main();
+    const origin = location.origin;
+    const bm = `javascript:(function(){var d=document,u=encodeURIComponent(location.href),t=encodeURIComponent(d.title||''),m=d.querySelector('meta[name=description]'),s=encodeURIComponent(m?m.content:'');window.open('${origin}/admin/quick-add?url='+u+'&title='+t+'&description='+s,'qa','width=500,height=660')})();`;
+    main.innerHTML = `
+      <div class="adm-head"><h1>Quick Add</h1></div>
+      <div class="adm-prose">
+        <p class="adm-sub">Save a link to your feed from anywhere on the web.</p>
+        <ol class="adm-steps">
+          <li>Show your browser's <strong>bookmarks bar</strong> (⌘⇧B / Ctrl+Shift+B).</li>
+          <li><strong>Drag</strong> the button below onto the bookmarks bar.</li>
+          <li>On any page worth sharing, click it — a small pre-filled window opens to publish to <code>/links</code>.</li>
+        </ol>
+        <p><a id="adm-bm" class="adm-btn adm-btn-primary adm-bm" draggable="true">+ Add to anks.in</a></p>
+        <p class="adm-help">It opens <code>${esc(origin)}/admin/quick-add</code> and reuses your admin sign-in in this browser. If your session has expired, it prompts you to sign in.</p>
+        <details class="adm-details"><summary>Bookmarklet source</summary><pre class="adm-pre">${esc(bm)}</pre></details>
+      </div>`;
+    const a = document.getElementById('adm-bm') as HTMLAnchorElement | null;
+    if (a) { a.setAttribute('href', bm); a.addEventListener('click', (e) => e.preventDefault()); }
   }
 
   // --- Edit / create view ---------------------------------------------------

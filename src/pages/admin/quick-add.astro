@@ -1,0 +1,117 @@
+---
+// Bookmarklet target: a tiny same-origin popup that adds a link to the feed.
+// Auth reuses the admin's existing browser session (JWT in localStorage) — no
+// secret token to leak — since the bookmarklet just opens this URL on anks.in.
+export const prerender = false;
+import '../../styles/global.css';
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quick add link — anks.in</title>
+  <meta name="robots" content="noindex" />
+  <script is:inline>
+    (function () { var t = localStorage.getItem('theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark'); })();
+  </script>
+</head>
+<body class="bg-surface text-ink">
+  <main class="qa"><div id="qa-root" class="qa-card"><p class="qa-muted">Loading…</p></div></main>
+
+  <style>
+    .qa { min-height: 100dvh; display: flex; align-items: flex-start; justify-content: center; padding: 1.5rem; }
+    .qa-card { width: 100%; max-width: 460px; background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.5rem; }
+    .qa-title { font-family: var(--font-display, sans-serif); font-size: 20px; font-weight: 700; color: var(--color-ink); margin: 0 0 1rem; }
+    .qa-label { display: block; font-size: 12px; font-weight: 600; color: var(--color-ink-secondary); margin: 0.8rem 0 0.3rem; }
+    .qa-input { width: 100%; box-sizing: border-box; padding: 0.5rem 0.65rem; font: inherit; font-size: 14px; color: var(--color-ink); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 7px; outline: none; }
+    .qa-input:focus { border-color: var(--color-accent); }
+    .qa-check { display: flex; align-items: center; gap: 0.5rem; font-size: 14px; color: var(--color-ink-secondary); margin-top: 0.9rem; }
+    .qa-actions { display: flex; gap: 0.6rem; margin-top: 1.1rem; }
+    .qa-btn { flex: 1; padding: 0.55rem 1rem; font: inherit; font-size: 14px; font-weight: 600; color: var(--color-ink-on-dark, #fff); background: var(--color-accent); border: none; border-radius: 7px; cursor: pointer; text-decoration: none; text-align: center; }
+    .qa-btn:hover { opacity: 0.9; }
+    .qa-secondary { color: var(--color-ink-secondary); background: transparent; border: 1px solid var(--color-border); }
+    .qa-muted { font-size: 14px; color: var(--color-ink-tertiary); }
+    .qa-err { color: #d9534f; font-size: 13px; }
+  </style>
+
+  <script>
+    import { insert, getUser, isAuthed, ApiError } from '../../lib/admin/client';
+
+    const qs = new URLSearchParams(location.search);
+    const url = qs.get('url') || '';
+    const title = qs.get('title') || '';
+    const description = qs.get('description') || '';
+    const root = document.getElementById('qa-root')!;
+    const esc = (s: string) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value.trim() || '';
+
+    function signIn(msg: string) {
+      root.innerHTML = `<h1 class="qa-title">Quick add</h1><p class="qa-muted">${esc(msg)}</p>
+        <div class="qa-actions"><a class="qa-btn" href="/admin" target="_blank" rel="noopener">Open admin</a>
+        <button class="qa-btn qa-secondary" id="qa-retry">Retry</button></div>`;
+      document.getElementById('qa-retry')?.addEventListener('click', render);
+    }
+
+    async function submit(e: Event) {
+      e.preventDefault();
+      const status = document.getElementById('qa-status')!;
+      const btn = document.getElementById('qa-save') as HTMLButtonElement;
+      const pub = (document.getElementById('f-pub') as HTMLInputElement).checked;
+      btn.disabled = true; btn.textContent = 'Saving…'; status.textContent = '';
+      const values: Record<string, any> = {
+        author_id: getUser()?.id,
+        title: val('f-title'), url: val('f-url'), note: val('f-note'),
+        kind: val('f-kind'),
+        tags: val('f-tags').split(',').map((s) => s.trim()).filter(Boolean),
+        published: pub,
+        published_at: pub ? new Date().toISOString() : null,
+      };
+      try {
+        await insert('links', values);
+        root.innerHTML = `<h1 class="qa-title">Saved ✓</h1><p class="qa-muted">${pub ? 'Published to /links.' : 'Saved as a draft.'}</p>
+          <button class="qa-btn" id="qa-close">Close</button>`;
+        document.getElementById('qa-close')?.addEventListener('click', () => window.close());
+        setTimeout(() => { try { window.close(); } catch { /* ignore */ } }, 1400);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) { signIn('Your admin session expired — sign in again, then retry.'); return; }
+        btn.disabled = false; btn.textContent = 'Save link';
+        status.innerHTML = `<span class="qa-err">${esc((err as Error).message || 'Save failed')}</span>`;
+      }
+    }
+
+    function render() {
+      if (!isAuthed()) { signIn('Sign in to the anks.in admin in this browser, then retry.'); return; }
+      root.innerHTML = `
+        <h1 class="qa-title">Add to links</h1>
+        <form id="qa-form">
+          <label class="qa-label" for="f-title">Title</label>
+          <input class="qa-input" id="f-title" value="${esc(title)}" required />
+          <label class="qa-label" for="f-url">URL</label>
+          <input class="qa-input" id="f-url" type="url" value="${esc(url)}" required />
+          <label class="qa-label" for="f-note">Note (optional)</label>
+          <textarea class="qa-input" id="f-note" rows="2">${esc(description)}</textarea>
+          <label class="qa-label" for="f-kind">Kind</label>
+          <select class="qa-input" id="f-kind">
+            <option value="article">Article</option>
+            <option value="video">Video</option>
+            <option value="bookmark">Bookmark</option>
+            <option value="repo">Repo</option>
+          </select>
+          <label class="qa-label" for="f-tags">Tags (comma-separated)</label>
+          <input class="qa-input" id="f-tags" placeholder="e.g. cloudflare, rust" />
+          <label class="qa-check"><input type="checkbox" id="f-pub" checked /> Publish immediately</label>
+          <div class="qa-actions">
+            <button type="submit" class="qa-btn" id="qa-save">Save link</button>
+            <button type="button" class="qa-btn qa-secondary" id="qa-cancel">Cancel</button>
+          </div>
+          <p id="qa-status" class="qa-muted" style="margin-top:.6rem"></p>
+        </form>`;
+      document.getElementById('qa-form')?.addEventListener('submit', submit);
+      document.getElementById('qa-cancel')?.addEventListener('click', () => window.close());
+    }
+
+    render();
+  </script>
+</body>
+</html>
