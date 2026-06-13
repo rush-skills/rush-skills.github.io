@@ -47,10 +47,10 @@ const dash = (s: string) => String(s || '').replace(/&ndash;/g, '–').replace(/
       </div>
 
       <!-- Header -->
-      <header class="mb-8 pb-6 border-b-2 border-ink">
-        <h1 class="font-display text-[34px] font-bold text-ink m-0 tracking-[-0.01em]">{fullName}</h1>
-        {role && <p class="m-0 mt-1 text-[15px] font-mono uppercase tracking-[0.08em] text-accent">{role}</p>}
-        <p class="m-0 mt-3 text-[14px] text-ink-secondary flex flex-wrap gap-x-4 gap-y-1">
+      <header class="cv-header mb-8 pb-6 border-b-2 border-ink">
+        <h1 class="cv-name font-display text-[34px] font-bold text-ink m-0 tracking-[-0.01em]">{fullName}</h1>
+        {role && <p class="cv-role m-0 mt-1 text-[15px] font-mono uppercase tracking-[0.08em] text-accent">{role}</p>}
+        <p class="cv-contact m-0 mt-3 text-[14px] text-ink-secondary flex flex-wrap gap-x-4 gap-y-1">
           {site.email && <a href={`mailto:${site.email}`} class="text-ink-secondary no-underline">{site.email}</a>}
           <a href={`https://${domain}`} class="text-ink-secondary no-underline">{domain}</a>
           {github && <a href={github.url} class="text-ink-secondary no-underline">{github.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>}
@@ -152,16 +152,39 @@ const dash = (s: string) => String(s || '').replace(/&ndash;/g, '–').replace(/
   .cv-skill strong { color: var(--color-ink); font-weight: 600; }
   .cv-foot { font-family: var(--font-mono, monospace); }
 
-  /* Print: black-on-white, compact, no site chrome. */
+  /* ---- Print: a dense, professional A4 résumé (dark text on white, no chrome) ---- */
   @media print {
     :global(nav), :global(footer), .cv-actions { display: none !important; }
-    :global(body) { background: #fff !important; }
-    .cv { padding: 0 !important; }
-    .cv * { color: #111 !important; }
-    .cv .cv-dates, .cv .cv-loc, .cv .cv-tech, .cv .cv-foot { color: #555 !important; }
-    .cv-section h2 { color: #111 !important; border-color: #999; }
+    :global(html), :global(body) { background: #fff !important; }
+    :global(body) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    .cv { padding: 0 !important; min-height: 0 !important; font-size: 10pt !important; line-height: 1.4 !important; color: #242424 !important; }
+    .cv > div { max-width: none !important; margin: 0 !important; }
+
+    /* Header */
+    .cv-header { margin: 0 0 9pt !important; padding-bottom: 7pt !important; border-bottom: 1.25pt solid #2e5090 !important; }
+    .cv-name { font-size: 22pt !important; line-height: 1.05 !important; color: #1b2e4a !important; }
+    .cv-role { font-size: 9pt !important; margin-top: 3pt !important; letter-spacing: 0.1em !important; color: #2e5090 !important; }
+    .cv-contact { font-size: 9pt !important; margin-top: 5pt !important; gap: 2pt 12pt !important; color: #444 !important; }
+    .cv-contact a { color: #444 !important; }
+
+    /* Sections flow across pages; only individual entries are kept intact */
+    .cv-section { margin: 0 0 8pt !important; break-inside: auto !important; }
+    .cv-section h2 { font-size: 9pt !important; letter-spacing: 0.1em !important; color: #2e5090 !important;
+      border-color: #b9c2cf !important; padding-bottom: 2.5pt !important; margin: 0 0 5pt !important; break-after: avoid !important; }
+    .cv-section > .cv-p { margin-top: 4pt !important; }
+    .cv-item { margin: 0 0 6.5pt !important; break-inside: avoid !important; }
+    .cv-item-head { gap: 0.5rem !important; }
+    .cv-item h3 { font-size: 10.5pt !important; color: #1a1a1a !important; }
+    .cv-co { color: #454545 !important; }
+    .cv-dates { font-size: 8.5pt !important; color: #6a6a6a !important; }
+    .cv-loc { font-size: 8.5pt !important; color: #777 !important; margin-top: 1pt !important; }
+    .cv-p { font-size: 9.5pt !important; line-height: 1.4 !important; color: #333 !important; margin-top: 2.5pt !important; }
+    .cv-tech { font-size: 8pt !important; color: #787878 !important; margin-top: 2.5pt !important; }
+    .cv-skill { font-size: 9.5pt !important; line-height: 1.45 !important; color: #333 !important; margin: 0 0 2.5pt !important; }
+    .cv-skill strong { color: #1a1a1a !important; }
+    .cv-foot { font-size: 7.5pt !important; color: #9a9a9a !important; margin-top: 10pt !important; }
     .cv a { text-decoration: none !important; }
-    .cv-section, .cv-item { break-inside: avoid; }
   }
-  @page { margin: 1.4cm 1.6cm; }
+  @page { size: A4; margin: 13mm 14mm; }
 </style>
