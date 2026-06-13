@@ -62,11 +62,21 @@ export class AdminApp {
     this.root = root;
     ensureLordicon();
     window.addEventListener('hashchange', () => this.route());
+    // Any API call that comes back 401 (expired/revoked session) drops us back to
+    // the login screen instead of leaving a broken/empty shell.
+    window.addEventListener('admin:unauthorized', () => {
+      api.logout();
+      this.renderLogin('Your session has expired — please sign in again.');
+    });
     this.boot();
   }
 
   private boot() {
-    if (!api.isAuthed()) return this.renderLogin();
+    if (!api.isAuthed()) {
+      const stale = !!api.getToken(); // token present but expired/invalid
+      if (stale) api.logout();
+      return this.renderLogin(stale ? 'Your session has expired — please sign in again.' : '');
+    }
     this.renderShell();
     if (!location.hash || location.hash === '#') location.hash = `#/content/${SECTION_DEFS[0].section}`;
     else this.route();

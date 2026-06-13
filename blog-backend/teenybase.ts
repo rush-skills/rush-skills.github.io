@@ -34,7 +34,9 @@ export default {
                     name: 'auth',
                     passwordType: 'sha256',
                     jwtSecret: '$JWT_SECRET_USERS',
-                    jwtTokenDuration: 3600,
+                    // 30 days. This is a personal, single-admin panel, so favor long
+                    // sessions over hourly re-logins. Bump to 31536000 for 1 year.
+                    jwtTokenDuration: 2592000,
                     maxTokenRefresh: 5,
                     passwordConfirmSuffix: 'Confirm',
                 } as TableAuthExtensionData,
