@@ -17,17 +17,20 @@ export const GET: APIRoute = async (ctx) => {
     getContent(ctx),
   ]);
   const projects: any[] = content.projects?.enabled !== false ? content.projects?.items || [] : [];
+  const site = content.site || {};
+  const name = site.fullName || 'Ankur Singh';
+  const role = (content.hero?.subtitle || '').toString();
 
   const items: any[] = [
-    { type: 'page', title: 'Home', url: '/' },
-    { type: 'page', title: 'Projects', url: '/projects', text: 'all projects index portfolio' },
+    { type: 'page', title: 'Home', url: '/', text: `${name} ${role} portfolio home` },
+    { type: 'page', title: 'Projects', url: '/projects', text: 'all projects index portfolio work' },
     { type: 'page', title: 'Blog', url: '/blog', text: 'writing posts articles' },
     { type: 'page', title: 'Links', url: '/links', text: 'bookmarks feed' },
-    { type: 'page', title: 'CV / Résumé', url: '/cv', text: 'curriculum vitae experience skills education download pdf' },
-    { type: 'page', title: 'About', url: '/#about' },
+    { type: 'page', title: 'CV / Résumé', url: '/cv', text: 'curriculum vitae resume experience skills education download pdf' },
+    { type: 'page', title: 'About', url: '/#about', text: `${name} bio about` },
     { type: 'page', title: 'Experience', url: '/#experience', text: 'work jobs career' },
-    { type: 'page', title: 'Skills', url: '/#skills' },
-    { type: 'page', title: 'Contact', url: '/#contact', text: 'email get in touch' },
+    { type: 'page', title: 'Skills', url: '/#skills', text: 'technologies stack' },
+    { type: 'page', title: 'Contact', url: '/#contact', text: `email get in touch ${site.email || ''}` },
   ];
 
   for (const p of posts) items.push({ type: 'post', title: p.title, sub: p.excerpt || '', url: `/blog/${p.slug}`, text: (p.tags || []).join(' '), meta: formatDate(p.published_at) });

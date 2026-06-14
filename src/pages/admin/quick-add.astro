@@ -63,7 +63,8 @@ import '../../styles/global.css';
         author_id: getUser()?.id,
         title: val('f-title'), url: val('f-url'), note: val('f-note'),
         kind: val('f-kind'),
-        tags: val('f-tags').split(',').map((s) => s.trim()).filter(Boolean),
+        // teenybase stores tags as a JSON string (same as the admin form), not a raw array.
+        tags: JSON.stringify(val('f-tags').split(',').map((s) => s.trim()).filter(Boolean)),
         published: pub,
         published_at: pub ? new Date().toISOString() : null,
       };
