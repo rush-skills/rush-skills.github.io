@@ -39,8 +39,18 @@ const sectionOn = (key: string) => (content as any)[key]?.enabled !== false;
 const ctx = (Astro.locals as any).cfContext;
 const recentPosts = home.blog !== false ? await listPosts(ctx, 3) : [];
 const recentLinks = home.links !== false ? await listLinks(ctx, 5) : [];
+
+// WebSite entity for richer SEO / answer engines (complements the sitewide Person).
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.fullName || site.name,
+  alternateName: site.name,
+  url: 'https://anks.in',
+  description: site.description,
+};
 ---
-<BaseLayout title={site.title || 'Portfolio'} description={site.description || ''}>
+<BaseLayout title={site.title || 'Portfolio'} description={site.description || ''} jsonLd={websiteLd}>
   <Navbar />
   <main class="bands">
     {(hero.name || hero.subtitle) && <Hero />}

@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import PageLayout from '../layouts/PageLayout.astro';
+import NotFound from '../components/NotFound.astro';
+Astro.response.status = 404;
+---
+<PageLayout title="Page not found — Ankur Singh" description="That page doesn't exist." noindex>
+  <NotFound />
+</PageLayout>

@@ -1,0 +1,28 @@
+---
+// Shared "not found / error" body, used by /404, /500, and the dynamic blog/
+// project routes when an item is missing. Sits inside PageLayout (nav + footer)
+// so an error still feels like the site.
+interface Props {
+  code?: string;
+  heading?: string;
+  message?: string;
+}
+const {
+  code = '404',
+  heading = 'Page not found',
+  message = "That page doesn't exist or may have moved. Try a search, or head back home.",
+} = Astro.props;
+---
+<main class="min-h-[72vh] flex items-center justify-center px-6 pt-28 pb-20">
+  <div class="max-w-[540px] text-center">
+    <p class="font-mono text-accent text-[14px] tracking-[0.22em] uppercase mb-3">Error {code}</p>
+    <h1 class="font-display text-[40px] md:text-[56px] font-bold text-ink m-0 mb-4 tracking-[-0.02em] leading-[1.05]">{heading}</h1>
+    <p class="text-[17px] text-ink-secondary leading-[1.7] mb-8">{message}</p>
+    <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
+      <a href="/" class="inline-flex items-center gap-2 rounded-[6px] bg-accent text-ink-on-dark text-[15px] font-medium px-5 py-2.5 no-underline hover:opacity-90 transition-opacity">← Back home</a>
+      <a href="/projects" class="text-[15px] font-medium text-ink-secondary hover:text-accent no-underline transition-colors">Projects</a>
+      <a href="/blog" class="text-[15px] font-medium text-ink-secondary hover:text-accent no-underline transition-colors">Blog</a>
+      <button type="button" data-search-open class="text-[15px] font-medium text-ink-secondary hover:text-accent transition-colors bg-transparent border-none cursor-pointer p-0">Search ⌘K</button>
+    </div>
+  </div>
+</main>

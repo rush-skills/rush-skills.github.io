@@ -11,11 +11,15 @@ interface Props {
   title: string;
   description: string;
   ogImage?: string;
+  noindex?: boolean;
+  ogType?: string;
+  article?: { publishedTime?: string; modifiedTime?: string; tags?: string[] };
+  jsonLd?: Record<string, any> | Record<string, any>[];
 }
 
-const { title, description, ogImage } = Astro.props;
+const { title, description, ogImage, noindex, ogType, article, jsonLd } = Astro.props;
 ---
-<BaseLayout title={title} description={description} ogImage={ogImage}>
+<BaseLayout title={title} description={description} ogImage={ogImage} noindex={noindex} ogType={ogType} article={article} jsonLd={jsonLd}>
   <Navbar />
   <slot />
   <Footer />
