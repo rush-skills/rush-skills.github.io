@@ -7,6 +7,7 @@
 export const prerender = false;
 import { marked } from 'marked';
 import PageLayout from '../../layouts/PageLayout.astro';
+import NotFound from '../../components/NotFound.astro';
 import { getContent } from '../../lib/content';
 import { projectSlug } from '../../lib/slug';
 import { LI, liSrc } from '../../lib/data';
@@ -16,23 +17,35 @@ const content = await getContent(Astro);
 const projects = content.projects || {};
 const items: any[] = projects.enabled !== false ? projects.items || [] : [];
 const project = slug ? items.find((p) => projectSlug(p) === slug) : null;
-
-if (!project) {
-  return new Response('Not found', { status: 404 });
-}
+if (!project) Astro.response.status = 404;
 
 const statusColors: Record<string, string> = {};
 (projects.statuses || []).forEach((s: any) => { if (s.color) statusColors[s.label] = s.color; });
-const color = statusColors[project.status] || '#6B7280';
+const color = project ? (statusColors[project.status] || '#6B7280') : '#6B7280';
 
 marked.setOptions({ gfm: true, breaks: false });
-const bodyHtml = project.body ? await marked.parse(project.body) : '';
-const links: any[] = project.links || [];
+const bodyHtml = project?.body ? await marked.parse(project.body) : '';
+const links: any[] = project?.links || [];
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const projectLd = project ? {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.title,
+  abstract: project.subtitle || undefined,
+  description: project.description || undefined,
+  url: canonical,
+  image: new URL(`/og/project/${projectSlug(project)}.png`, Astro.site).toString(),
+  keywords: (project.tech || []).join(', ') || undefined,
+  author: { '@type': 'Person', name: 'Ankur Singh', url: 'https://anks.in' },
+} : undefined;
 ---
+{project ? (
 <PageLayout
   title={`${project.title} — Ankur Singh`}
   description={project.subtitle || project.description || project.title}
   ogImage={`/og/project/${projectSlug(project)}.png`}
+  jsonLd={projectLd}
 >
   <main class="pt-28 pb-20 px-6 min-h-screen">
     <article class="max-w-[860px] mx-auto">
@@ -81,6 +94,11 @@ const links: any[] = project.links || [];
     </article>
   </main>
 </PageLayout>
+) : (
+  <PageLayout title="Project not found — Ankur Singh" description="That project doesn't exist." noindex>
+    <NotFound heading="Project not found" message="That project doesn't exist. Browse all projects, or search." />
+  </PageLayout>
+)}
 
 <style>
   .post-body :global(h2) { font-family: var(--font-display, inherit); font-size: 24px; font-weight: 700; color: var(--color-ink); margin: 2rem 0 0.75rem; }
