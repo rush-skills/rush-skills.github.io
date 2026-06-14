@@ -1,7 +1,9 @@
 ---
 // Bookmarklet target: a tiny same-origin popup that adds a link to the feed.
-// Auth reuses the admin's existing browser session (JWT in localStorage) — no
-// secret token to leak — since the bookmarklet just opens this URL on anks.in.
+// Auth reuses the admin's existing browser session (JWT in localStorage). The
+// bookmarklet passes the source page's title/description (captured client-side);
+// this page also fetches metadata server-side (/admin/link-meta) and, as a last
+// resort, attempts a client-side fetch — filling any blank fields.
 export const prerender = false;
 import '../../styles/global.css';
 ---
@@ -19,24 +21,31 @@ import '../../styles/global.css';
 <body class="bg-surface text-ink">
   <main class="qa"><div id="qa-root" class="qa-card"><p class="qa-muted">Loading…</p></div></main>
 
-  <style>
+  <style is:global>
+    body { margin: 0; }
     .qa { min-height: 100dvh; display: flex; align-items: flex-start; justify-content: center; padding: 1.5rem; }
-    .qa-card { width: 100%; max-width: 460px; background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.5rem; }
-    .qa-title { font-family: var(--font-display, sans-serif); font-size: 20px; font-weight: 700; color: var(--color-ink); margin: 0 0 1rem; }
-    .qa-label { display: block; font-size: 12px; font-weight: 600; color: var(--color-ink-secondary); margin: 0.8rem 0 0.3rem; }
+    .qa-card { width: 100%; max-width: 460px; background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 12px 40px -12px rgba(0,0,0,0.25); }
+    .qa-title { font-family: var(--font-display, sans-serif); font-size: 20px; font-weight: 700; color: var(--color-ink); margin: 0 0 1.1rem; }
+    .qa-label { display: block; font-size: 12px; font-weight: 600; color: var(--color-ink-secondary); margin: 0.85rem 0 0.3rem; }
     .qa-input { width: 100%; box-sizing: border-box; padding: 0.5rem 0.65rem; font: inherit; font-size: 14px; color: var(--color-ink); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 7px; outline: none; }
     .qa-input:focus { border-color: var(--color-accent); }
-    .qa-check { display: flex; align-items: center; gap: 0.5rem; font-size: 14px; color: var(--color-ink-secondary); margin-top: 0.9rem; }
-    .qa-actions { display: flex; gap: 0.6rem; margin-top: 1.1rem; }
-    .qa-btn { flex: 1; padding: 0.55rem 1rem; font: inherit; font-size: 14px; font-weight: 600; color: var(--color-ink-on-dark, #fff); background: var(--color-accent); border: none; border-radius: 7px; cursor: pointer; text-decoration: none; text-align: center; }
+    textarea.qa-input { resize: vertical; min-height: 2.4rem; }
+    .qa-row { display: flex; gap: 0.6rem; }
+    .qa-row > div { flex: 1; min-width: 0; }
+    .qa-check { display: flex; align-items: center; gap: 0.5rem; font-size: 14px; color: var(--color-ink-secondary); margin-top: 1rem; }
+    .qa-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+    .qa-btn { flex: 1; padding: 0.55rem 1rem; font: inherit; font-size: 14px; font-weight: 600; color: var(--color-ink-on-dark, #fff); background: var(--color-accent); border: none; border-radius: 7px; cursor: pointer; text-align: center; text-decoration: none; }
     .qa-btn:hover { opacity: 0.9; }
+    .qa-btn:disabled { opacity: 0.6; cursor: default; }
     .qa-secondary { color: var(--color-ink-secondary); background: transparent; border: 1px solid var(--color-border); }
     .qa-muted { font-size: 14px; color: var(--color-ink-tertiary); }
+    .qa-meta { font-size: 12px; color: var(--color-ink-tertiary); min-height: 1.1em; margin: 0.5rem 0 0; }
     .qa-err { color: #d9534f; font-size: 13px; }
   </style>
 
   <script>
-    import { insert, getUser, isAuthed, ApiError } from '../../lib/admin/client';
+    import { insert, getUser, isAuthed, getToken, ApiError } from '../../lib/admin/client';
+    import { LINK_KINDS } from '../../lib/link-kinds';
 
     const qs = new URLSearchParams(location.search);
     const url = qs.get('url') || '';
@@ -44,13 +53,49 @@ import '../../styles/global.css';
     const description = qs.get('description') || '';
     const root = document.getElementById('qa-root')!;
     const esc = (s: string) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
-    const val = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value.trim() || '';
+    const el = (id: string) => document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+    const val = (id: string) => el(id)?.value.trim() || '';
+    const setMeta = (s: string) => { const m = document.getElementById('qa-meta'); if (m) m.textContent = s; };
+    const fillIfEmpty = (id: string, v: string) => { const e = el(id); if (e && !e.value.trim() && v) e.value = v; };
 
     function signIn(msg: string) {
       root.innerHTML = `<h1 class="qa-title">Quick add</h1><p class="qa-muted">${esc(msg)}</p>
         <div class="qa-actions"><a class="qa-btn" href="/admin" target="_blank" rel="noopener">Open admin</a>
         <button class="qa-btn qa-secondary" id="qa-retry">Retry</button></div>`;
       document.getElementById('qa-retry')?.addEventListener('click', render);
+    }
+
+    // 1) Server-side fetch (Worker, no CORS). 2) Client-side fetch fallback (works
+    //    only for CORS-permissive sites). The bookmarklet already supplied the
+    //    source page's title/description as a third (client) source.
+    async function serverMeta(u: string): Promise<any | null> {
+      try {
+        const r = await fetch(`/admin/link-meta?url=${encodeURIComponent(u)}`, { headers: { Authorization: `Bearer ${getToken()}` } });
+        if (!r.ok) return null;
+        return await r.json();
+      } catch { return null; }
+    }
+    async function clientMeta(u: string): Promise<any | null> {
+      try {
+        const r = await fetch(u, { redirect: 'follow' });
+        if (!r.ok) return null;
+        const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+        const m = (sel: string) => doc.querySelector(sel)?.getAttribute('content') || '';
+        return {
+          title: m('meta[property="og:title"]') || doc.querySelector('title')?.textContent || '',
+          description: m('meta[property="og:description"]') || m('meta[name="description"]'),
+        };
+      } catch { return null; }
+    }
+    async function enrich() {
+      if (!url) return;
+      setMeta('Fetching metadata…');
+      const meta = (await serverMeta(url)) || (await clientMeta(url));
+      if (meta && (meta.title || meta.description)) {
+        fillIfEmpty('f-title', meta.title || '');
+        fillIfEmpty('f-note', meta.description || '');
+        setMeta('Metadata fetched ✓');
+      } else setMeta('');
     }
 
     async function submit(e: Event) {
@@ -63,7 +108,7 @@ import '../../styles/global.css';
         author_id: getUser()?.id,
         title: val('f-title'), url: val('f-url'), note: val('f-note'),
         kind: val('f-kind'),
-        // teenybase stores tags as a JSON string (same as the admin form), not a raw array.
+        // teenybase stores tags as a JSON string (same as the admin form).
         tags: JSON.stringify(val('f-tags').split(',').map((s) => s.trim()).filter(Boolean)),
         published: pub,
         published_at: pub ? new Date().toISOString() : null,
@@ -83,6 +128,7 @@ import '../../styles/global.css';
 
     function render() {
       if (!isAuthed()) { signIn('Sign in to the anks.in admin in this browser, then retry.'); return; }
+      const opts = LINK_KINDS.map((k) => `<option value="${k.value}">${k.label}</option>`).join('');
       root.innerHTML = `
         <h1 class="qa-title">Add to links</h1>
         <form id="qa-form">
@@ -92,15 +138,17 @@ import '../../styles/global.css';
           <input class="qa-input" id="f-url" type="url" value="${esc(url)}" required />
           <label class="qa-label" for="f-note">Note (optional)</label>
           <textarea class="qa-input" id="f-note" rows="2">${esc(description)}</textarea>
-          <label class="qa-label" for="f-kind">Kind</label>
-          <select class="qa-input" id="f-kind">
-            <option value="article">Article</option>
-            <option value="video">Video</option>
-            <option value="bookmark">Bookmark</option>
-            <option value="repo">Repo</option>
-          </select>
-          <label class="qa-label" for="f-tags">Tags (comma-separated)</label>
-          <input class="qa-input" id="f-tags" placeholder="e.g. cloudflare, rust" />
+          <div class="qa-row">
+            <div>
+              <label class="qa-label" for="f-kind">Kind</label>
+              <select class="qa-input" id="f-kind">${opts}</select>
+            </div>
+            <div>
+              <label class="qa-label" for="f-tags">Tags</label>
+              <input class="qa-input" id="f-tags" placeholder="comma-separated" />
+            </div>
+          </div>
+          <p class="qa-meta" id="qa-meta"></p>
           <label class="qa-check"><input type="checkbox" id="f-pub" checked /> Publish immediately</label>
           <div class="qa-actions">
             <button type="submit" class="qa-btn" id="qa-save">Save link</button>
@@ -110,6 +158,7 @@ import '../../styles/global.css';
         </form>`;
       document.getElementById('qa-form')?.addEventListener('submit', submit);
       document.getElementById('qa-cancel')?.addEventListener('click', () => window.close());
+      enrich();
     }
 
     render();

@@ -62,4 +62,9 @@ export const KIND_LABELS: Record<string, string> = {
   video: 'Video',
   bookmark: 'Bookmark',
   repo: 'Repo',
+  tool: 'Tool / Service',
+  paper: 'Paper',
+  podcast: 'Podcast',
+  book: 'Book',
+  resource: 'Resource',
 };
