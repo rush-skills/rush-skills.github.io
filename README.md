@@ -4,12 +4,16 @@ Personal portfolio website for Ankur Singh.
 
 **Live at [anks.in](https://anks.in)**
 
-> **Want to build your own portfolio like this?**
-> Use the [Astro Monograph](https://github.com/theserverlessdev/astro-monograph) theme — it's free, open-source (MIT), and ready to deploy.
-> Just edit the YAML files with your own content.
+> **Want to build your own portfolio + CMS like this?**
+> Use the [Astro Monograph + teenybase](https://github.com/theserverlessdev/astro-monograph-teenybase)
+> template — free, open-source (MIT). One command deploys your own copy, fully
+> editable from `/admin`.
 >
-> **Theme repo:** [github.com/theserverlessdev/astro-monograph](https://github.com/theserverlessdev/astro-monograph)
-> **Demo:** [monograph.theserverless.dev](https://monograph.theserverless.dev)
+> **Template repo:** [github.com/theserverlessdev/astro-monograph-teenybase](https://github.com/theserverlessdev/astro-monograph-teenybase)
+>
+> Prefer a simpler, CMS-free static version? There's also the plain
+> [Astro Monograph](https://github.com/theserverlessdev/astro-monograph) theme
+> ([demo](https://monograph.theserverless.dev)).
 
 ## What this is
 
@@ -73,13 +77,16 @@ npm run dev
 
 ## Theme
 
-This site is built with [Astro Monograph](https://github.com/theserverlessdev/astro-monograph). To publish theme changes:
+This repo is the [Astro Monograph + teenybase](https://github.com/theserverlessdev/astro-monograph-teenybase)
+template. It can also publish a **CMS-free, YAML-only** static variant — the plain
+[Astro Monograph](https://github.com/theserverlessdev/astro-monograph) theme — via
+`publish-theme.sh`:
 
 ```bash
-npm run theme:dry   # preview at /tmp/astro-monograph
-npm run theme       # build and push to theme remote
+npm run theme:dry   # build the stripped static theme to /tmp/astro-monograph (no push)
+npm run theme       # build and push to the theme remote
 ```
 
 ## License
 
-Theme code is MIT (see the [theme repo](https://github.com/theserverlessdev/astro-monograph)). Personal content is all rights reserved — see [LICENSE](LICENSE).
+Source code is MIT, derived from the [Astro Monograph + teenybase](https://github.com/theserverlessdev/astro-monograph-teenybase) template. Personal content is all rights reserved — see [LICENSE](LICENSE).
