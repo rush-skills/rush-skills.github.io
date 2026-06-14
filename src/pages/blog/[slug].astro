@@ -2,48 +2,75 @@
 export const prerender = false;
 import { marked } from 'marked';
 import PageLayout from '../../layouts/PageLayout.astro';
+import NotFound from '../../components/NotFound.astro';
 import { getPostBySlug, formatDate } from '../../lib/blog';
 
 const { slug } = Astro.params;
 const post = slug ? await getPostBySlug((Astro.locals as any).cfContext, slug) : null;
-
-if (!post) {
-  return new Response('Not found', { status: 404 });
-}
+if (!post) Astro.response.status = 404;
 
 marked.setOptions({ gfm: true, breaks: false });
-const html = await marked.parse(post.body || '');
-const cover = post.cover_image && /^https?:\/\//.test(post.cover_image) ? post.cover_image : null;
+const html = post ? await marked.parse(post.body || '') : '';
+const cover = post?.cover_image && /^https?:\/\//.test(post.cover_image) ? post.cover_image : null;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const blogPostingLd = post ? {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description: post.excerpt || undefined,
+  datePublished: post.published_at || undefined,
+  dateModified: post.updated || post.published_at || undefined,
+  author: { '@type': 'Person', name: 'Ankur Singh', url: 'https://anks.in' },
+  publisher: { '@type': 'Person', name: 'Ankur Singh' },
+  url: canonical,
+  mainEntityOfPage: canonical,
+  image: new URL(`/og/post/${post.slug}.png`, Astro.site).toString(),
+  keywords: (post.tags || []).join(', ') || undefined,
+} : undefined;
 ---
-<PageLayout title={`${post.title} — Ankur Singh`} description={post.excerpt || post.title} ogImage={`/og/post/${post.slug}.png`}>
-  <main class="pt-28 pb-20 px-6 min-h-screen">
-    <article class="max-w-[720px] mx-auto">
-      <a href="/blog" class="inline-block text-[14px] font-mono text-accent hover:text-accent-light no-underline mb-8">← All posts</a>
+{post ? (
+  <PageLayout
+    title={`${post.title} — Ankur Singh`}
+    description={post.excerpt || post.title}
+    ogImage={`/og/post/${post.slug}.png`}
+    ogType="article"
+    article={{ publishedTime: post.published_at || undefined, modifiedTime: post.updated || undefined, tags: post.tags }}
+    jsonLd={blogPostingLd}
+  >
+    <main class="pt-28 pb-20 px-6 min-h-screen">
+      <article class="max-w-[720px] mx-auto">
+        <a href="/blog" class="inline-block text-[14px] font-mono text-accent hover:text-accent-light no-underline mb-8">← All posts</a>
 
-      <div class="flex items-center gap-3 mb-3 flex-wrap">
-        {post.published_at && (
-          <time class="text-[13px] font-mono text-ink-tertiary" datetime={post.published_at}>{formatDate(post.published_at)}</time>
-        )}
-        {post.ai_generated ? (
-          <span class="inline-flex items-center text-[11px] font-mono uppercase tracking-[0.06em] text-accent bg-accent-wash rounded px-1.5 py-0.5">AI-assisted</span>
-        ) : null}
-        {post.tags?.map((t) => <span class="text-[12px] font-mono text-accent">#{t}</span>)}
-      </div>
-
-      <h1 class="font-display text-[32px] md:text-[40px] font-bold text-ink m-0 mb-6 tracking-[-0.01em] leading-[1.15]">{post.title}</h1>
-
-      {post.ai_generated ? (
-        <div class="mb-6 rounded-[8px] border border-border bg-surface-sunken px-4 py-3 text-[14px] text-ink-secondary leading-[1.6]">
-          <strong class="text-ink font-semibold">AI-assisted post.</strong> Written with AI assistance under my direction and review.
+        <div class="flex items-center gap-3 mb-3 flex-wrap">
+          {post.published_at && (
+            <time class="text-[13px] font-mono text-ink-tertiary" datetime={post.published_at}>{formatDate(post.published_at)}</time>
+          )}
+          {post.ai_generated ? (
+            <span class="inline-flex items-center text-[11px] font-mono uppercase tracking-[0.06em] text-accent bg-accent-wash rounded px-1.5 py-0.5">AI-assisted</span>
+          ) : null}
+          {post.tags?.map((t) => <span class="text-[12px] font-mono text-accent">#{t}</span>)}
         </div>
-      ) : null}
 
-      {cover && <img src={cover} alt={post.title} class="w-full rounded-[8px] border border-border mb-8" loading="lazy" />}
+        <h1 class="font-display text-[32px] md:text-[40px] font-bold text-ink m-0 mb-6 tracking-[-0.01em] leading-[1.15]">{post.title}</h1>
 
-      <div class="post-body" set:html={html}></div>
-    </article>
-  </main>
-</PageLayout>
+        {post.ai_generated ? (
+          <div class="mb-6 rounded-[8px] border border-border bg-surface-sunken px-4 py-3 text-[14px] text-ink-secondary leading-[1.6]">
+            <strong class="text-ink font-semibold">AI-assisted post.</strong> Written with AI assistance under my direction and review.
+          </div>
+        ) : null}
+
+        {cover && <img src={cover} alt={post.title} class="w-full rounded-[8px] border border-border mb-8" loading="lazy" />}
+
+        <div class="post-body" set:html={html}></div>
+      </article>
+    </main>
+  </PageLayout>
+) : (
+  <PageLayout title="Post not found — Ankur Singh" description="That post doesn't exist." noindex>
+    <NotFound heading="Post not found" message="That post doesn't exist or may have been unpublished. Browse all posts, or search." />
+  </PageLayout>
+)}
 
 <style>
   .post-body :global(h2) { font-family: var(--font-display, inherit); font-size: 24px; font-weight: 700; color: var(--color-ink); margin: 2rem 0 0.75rem; }

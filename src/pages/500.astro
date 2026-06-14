@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import PageLayout from '../layouts/PageLayout.astro';
+import NotFound from '../components/NotFound.astro';
+Astro.response.status = 500;
+---
+<PageLayout title="Something went wrong — Ankur Singh" description="An unexpected error occurred." noindex>
+  <NotFound code="500" heading="Something went wrong" message="An unexpected error occurred on our side. Try again in a moment, or head back home." />
+</PageLayout>
