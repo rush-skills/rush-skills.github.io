@@ -358,15 +358,24 @@ export class AdminApp {
         <p class="adm-sub">Save a link to your feed from anywhere on the web.</p>
         <ol class="adm-steps">
           <li>Show your browser's <strong>bookmarks bar</strong> (⌘⇧B / Ctrl+Shift+B).</li>
-          <li><strong>Drag</strong> the button below onto the bookmarks bar.</li>
-          <li>On any page worth sharing, click it — a small pre-filled window opens to publish to <code>/links</code>.</li>
+          <li><strong>Drag this link</strong> onto the bookmarks bar:&ensp;<a class="adm-bm" href="${esc(bm)}" draggable="true" title="Drag me to the bookmarks bar">📎 Add to anks.in</a></li>
+          <li>On any page worth sharing, click that bookmark — a small pre-filled window opens to publish to <code>/links</code>.</li>
         </ol>
-        <p><a id="adm-bm" class="adm-btn adm-btn-primary adm-bm" draggable="true">+ Add to anks.in</a></p>
-        <p class="adm-help">It opens <code>${esc(origin)}/admin/quick-add</code> and reuses your admin sign-in in this browser. If your session has expired, it prompts you to sign in.</p>
-        <details class="adm-details"><summary>Bookmarklet source</summary><pre class="adm-pre">${esc(bm)}</pre></details>
+        <p class="adm-help">If dragging is fiddly, hit <strong>Copy</strong> and make a new bookmark manually with that as the URL. The bookmarklet opens <code>${esc(origin)}/admin/quick-add</code> and reuses your admin sign-in (it'll prompt you to sign in if the session has expired).</p>
+        <div class="adm-copyrow">
+          <button class="adm-btn" id="adm-bm-copy">Copy bookmarklet</button>
+          <button class="adm-btn" id="adm-bm-test">Test the popup ↗</button>
+        </div>
+        <details class="adm-details"><summary>Bookmarklet code</summary><pre class="adm-pre">${esc(bm)}</pre></details>
       </div>`;
-    const a = document.getElementById('adm-bm') as HTMLAnchorElement | null;
-    if (a) { a.setAttribute('href', bm); a.addEventListener('click', (e) => e.preventDefault()); }
+    document.getElementById('adm-bm-copy')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      try { await navigator.clipboard.writeText(bm); btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = 'Copy bookmarklet'; }, 1500); }
+      catch { btn.textContent = 'Copy failed — select the code below'; }
+    });
+    document.getElementById('adm-bm-test')?.addEventListener('click', () => {
+      window.open(`${origin}/admin/quick-add?url=${encodeURIComponent('https://example.com/')}&title=${encodeURIComponent('Example article')}`, 'qa', 'width=500,height=660');
+    });
   }
 
   // --- Edit / create view ---------------------------------------------------

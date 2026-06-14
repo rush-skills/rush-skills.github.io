@@ -19,7 +19,7 @@
   </div>
 </div>
 
-<style>
+<style is:global>
   .cmdk { position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-start; justify-content: center; }
   .cmdk[hidden] { display: none; }
   .cmdk-backdrop { position: absolute; inset: 0; background: rgba(10, 12, 18, 0.5); backdrop-filter: blur(2px); }
@@ -75,31 +75,31 @@
 
   function esc(s: string) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!)); }
 
-  function fuzzy(hay: string, needle: string): boolean {
-    let i = 0;
-    for (const ch of hay) { if (ch === needle[i]) i++; if (i === needle.length) return true; }
-    return needle.length === 0;
-  }
-
   function rank(q: string): Item[] {
     const ql = q.trim().toLowerCase();
     if (!ql) return index.filter((i) => i.type === 'page');
+    const terms = ql.split(/\s+/).filter(Boolean);
     const scored: { it: Item; s: number }[] = [];
     for (const it of index) {
       const t = it.title.toLowerCase();
       const sub = (it.sub || '').toLowerCase();
       const x = (it.text || '').toLowerCase();
-      let s = -1;
+      const hay = `${t} ${sub} ${x}`;
+      // Every term must appear somewhere in the item (AND search) — precise,
+      // unlike a subsequence/fuzzy match which matched almost everything.
+      if (!terms.every((term) => hay.includes(term))) continue;
+      let s: number;
       if (t === ql) s = 100;
-      else if (t.startsWith(ql)) s = 82;
-      else if (t.includes(ql)) s = 64;
-      else if (sub.includes(ql)) s = 44;
-      else if (x.includes(ql)) s = 28;
-      else if (fuzzy(t, ql)) s = 12;
-      if (s >= 0) scored.push({ it, s });
+      else if (t.startsWith(ql)) s = 86;
+      else if (t.includes(ql)) s = 72;
+      else if (terms.every((term) => t.includes(term))) s = 58;
+      else if (sub.includes(ql)) s = 46;
+      else if (x.includes(ql)) s = 34;
+      else s = 22;
+      scored.push({ it, s });
     }
     scored.sort((a, b) => b.s - a.s);
-    return scored.slice(0, 24).map((x) => x.it);
+    return scored.slice(0, 30).map((x) => x.it);
   }
 
   function render(q: string) {
