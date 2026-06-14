@@ -17,7 +17,7 @@ jobs:
       - Supabase
       - AWS Lambda
 
-  - company: "CERN"
+  - company: "CERN (European Organization for Nuclear Research)"
     url: "https://home.cern"
     role: "Computing Fellow"
     location: "Geneva, Switzerland"

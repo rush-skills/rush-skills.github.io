@@ -2,6 +2,7 @@
 // homepage content (projects, experience, skills, education) is managed through
 // the rich section editors in sections.ts instead of separate tables, so it does
 // NOT appear here — see SECTION_DEFS + the "Collections" group in app.ts.
+import { LINK_KIND_VALUES } from '../link-kinds';
 
 export type FieldType =
   | 'text'
@@ -88,7 +89,7 @@ export const ENTITIES: EntityDef[] = [
     fields: [
       { name: 'title', label: 'Title', type: 'text', required: true, placeholder: 'What is this link?' },
       { name: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://…' },
-      { name: 'kind', label: 'Kind', type: 'select', options: ['article', 'video', 'bookmark', 'repo'] },
+      { name: 'kind', label: 'Kind', type: 'select', options: LINK_KIND_VALUES },
       { name: 'note', label: 'Note', type: 'textarea', help: 'Optional commentary (markdown). Leave blank for a bare link.' },
       { name: 'tags', label: 'Tags', type: 'tags', help: 'Comma or Enter to add.' },
       { name: 'published', label: 'Published', type: 'boolean' },
