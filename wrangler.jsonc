@@ -9,6 +9,11 @@
   "compatibility_date": "2026-05-31",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // Generate workers.dev preview URLs for each version/branch, so Workers Builds
+  // posts Commit + Branch preview links on every PR. Wrangler v4.95 defaults this
+  // to match the workers.dev setting (which made PR previews inconsistent), so we
+  // pin it on. https://developers.cloudflare.com/workers/configuration/previews/
+  "preview_urls": true,
   // Serve the production site from the apex domain. anks.in is a Cloudflare zone,
   // so this attaches the Worker as a Custom Domain (Cloudflare manages the DNS
   // record + TLS cert automatically).
