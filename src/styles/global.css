@@ -121,6 +121,9 @@
 #navbar:not([data-collapsed="true"]) #nav-toggle { display: none; }
 #navbar:not([data-collapsed="true"]) #mobile-menu { display: none !important; }
 .nav-link { white-space: nowrap; }
+/* Each <li> is a flex box so its link is centered, not baseline-aligned in a line
+   box (which left the icon+label sitting a few px above the logo and right icons). */
+#nav-links li { display: flex; align-items: center; }
 .nav-link.active { color: var(--color-accent); }
 #nav-indicator {
   position: absolute;
