@@ -32,6 +32,6 @@
     "@cloudflare/workers-types": "^4.20260531.1",
     "@types/js-yaml": "^4.0.9",
     "playwright": "^1.60.0",
-    "wrangler": "^4.95.0"
+    "wrangler": "^4.103.0"
   }
 }
