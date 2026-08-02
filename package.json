@@ -21,7 +21,7 @@
     "hono": "^4.12.23",
     "js-yaml": "^4.1.1",
     "marked": "^18.0.4",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.25",
     "satori": "^0.12.2",
     "tailwindcss": "^4.2.2",
     "teenybase": "^0.0.14"
