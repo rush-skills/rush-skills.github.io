@@ -2,6 +2,7 @@
 import { LI, liSrc, eyebrowText } from '../lib/data';
 import { getContent } from '../lib/content';
 import { projectSlug } from '../lib/slug';
+import ProjectCover from './ProjectCover.astro';
 const projects = (await getContent(Astro)).projects || {};
 const statuses = projects.statuses || [];
 const items = projects.items || [];
@@ -61,7 +62,7 @@ const defaultColor = '#6B7280';
           data-href={primaryUrl || undefined}>
           {project.image && (
             <div class="relative h-44 shrink-0 overflow-hidden bg-surface-sunken">
-              <img src={project.image} alt={`${project.title} screenshot`} loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[650ms] ease-out group-hover:scale-[1.07]" />
+              <ProjectCover image={project.image} imageDark={project.imageDark} alt={`${project.title} screenshot`} class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[650ms] ease-out group-hover:scale-[1.07]" />
               <div class="absolute inset-0 bg-gradient-to-t from-surface-raised via-surface-raised/15 to-transparent"></div>
               {project.status && (
                 <span class="absolute top-3 right-3 z-10 inline-block px-2.5 py-1 text-[11px] sm:text-[12px] font-medium rounded font-mono uppercase whitespace-nowrap backdrop-blur-sm shadow-sm" style={`color: ${color}; background: ${color}26;`}>{project.status}</span>

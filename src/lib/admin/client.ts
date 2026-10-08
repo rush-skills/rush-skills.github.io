@@ -199,12 +199,63 @@ export async function publishSection(section: string, data: any): Promise<void> 
   else await insert('content', { section, draft: payload, published: payload });
 }
 
-// --- File upload (R2 via teenybase file field) ------------------------------
-// Uploads through a table's file field. Returns the stored file path/key which
-// can be referenced as cover_image or an inline image URL.
+// --- Admin API (session JWT or minted API token) ----------------------------
+async function requestAdmin<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`/api/admin${path}`, {
+    ...init,
+    headers: {
+      Accept: 'application/json',
+      ...(init.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
+      ...authHeaders(),
+      ...(init.headers || {}),
+    },
+  });
+  const text = await res.text();
+  let data: any;
+  try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
+  if (!res.ok) {
+    const msg = data?.error?.message || data?.message || data?.error || `Request failed (${res.status})`;
+    throw new ApiError(typeof msg === 'string' ? msg : JSON.stringify(msg), res.status);
+  }
+  return data as T;
+}
+
+export interface ApiTokenRow {
+  id: string;
+  name: string;
+  prefix: string;
+  scopes: string[];
+  created_at: string;
+  last_used_at: string | null;
+}
+
+export async function listApiTokens(): Promise<ApiTokenRow[]> {
+  const data = await requestAdmin<{ tokens: ApiTokenRow[] }>('/tokens');
+  return data.tokens || [];
+}
+
+export async function mintApiToken(name: string): Promise<ApiTokenRow & { token: string; warning?: string }> {
+  return requestAdmin('/tokens', { method: 'POST', body: JSON.stringify({ name }) });
+}
+
+export async function revokeApiToken(id: string): Promise<void> {
+  await requestAdmin(`/tokens/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+// --- File upload ------------------------------------------------------------
+// Prefer the admin upload endpoint (R2 → /files/…). Fall back to teenybase's
+// table file field so posts still work if the new route is unavailable.
 export async function uploadFile(table: string, field: string, file: File): Promise<string> {
   const fd = new FormData();
-  fd.append(field, file);
-  const data = await request(`/table/${table}/upload`, { method: 'POST', body: fd });
+  fd.append('file', file);
+  try {
+    const data = await requestAdmin<{ url?: string }>('/upload', { method: 'POST', body: fd });
+    if (data?.url) return data.url;
+  } catch (err) {
+    if ((err as ApiError).status && (err as ApiError).status !== 404) throw err;
+  }
+  const legacy = new FormData();
+  legacy.append(field, file);
+  const data = await request(`/table/${table}/upload`, { method: 'POST', body: legacy });
   return data?.url || data?.path || data?.key || oneRecord(data)?.[field] || '';
 }

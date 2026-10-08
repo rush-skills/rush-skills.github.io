@@ -4,6 +4,7 @@
 // `value()` is the edited document. No DOM scraping.
 import type { SecField, SectionDef } from './sections';
 import { uploadFile } from './client';
+import { buildImageControl } from './image-field';
 import { RichTextEditor } from './richtext';
 import { ICON_CATALOG } from './icon-catalog';
 
@@ -235,38 +236,8 @@ export class SectionForm {
   }
 
   private imageControl(f: SecField, parent: any): HTMLElement {
-    const wrap = h('div', { class: 'adm-image' });
-    const inp = h('input', { type: 'text', class: 'adm-input adm-image-url', placeholder: 'Image URL or drop a file' }) as HTMLInputElement;
-    inp.value = String(parent[f.name] ?? '');
-    const drop = h('div', { class: 'adm-image-drop' }, 'Drop image to upload');
-    const prev = h('div', { class: 'adm-image-preview' });
-    const show = () => {
-      const u = inp.value.trim();
-      prev.innerHTML = '';
-      if (u) prev.append(h('img', { src: u, alt: '' }));
-    };
-    inp.addEventListener('input', () => { parent[f.name] = inp.value.trim(); show(); });
-    const upload = async (file: File) => {
-      drop.textContent = `Uploading ${file.name}…`;
-      try {
-        // Reuse the posts table's file field to store into R2; the returned URL
-        // works anywhere (content has no file field of its own).
-        const url = await uploadFile('posts', 'cover_image', file);
-        inp.value = url; parent[f.name] = url; show();
-        drop.textContent = 'Drop image to upload';
-      } catch (e) {
-        drop.textContent = `Upload failed: ${(e as Error).message}`;
-      }
-    };
-    ['dragover', 'dragenter'].forEach((ev) => wrap.addEventListener(ev, (e) => { e.preventDefault(); wrap.classList.add('adm-dragging'); }));
-    ['dragleave', 'drop'].forEach((ev) => wrap.addEventListener(ev, (e) => { e.preventDefault(); wrap.classList.remove('adm-dragging'); }));
-    wrap.addEventListener('drop', (e) => {
-      const file = (e as DragEvent).dataTransfer?.files?.[0];
-      if (file && file.type.startsWith('image/')) upload(file);
-    });
-    wrap.append(inp, drop, prev);
-    show();
-    return wrap;
+    return buildImageControl(String(parent[f.name] ?? ''), (url) => { parent[f.name] = url; }, (file) =>
+      uploadFile('posts', 'cover_image', file));
   }
 
   private boolField(f: SecField, parent: any): HTMLElement {

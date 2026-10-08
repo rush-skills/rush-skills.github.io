@@ -3,6 +3,7 @@
 import type { EntityDef, FieldDef } from './schema';
 import { MarkdownEditor } from './editor';
 import { uploadFile } from './client';
+import { imageFieldInnerHtml, wireImageField } from './image-field';
 
 function slugify(s: string): string {
   return s
@@ -78,11 +79,7 @@ export class EntityForm {
         control = `<div id="${id}" class="adm-tags"><div class="adm-tags-pills"></div><input type="text" class="adm-tags-input" placeholder="Add and press Enter"/></div>`;
         break;
       case 'image':
-        control = `<div id="${id}" class="adm-image">
-            <input type="text" class="adm-input adm-image-url" value="${esc(v)}" placeholder="Image URL or drop a file"/>
-            <div class="adm-image-drop">Drop image to upload</div>
-            <div class="adm-image-preview"></div>
-          </div>`;
+        control = `<div id="${id}" class="adm-image">${imageFieldInnerHtml(v ?? '')}</div>`;
         break;
       case 'json':
         control = `<textarea id="${id}" class="adm-input adm-textarea adm-mono" placeholder='e.g. [{"label":"Website","url":"https://"}]'>${esc(typeof v === 'string' ? v : JSON.stringify(v ?? '', null, 2))}</textarea>`;
@@ -136,32 +133,8 @@ export class EntityForm {
 
   private mountImage(f: FieldDef) {
     const host = this.container.querySelector(`#${this.fieldId(f.name)}`) as HTMLElement;
-    const urlInput = host.querySelector('.adm-image-url') as HTMLInputElement;
-    const drop = host.querySelector('.adm-image-drop') as HTMLElement;
-    const preview = host.querySelector('.adm-image-preview') as HTMLElement;
-    const showPreview = () => {
-      const u = urlInput.value.trim();
-      preview.innerHTML = u ? `<img src="${esc(u)}" alt="preview"/>` : '';
-    };
-    urlInput.addEventListener('input', showPreview);
-    showPreview();
-
-    const upload = async (file: File) => {
-      drop.textContent = `Uploading ${file.name}…`;
-      try {
-        urlInput.value = await uploadFile(this.entity.table, f.name, file);
-        showPreview();
-      } catch (err) {
-        drop.textContent = `Upload failed: ${(err as Error).message}`;
-        return;
-      }
-      drop.textContent = 'Drop image to upload';
-    };
-    ['dragover', 'dragenter'].forEach((ev) => host.addEventListener(ev, (e) => { e.preventDefault(); host.classList.add('adm-dragging'); }));
-    ['dragleave', 'drop'].forEach((ev) => host.addEventListener(ev, (e) => { e.preventDefault(); host.classList.remove('adm-dragging'); }));
-    host.addEventListener('drop', (e) => {
-      const file = (e as DragEvent).dataTransfer?.files?.[0];
-      if (file && file.type.startsWith('image/')) upload(file);
+    wireImageField(host, {
+      upload: (file) => uploadFile(this.entity.table, f.name, file),
     });
   }
 
