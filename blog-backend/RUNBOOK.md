@@ -189,27 +189,28 @@ Builds preview URL on a PR, or `http://localhost:4321` for `npm run dev`).
 `projects`, `skills`, `education`, `contact`, `custom`.
 
 ```bash
+# Always send Origin matching the site (Astro rejects cross-site POSTs).
+AUTH=(-H "Authorization: Bearer $TOKEN" -H "Origin: $URL")
+
 # Read the projects draft (cards live in draft.items)
-curl -sS "$URL/api/admin/content/projects" \
-  -H "Authorization: Bearer $TOKEN"
+curl -sS "$URL/api/admin/content/projects" "${AUTH[@]}"
 
 # Append a project card, then publish
-curl -sS -X PATCH "$URL/api/admin/content/projects" \
-  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+curl -sS -X PATCH "$URL/api/admin/content/projects" "${AUTH[@]}" \
+  -H 'Content-Type: application/json' \
   -d '{"itemsAppend":[{"title":"New thing","subtitle":"A short line","image":"/files/cms/….png","status":"Live"}]}'
 
-curl -sS -X POST "$URL/api/admin/content/projects/publish" \
-  -H "Authorization: Bearer $TOKEN"
+curl -sS -X POST "$URL/api/admin/content/projects/publish" "${AUTH[@]}" \
+  -H 'Content-Type: application/json' -d '{}'
 
 # Replace a whole section draft (GET, edit JSON, PUT)
-curl -sS -X PUT "$URL/api/admin/content/projects" \
-  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+curl -sS -X PUT "$URL/api/admin/content/projects" "${AUTH[@]}" \
+  -H 'Content-Type: application/json' \
   -d @projects-draft.json
 
 # Upload a cover (returns {"url":"/files/cms/<uuid>-name.png",...}); then PUT that URL
 # onto an item's `image` or optional `imageDark`
-curl -sS -X POST "$URL/api/admin/upload" \
-  -H "Authorization: Bearer $TOKEN" \
+curl -sS -X POST "$URL/api/admin/upload" "${AUTH[@]}" \
   -F "file=@cover.png;type=image/png"
 ```
 
