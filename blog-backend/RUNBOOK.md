@@ -157,6 +157,77 @@ work against the live database, then retire the old GitHub Pages deploy.
 | Type check | `npx astro check` |
 | Deploy | **push to `master`** → Workers Builds auto-builds & deploys (see [`CI-CD.md`](CI-CD.md)). Manual fallback: `npm run build && npx wrangler deploy` |
 
+## Bot / automation API (no admin UI)
+
+The site-maintainer bot (and any other automation) should use a **minted API
+token**, not the admin login cookie. Tokens are created in `/admin` → **API
+tokens**: named, shown once, stored as a SHA-256 hash on the admin user's
+existing `users.meta` JSON (no D1 migration, no dashboard step). They are
+listable (name, prefix, created, last used) and revocable. A token can do
+what the logged-in admin can do to **section content + image upload** — not
+user signup, not token minting, not PocketUI.
+
+Authorize every call with `Authorization: Bearer <token>`. Do not put the
+token in query strings, commit it, or log request headers.
+
+Base URL is the site origin (`https://anks.in` in production, the Workers
+Builds preview URL on a PR, or `http://localhost:4321` for `npm run dev`).
+
+| Action | Method + path |
+| --- | --- |
+| List section snapshots | `GET /api/admin/content` |
+| Read one section (draft + published) | `GET /api/admin/content/:section` |
+| Replace draft | `PUT /api/admin/content/:section` |
+| Merge / append into draft | `PATCH /api/admin/content/:section` |
+| Publish draft → live | `POST /api/admin/content/:section/publish` |
+| Upload an image | `POST /api/admin/upload` |
+| List tokens *(session JWT only)* | `GET /api/admin/tokens` |
+| Mint token *(session JWT only)* | `POST /api/admin/tokens` |
+| Revoke token *(session JWT only)* | `DELETE /api/admin/tokens/:id` |
+
+`:section` is one of `site`, `theme`, `hero`, `about`, `experience`,
+`projects`, `skills`, `education`, `contact`, `custom`.
+
+```bash
+# Always send Origin matching the site (Astro rejects cross-site POSTs).
+AUTH=(-H "Authorization: Bearer $TOKEN" -H "Origin: $URL")
+
+# Read the projects draft (cards live in draft.items)
+curl -sS "$URL/api/admin/content/projects" "${AUTH[@]}"
+
+# Append a project card, then publish
+curl -sS -X PATCH "$URL/api/admin/content/projects" "${AUTH[@]}" \
+  -H 'Content-Type: application/json' \
+  -d '{"itemsAppend":[{"title":"New thing","subtitle":"A short line","image":"/files/cms/….png","status":"Live"}]}'
+
+curl -sS -X POST "$URL/api/admin/content/projects/publish" "${AUTH[@]}" \
+  -H 'Content-Type: application/json' -d '{}'
+
+# Replace a whole section draft (GET, edit JSON, PUT)
+curl -sS -X PUT "$URL/api/admin/content/projects" "${AUTH[@]}" \
+  -H 'Content-Type: application/json' \
+  -d @projects-draft.json
+
+# Upload a cover (returns {"url":"/files/cms/<uuid>-name.png",...}); then PUT that URL
+# onto an item's `image` or optional `imageDark`
+curl -sS -X POST "$URL/api/admin/upload" "${AUTH[@]}" \
+  -F "file=@cover.png;type=image/png"
+```
+
+`PUT` body is the section document itself (or `{ "draft": { … } }`).
+`PATCH` deep-merges objects; arrays are replaced unless you send
+`{ "append": { "items": [ … ] } }` or `{ "itemsAppend": [ … ] }`.
+`POST …/publish` with an empty body promotes the current draft; a JSON body
+is saved as draft and published in one step.
+
+Session JWTs from `/admin` login also work on these routes (that's how the
+API tokens page and the Upload button talk to the Worker). Minting and
+revoking tokens require a session JWT — an API token cannot mint more tokens.
+
+**No schema migration is required.** Tokens live in `users.meta.api_tokens`.
+Uploaded files go to the existing `anksin-files` R2 bucket and are served at
+`/files/cms/…`.
+
 ## Useful endpoints (same origin)
 
 | Purpose | Path |
@@ -165,6 +236,8 @@ work against the live database, then retire the old GitHub Pages deploy.
 | Swagger UI | `/api/v1/doc/ui` |
 | teenybase admin (PocketUI) | `/api/v1/pocket/` |
 | Custom admin SPA | `/admin` |
+| Bot content / upload / tokens | `/api/admin/*` (see above; Bearer token) |
+| Uploaded images | `/files/cms/…` |
 | List published posts | `/api/v1/table/posts/list?where=published%20=%20true&order=published_at%20desc` |
 
 ## Phase 2

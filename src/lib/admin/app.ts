@@ -134,6 +134,7 @@ export class AdminApp {
             ${COLLECTION_SECTIONS.map(secNavLink).join('')}
             <div class="adm-nav-group">Tools</div>
             <a href="#/analytics" data-key="analytics" class="adm-nav-link">Analytics</a>
+            <a href="#/tokens" data-key="tokens" class="adm-nav-link">API tokens</a>
             <a href="#/quick-add" data-key="quick-add" class="adm-nav-link">Quick Add</a>
           </nav>
           <div class="adm-side-foot">
@@ -178,6 +179,7 @@ export class AdminApp {
     if (!api.isAuthed()) return this.boot();
     const hash = location.hash;
     if (hash === '#/analytics') { this.setActiveNav('analytics'); this.renderAnalytics(); return; }
+    if (hash === '#/tokens') { this.setActiveNav('tokens'); this.renderTokens(); return; }
     if (hash === '#/quick-add') { this.setActiveNav('quick-add'); this.renderBookmarklet(); return; }
     const cm = hash.match(/^#\/content\/([\w-]+)$/);
     if (cm) {
@@ -345,6 +347,88 @@ export class AdminApp {
     } catch (err) {
       $('#an-body').innerHTML = `<div class="adm-error">Couldn't load analytics: ${esc((err as Error).message)}</div>`;
     }
+  }
+
+  // --- API tokens ------------------------------------------------------------
+  private async renderTokens() {
+    const main = this.main();
+    main.innerHTML = `
+      <div class="adm-head"><h1>API tokens</h1></div>
+      <div class="adm-prose">
+        <p class="adm-sub">Mint a long-lived token for automated maintenance. It can read and write section drafts, publish, and upload images — the same content privileges as this admin session. The plaintext is shown once.</p>
+        <form class="adm-copyrow" id="token-mint" style="align-items:center">
+          <input class="adm-input" id="token-name" type="text" placeholder="Token name (e.g. site-maintainer-bot)" required style="max-width:320px"/>
+          <button class="adm-btn adm-btn-primary" type="submit">Mint token</button>
+        </form>
+        <div id="token-once"></div>
+      </div>
+      <div id="token-list">${this.skeletonRows(3)}</div>`;
+
+    const drawOnce = (token: string, warning?: string) => {
+      $('#token-once').innerHTML = `
+        <div class="adm-token-once">
+          <p class="adm-help" style="margin-top:0">${esc(warning || 'Copy this token now. It will not be shown again.')}</p>
+          <code id="token-value">${esc(token)}</code>
+          <button class="adm-btn" type="button" id="token-copy">Copy token</button>
+        </div>`;
+      $('#token-copy').addEventListener('click', async (e) => {
+        const btn = e.currentTarget as HTMLButtonElement;
+        try { await navigator.clipboard.writeText(token); btn.textContent = 'Copied ✓'; }
+        catch { btn.textContent = 'Copy failed — select the token above'; }
+      });
+    };
+
+    const drawList = async () => {
+      try {
+        const tokens = await api.listApiTokens();
+        if (!tokens.length) {
+          $('#token-list').innerHTML = `<div class="adm-empty"><p>No tokens yet.</p></div>`;
+          return;
+        }
+        $('#token-list').innerHTML = `
+          <table class="adm-table">
+            <thead><tr><th>Name</th><th>Prefix</th><th>Created</th><th>Last used</th><th></th></tr></thead>
+            <tbody>${tokens.map((t) => `
+              <tr>
+                <td data-label="Name">${esc(t.name)}</td>
+                <td data-label="Prefix"><code>${esc(t.prefix)}…</code></td>
+                <td data-label="Created">${esc(cell(t as any, 'created_at'))}</td>
+                <td data-label="Last used">${t.last_used_at ? esc(cell(t as any, 'last_used_at')) : 'Never'}</td>
+                <td class="adm-row-actions"><button class="adm-icon-btn adm-danger" data-revoke="${esc(t.id)}" title="Revoke">🗑</button></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+        main.querySelectorAll('[data-revoke]').forEach((b) =>
+          b.addEventListener('click', async () => {
+            if (!confirm('Revoke this token? Anything using it will stop working immediately.')) return;
+            try {
+              await api.revokeApiToken((b as HTMLElement).dataset.revoke!);
+              drawList();
+            } catch (err) { alert(`Revoke failed: ${(err as Error).message}`); }
+          }));
+      } catch (err) {
+        $('#token-list').innerHTML = `<div class="adm-error">Couldn't load tokens: ${esc((err as Error).message)}</div>`;
+      }
+    };
+
+    $('#token-mint').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = $('#token-name') as HTMLInputElement;
+      const btn = $('button[type=submit]', $('#token-mint')) as HTMLButtonElement;
+      btn.disabled = true; btn.textContent = 'Minting…';
+      try {
+        const minted = await api.mintApiToken(input.value);
+        input.value = '';
+        drawOnce(minted.token, minted.warning);
+        await drawList();
+      } catch (err) {
+        $('#token-once').innerHTML = `<div class="adm-error">${esc((err as Error).message)}</div>`;
+      } finally {
+        btn.disabled = false; btn.textContent = 'Mint token';
+      }
+    });
+
+    await drawList();
   }
 
   // --- Quick Add bookmarklet ------------------------------------------------

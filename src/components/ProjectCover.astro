@@ -1,0 +1,27 @@
+---
+// Theme-aware project cover. When a dark-mode URL is set, both images ship in
+// the HTML and CSS keyed on `html.dark` (set by the FOUC script in <head>
+// before first paint) picks which one is visible — no JS swap, no flash.
+// Without a dark URL the markup is the original single <img>, so existing
+// cards render exactly as before.
+interface Props {
+  image?: string | null;
+  imageDark?: string | null;
+  alt: string;
+  loading?: 'eager' | 'lazy';
+  class?: string;
+}
+const { image, imageDark, alt, loading = 'lazy', class: cls = '' } = Astro.props;
+const light = typeof image === 'string' ? image.trim() : '';
+const dark = typeof imageDark === 'string' ? imageDark.trim() : '';
+---
+{light && (
+  dark ? (
+    <>
+      <img src={light} alt={alt} loading={loading} decoding="async" class:list={[cls, 'dark:hidden']} />
+      <img src={dark} alt={alt} loading={loading} decoding="async" class:list={[cls, 'hidden', 'dark:block']} />
+    </>
+  ) : (
+    <img src={light} alt={alt} loading={loading} decoding="async" class={cls} />
+  )
+)}

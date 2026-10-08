@@ -68,7 +68,7 @@ export const ENTITIES: EntityDef[] = [
       { name: 'title', label: 'Title', type: 'text', required: true, placeholder: 'Post title' },
       { name: 'slug', label: 'Slug', type: 'slug', required: true, slugFrom: 'title', help: 'URL path: /blog/<slug>' },
       { name: 'excerpt', label: 'Excerpt', type: 'textarea', placeholder: 'One or two sentence summary shown in the list.' },
-      { name: 'cover_image', label: 'Cover image', type: 'image', help: 'Optional. Drag an image or paste a URL.' },
+      { name: 'cover_image', label: 'Cover image', type: 'image', help: 'Optional. Choose a file, drag an image, or paste a URL.' },
       { name: 'body', label: 'Body', type: 'markdown', required: true },
       { name: 'tags', label: 'Tags', type: 'tags', help: 'Comma or Enter to add.' },
       { name: 'published', label: 'Published', type: 'boolean' },

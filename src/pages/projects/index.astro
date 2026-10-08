@@ -6,6 +6,7 @@ export const prerender = false;
 import PageLayout from '../../layouts/PageLayout.astro';
 import { getContent } from '../../lib/content';
 import { projectSlug } from '../../lib/slug';
+import ProjectCover from '../../components/ProjectCover.astro';
 
 const content = await getContent(Astro);
 const projects = content.projects || {};
@@ -35,7 +36,7 @@ const defaultColor = '#6B7280';
             <a href={`/projects/${slug}`} class="group card-glow bg-surface-raised rounded-[8px] flex flex-col overflow-hidden no-underline">
               {p.image && (
                 <div class="relative h-40 shrink-0 overflow-hidden bg-surface-sunken">
-                  <img src={p.image} alt={`${p.title} screenshot`} loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[650ms] ease-out group-hover:scale-[1.07]" />
+                  <ProjectCover image={p.image} imageDark={p.imageDark} alt={`${p.title} screenshot`} class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[650ms] ease-out group-hover:scale-[1.07]" />
                   <div class="absolute inset-0 bg-gradient-to-t from-surface-raised via-surface-raised/15 to-transparent"></div>
                   {p.status && (
                     <span class="absolute top-3 right-3 z-10 inline-block px-2.5 py-1 text-[11px] sm:text-[12px] font-medium rounded font-mono uppercase whitespace-nowrap backdrop-blur-sm shadow-sm" style={`color: ${color}; background: ${color}26;`}>{p.status}</span>

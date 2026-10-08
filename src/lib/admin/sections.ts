@@ -188,6 +188,7 @@ export const SECTION_DEFS: SectionDef[] = [
         fields: [
           icon(), t('title', 'Title'), t('subtitle', 'Subtitle'),
           { name: 'image', label: 'Cover image', type: 'image', help: 'Rendered as the card background — a screenshot of the project works great.' },
+          { name: 'imageDark', label: 'Cover image (dark mode)', type: 'image', help: 'Optional. Shown while the site is in dark mode. Falls back to the normal cover if empty.' },
           t('status', 'Status', { help: 'Must match a status label above.' }),
           { name: 'featured', label: 'Featured', type: 'boolean' },
           area('description', 'Description'),

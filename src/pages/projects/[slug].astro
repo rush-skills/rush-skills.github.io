@@ -11,6 +11,7 @@ import NotFound from '../../components/NotFound.astro';
 import { getContent } from '../../lib/content';
 import { projectSlug } from '../../lib/slug';
 import { LI, liSrc } from '../../lib/data';
+import ProjectCover from '../../components/ProjectCover.astro';
 
 const { slug } = Astro.params;
 const content = await getContent(Astro);
@@ -73,7 +74,7 @@ const projectLd = project ? {
 
       {project.image && (
         <div class="rounded-[10px] border border-border overflow-hidden mb-8 bg-surface-sunken">
-          <img src={project.image} alt={`${project.title} screenshot`} class="w-full block" loading="eager" decoding="async" />
+          <ProjectCover image={project.image} imageDark={project.imageDark} alt={`${project.title} screenshot`} loading="eager" class="w-full block" />
         </div>
       )}
 
